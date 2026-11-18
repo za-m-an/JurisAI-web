@@ -21,6 +21,16 @@ export default function AnalyzePage() {
   const [loading, setLoading] = useState(false);
   const [stageIndex, setStageIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [isDemoMode, setIsDemoMode] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/health")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.rag?.mock) setIsDemoMode(true);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!loading) {
@@ -118,6 +128,13 @@ export default function AnalyzePage() {
           Try the sample contract
         </button>
       </div>
+
+      {isDemoMode && (
+        <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-sm font-medium flex items-center gap-2">
+          <span className="inline-block w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+          <span>Demo mode: simulated AI output</span>
+        </div>
+      )}
 
       {/* Mode Switch Tabs */}
       <div className="flex border-b border-slate-200 text-sm font-medium">

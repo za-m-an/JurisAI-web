@@ -35,6 +35,16 @@ export default function AnalysisReportPage() {
   const [activeTabByRisk, setActiveTabByRisk] = useState<Record<number, "BD" | "US" | "EU">>({});
   const [recheckMessage, setRecheckMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isDemoMode, setIsDemoMode] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/health")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.rag?.mock) setIsDemoMode(true);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (!id) return;
@@ -89,6 +99,14 @@ export default function AnalysisReportPage() {
 
   return (
     <div className="space-y-8 print-container">
+      {/* Demo-mode Banner */}
+      {(isDemoMode || Boolean(analysis?.result?.model_info?.mock)) && (
+        <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-sm font-medium flex items-center gap-2">
+          <span className="inline-block w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+          <span>Demo mode: simulated AI output</span>
+        </div>
+      )}
+
       {/* Mandatory File-Discarded Privacy Banner */}
       <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 text-sm font-medium flex items-center justify-between">
         <span>
