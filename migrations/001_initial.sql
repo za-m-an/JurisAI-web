@@ -1,5 +1,15 @@
 -- 001_initial.sql: Initial schema and seed data for Juris AI Web Service
 
+-- Ensure pgcrypto extension is created if available (gen_random_uuid is built-in on Postgres 13+ and PGlite)
+DO $$
+BEGIN
+  BEGIN
+    CREATE EXTENSION IF NOT EXISTS pgcrypto;
+  EXCEPTION WHEN OTHERS THEN
+    NULL;
+  END;
+END $$;
+
 CREATE TABLE IF NOT EXISTS schema_migrations (
   version TEXT PRIMARY KEY,
   applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
