@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 export default function SettingsPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const [fullName, setFullName] = useState("");
+  const [organisation, setOrganisation] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [deletePassword, setDeletePassword] = useState("");
@@ -15,8 +17,36 @@ export default function SettingsPage() {
   useEffect(() => {
     fetch("/api/auth/me")
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => setUser(d?.user || null));
+      .then((d) => {
+        const u = d?.user || null;
+        setUser(u);
+        if (u) {
+          setFullName(u.fullName || "");
+          setOrganisation(u.organisation || "");
+        }
+      });
   }, []);
+
+  async function handleProfileUpdate(e: React.FormEvent) {
+    e.preventDefault();
+    setMessage(null);
+    setError(null);
+    const res = await fetch("/api/account", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fullName,
+        organisation: user?.role === "business" ? organisation : undefined,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      setError(data.message || "Failed to update profile.");
+      return;
+    }
+    setUser((prev: any) => ({ ...prev, fullName: data.user.full_name, organisation: data.user.organisation }));
+    setMessage("Profile information updated successfully.");
+  }
 
   async function handleChangePassword(e: React.FormEvent) {
     e.preventDefault();
@@ -75,24 +105,63 @@ export default function SettingsPage() {
         </div>
       )}
 
-      {/* Profile Card */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-2 text-sm">
+      {/* Profile Form */}
+      <form
+        onSubmit={handleProfileUpdate}
+        className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4"
+      >
         <h2 className="text-lg font-serif font-bold text-[#0b1f33]">Profile Information</h2>
         <div>
-          <strong>Name:</strong> {user?.fullName}
+          <label className="block text-xs font-semibold uppercase text-slate-700 mb-1">
+            Full Name
+          </label>
+          <input
+            type="text"
+            required
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            className="w-full px-3 py-2 rounded border border-slate-300 text-sm"
+          />
         </div>
         <div>
-          <strong>Email:</strong> {user?.email}
+          <label className="block text-xs font-semibold uppercase text-slate-700 mb-1">
+            Email Address (Read-only)
+          </label>
+          <input
+            type="email"
+            disabled
+            value={user?.email || ""}
+            className="w-full px-3 py-2 rounded border border-slate-200 bg-slate-50 text-slate-500 text-sm"
+          />
         </div>
         <div>
-          <strong>Role:</strong> {user?.role}
+          <label className="block text-xs font-semibold uppercase text-slate-700 mb-1">
+            Account Role
+          </label>
+          <div className="text-xs uppercase font-semibold text-slate-600 bg-slate-100 px-3 py-2 rounded w-fit">
+            {user?.role || "common"}
+          </div>
         </div>
-        {user?.organisation && (
+        {user?.role === "business" && (
           <div>
-            <strong>Organisation:</strong> {user.organisation}
+            <label className="block text-xs font-semibold uppercase text-slate-700 mb-1">
+              Organisation Name
+            </label>
+            <input
+              type="text"
+              value={organisation}
+              onChange={(e) => setOrganisation(e.target.value)}
+              className="w-full px-3 py-2 rounded border border-slate-300 text-sm"
+            />
           </div>
         )}
-      </div>
+        <button
+          type="submit"
+          className="px-4 py-2 rounded bg-[#0b1f33] text-white text-xs font-semibold"
+        >
+          Save Profile Changes
+        </button>
+      </form>
 
       {/* Change Password */}
       <form

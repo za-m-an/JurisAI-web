@@ -30,7 +30,10 @@ import {
   DELETE as analysisByIdDELETE,
 } from "../src/app/api/analyses/[id]/route";
 import { POST as chatPOST } from "../src/app/api/chat/route";
-import { DELETE as accountDELETE } from "../src/app/api/account/route";
+import {
+  DELETE as accountDELETE,
+  PATCH as accountPATCH,
+} from "../src/app/api/account/route";
 import { POST as logoutAllPOST } from "../src/app/api/account/logout-all/route";
 import { GET as adminUsersGET } from "../src/app/api/admin/users/route";
 import {
@@ -580,5 +583,58 @@ describe("Juris AI Web Service — Comprehensive Security & Functional Suite", (
     );
     expect(auditDel.rows.length).toBe(1);
     expect(auditDel.rows[0].user_id).toBeNull();
+  });
+
+  it("10. updates user profile via PATCH /api/account with validation and audit logging", async () => {
+    const regRes = await registerPOST(
+      makeReq("http://localhost:3000/api/auth/register", {
+        method: "POST",
+        body: {
+          email: "profile_tester@juris.local",
+          password: "ProfilePass12345",
+          fullName: "Original Name",
+          accountType: "business",
+          organisation: "Original Legal Ltd",
+        },
+      })
+    );
+    expect(regRes.status).toBe(201);
+    const regJson = await regRes.json();
+    const token = await signSessionToken({
+      sub: regJson.user.id,
+      role: "business",
+      tv: 0,
+    });
+
+    // Update profile successfully
+    const patchRes = await accountPATCH(
+      makeReq("http://localhost:3000/api/account", {
+        method: "PATCH",
+        cookieToken: token,
+        body: {
+          fullName: "Updated Legal Counsel",
+          organisation: "JurisAI Global Partners",
+        },
+      })
+    );
+    expect(patchRes.status).toBe(200);
+    const patchJson = await patchRes.json();
+    expect(patchJson.user.fullName).toBe("Updated Legal Counsel");
+    expect(patchJson.user.organisation).toBe("JurisAI Global Partners");
+
+    // Verify DB update
+    const dbUser = await query<{ full_name: string; organisation: string }>(
+      "SELECT full_name, organisation FROM users WHERE id = $1",
+      [regJson.user.id]
+    );
+    expect(dbUser.rows[0].full_name).toBe("Updated Legal Counsel");
+    expect(dbUser.rows[0].organisation).toBe("JurisAI Global Partners");
+
+    // Verify audit log entry
+    const auditRes = await query<{ action: string; target: string | null }>(
+      "SELECT action, target FROM audit_logs WHERE user_id = $1 AND action = 'update_profile'",
+      [regJson.user.id]
+    );
+    expect(auditRes.rows.length).toBe(1);
   });
 });

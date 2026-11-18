@@ -28,6 +28,11 @@ export const ChangePasswordSchema = z.object({
   newPassword: z.string().min(10).max(200),
 });
 
+export const UpdateProfileSchema = z.object({
+  fullName: z.string().trim().min(2, "Full name must be at least 2 characters").max(120).optional(),
+  organisation: z.string().trim().max(160).nullable().optional(),
+});
+
 export const DeleteAccountSchema = z.object({
   password: z.string().min(1, "Password confirmation is required"),
 });

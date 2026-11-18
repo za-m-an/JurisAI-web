@@ -36,6 +36,18 @@ export default function AnalysisReportPage() {
   const [recheckMessage, setRecheckMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isDemoMode, setIsDemoMode] = useState(false);
+  const [displayMode, setDisplayMode] = useState<"plain" | "technical">("technical");
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.user?.role === "common") {
+          setDisplayMode("plain");
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     fetch("/api/health")
@@ -127,7 +139,31 @@ export default function AnalysisReportPage() {
             <strong>{(analysis.jurisdictions || []).join(", ")}</strong>
           </p>
         </div>
-        <div className="flex flex-wrap gap-2 no-print">
+        <div className="flex flex-wrap items-center gap-2 no-print">
+          <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg text-xs font-medium mr-2">
+            <button
+              type="button"
+              onClick={() => setDisplayMode("plain")}
+              className={`px-2.5 py-1 rounded transition-colors ${
+                displayMode === "plain"
+                  ? "bg-white font-bold text-[#0b1f33] shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              Plain Language
+            </button>
+            <button
+              type="button"
+              onClick={() => setDisplayMode("technical")}
+              className={`px-2.5 py-1 rounded transition-colors ${
+                displayMode === "technical"
+                  ? "bg-white font-bold text-[#0b1f33] shadow-sm"
+                  : "text-slate-600 hover:text-slate-900"
+              }`}
+            >
+              Technical Legal
+            </button>
+          </div>
           <button
             type="button"
             onClick={handleDownloadMemo}
@@ -224,7 +260,12 @@ export default function AnalysisReportPage() {
               </div>
 
               <p className="text-sm text-slate-700">
-                <strong>Why Non-Obvious:</strong> {risk.why_non_obvious}
+                <strong>
+                  {displayMode === "plain"
+                    ? "Practical Commercial Impact:"
+                    : "Why Non-Obvious (Cross-Clause Interaction):"}
+                </strong>{" "}
+                {risk.why_non_obvious}
               </p>
 
               {/* Per-Jurisdiction Notes Tabs (BD / US / EU) */}
@@ -287,7 +328,9 @@ export default function AnalysisReportPage() {
               <div className="p-4 rounded-lg bg-[#f7f3e9] border border-amber-900/15 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold uppercase text-[#0b1f33]">
-                    Recommended Replacement / Mitigation Clause
+                    {displayMode === "plain"
+                      ? "Recommended Practical Action / Fix"
+                      : "Recommended Replacement / Mitigation Clause"}
                   </span>
                   <button
                     type="button"

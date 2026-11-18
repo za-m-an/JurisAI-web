@@ -22,6 +22,7 @@ export default function AnalyzePage() {
   const [stageIndex, setStageIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [isDemoMode, setIsDemoMode] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   useEffect(() => {
     fetch("/api/health")
@@ -51,6 +52,15 @@ export default function AnalyzePage() {
           : prev
         : [...prev, code]
     );
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setIsDragging(false);
+    const dropped = e.dataTransfer?.files?.[0];
+    if (dropped) {
+      setFile(dropped);
+    }
   }
 
   async function handleLoadSampleContract() {
@@ -170,7 +180,17 @@ export default function AnalyzePage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {mode === "upload" ? (
-          <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center space-y-3 bg-slate-50">
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDragging(true);
+            }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={handleDrop}
+            className={`border-2 border-dashed rounded-xl p-8 text-center space-y-3 transition-colors ${
+              isDragging ? "border-amber-500 bg-amber-50/50" : "border-slate-300 bg-slate-50"
+            }`}
+          >
             <div className="text-sm font-medium text-[#0b1f33]">
               Drag and drop your contract here, or select a file (max 4 MB)
             </div>

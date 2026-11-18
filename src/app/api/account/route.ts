@@ -9,9 +9,70 @@ import {
 import { logAudit } from "@/lib/audit";
 import { ensureMigrated, query, tx } from "@/lib/db";
 import { handleRouteError, jsonError } from "@/lib/http-error";
-import { DeleteAccountSchema } from "@/lib/validation";
+import { DeleteAccountSchema, UpdateProfileSchema } from "@/lib/validation";
 
 export const runtime = "nodejs";
+
+export async function PATCH(req: NextRequest) {
+  try {
+    verifyCsrfOrigin(req);
+    await ensureMigrated();
+    const user = await requireUser(req);
+    const body = await req.json();
+    const parsed = UpdateProfileSchema.parse(body);
+
+    const updates: string[] = [];
+    const params: unknown[] = [];
+    let idx = 1;
+
+    if (parsed.fullName !== undefined) {
+      updates.push(`full_name = $${idx++}`);
+      params.push(parsed.fullName);
+    }
+    if (parsed.organisation !== undefined) {
+      updates.push(`organisation = $${idx++}`);
+      params.push(parsed.organisation);
+    }
+
+    if (updates.length > 0) {
+      params.push(user.id);
+      await query(
+        `UPDATE users SET ${updates.join(", ")} WHERE id = $${idx}`,
+        params
+      );
+      await logAudit({
+        userId: user.id,
+        action: "update_profile",
+        target: user.id,
+        ip: getClientIp(req),
+        userAgent: req.headers.get("user-agent"),
+        meta: { fields: Object.keys(parsed) },
+      });
+    }
+
+    const updated = await query<{
+      id: string;
+      email: string;
+      full_name: string;
+      role: string;
+      organisation: string | null;
+    }>("SELECT id, email, full_name, role, organisation FROM users WHERE id = $1", [user.id]);
+
+    const u = updated.rows[0];
+    return NextResponse.json({
+      ok: true,
+      user: {
+        id: u.id,
+        email: u.email,
+        fullName: u.full_name,
+        role: u.role,
+        organisation: u.organisation,
+      },
+    }, { status: 200 });
+  } catch (err) {
+    return handleRouteError(err);
+  }
+}
 
 export async function DELETE(req: NextRequest) {
   try {
