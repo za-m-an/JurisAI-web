@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --navy-900: #061423;
+  --navy-800: #0b1f33;
+  --navy-700: #102a43;
+  --parchment-50: #fdfbf7;
+  --parchment-100: #f7f3e9;
+}
+
+body {
+  background-color: var(--parchment-50);
+  color: #102a43;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+}
+
+h1, h2, h3, .font-serif-legal {
+  font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+@media print {
+  header, nav, footer, .no-print {
+    display: none !important;
+  }
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .print-container {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+  }
+}
