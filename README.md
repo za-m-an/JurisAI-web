@@ -59,6 +59,32 @@ DATABASE_URL="postgres://..." ADMIN_EMAIL="admin@yourdomain.com" ADMIN_PASSWORD=
    - `NEXT_PUBLIC_APP_NAME=Juris AI`
 3. Deploy. Note that `web/vercel.json` configures `maxDuration: 300` (300 seconds) for `/api/analyze` and `/api/chat`. Because Vercel serverless functions enforce a hard **4.5 MB request body limit**, file uploads in Juris AI are capped at **4 MB** (`max_upload_mb=4`).
 
+## 3. Administrative Console Architecture & Domain Isolation
+
+The administrative console is completely isolated from the user-facing web portal in routing, authentication, session tokens, and network access:
+
+### Domain Configurations
+
+1. **Single-Domain (Default / Local Dev / Competition Demo)**:
+   - When `ADMIN_HOST` is unset, the user portal is served at `/` and the admin console is served at `/console` with dedicated `juris_admin_session` cookie authentication, TOTP 2FA, and security headers.
+   - All old `/admin` and `/api/admin` paths return `404 Not Found`.
+
+2. **Dual-Domain Host Separation (`ADMIN_HOST`)**:
+   - To achieve physical domain isolation in production, attach two custom domains to the single Vercel project (e.g., `app.juris.ai` and `admin.juris.ai`).
+   - Set the environment variable `ADMIN_HOST=admin.juris.ai`.
+   - `src/middleware.ts` automatically enforces strict host boundary rules:
+     - On any host other than `ADMIN_HOST` (e.g., `app.juris.ai`), all requests to `/console/*` and `/api/console/*` return a strict `404 Not Found`.
+     - On `ADMIN_HOST`, any attempt to load public user routes (e.g., `/`, `/dashboard`) automatically redirects to `/console/login`.
+
+### Console Security Controls
+
+- **Separate Session Cookie**: `juris_admin_session` (httpOnly, Strict, 2-hour max age, signed JWT with audience `aud: "juris-admin"`). Public session cookies cannot authenticate the console, and admin session cookies cannot authenticate public routes.
+- **Mandatory RFC 6238 TOTP 2FA**: First login forces enrollment (QR code + secret key) and provides 8 single-use emergency recovery codes (stored as bcrypt hashes).
+- **Zero Public Cross-Links**: Public portal pages, navigation, and API error messages contain zero references to `/console` or administrator functionality. Public `/login` refuses admin accounts with the identical generic message `Invalid email or password.` to prevent account enumeration.
+- **Optional IP Whitelisting**: Set `ADMIN_ALLOWED_IPS` (comma-separated IP addresses or CIDR blocks) to restrict `/console` access to trusted networks. Requests from unauthorized IPs return a strict `404 Not Found`.
+- **Security Headers**: All console pages and API endpoints return `X-Robots-Tag: noindex, nofollow, noarchive` and `Cache-Control: no-store`, complemented by `robots.txt` disallowing `/console` and `/api/console`.
+
+
 ### Step 4: Connect and Verify the RAG Service in Admin > Integrations
 1. Deploy the Python RAG container to Render or Google Cloud Run following [`../rag/README.md`](../rag/README.md).
 2. Log in to the Juris AI web app using your `ADMIN_EMAIL` and `ADMIN_PASSWORD`.

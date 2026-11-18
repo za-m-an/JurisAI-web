@@ -28,8 +28,8 @@ export async function seedAdmin(): Promise<void> {
 
   const passwordHash = await bcrypt.hash(password, 12);
   await query(
-    `INSERT INTO users (email, password_hash, full_name, role, is_active, token_version)
-     VALUES ($1, $2, $3, 'admin', TRUE, 0)
+    `INSERT INTO users (email, password_hash, full_name, role, is_active, token_version, must_change_password, must_enroll_totp)
+     VALUES ($1, $2, $3, 'admin', TRUE, 0, TRUE, TRUE)
      ON CONFLICT (email) DO UPDATE SET role = 'admin', is_active = TRUE`,
     [email, passwordHash, "System Administrator"]
   );

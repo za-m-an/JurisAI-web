@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     );
 
     const user = res.rows[0];
-    if (!user || !user.is_active) {
+    if (!user || !user.is_active || user.role === "admin") {
       await logAudit({
         userId: user?.id ?? null,
         action: "login_failed",

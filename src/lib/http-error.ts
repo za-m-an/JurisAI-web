@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { AuthError } from "./auth";
+import { AdminAuthError } from "./admin-auth";
 import { ExtractionError } from "./extract";
 import { QuotaExceededError } from "./quota";
 import { RagClientError } from "./rag-client";
@@ -29,6 +30,12 @@ export function handleRouteError(err: unknown, isAdminRoute = false): NextRespon
   }
   if (err instanceof AuthError) {
     return jsonError(err.status, err.code, err.message);
+  }
+  if (err instanceof AdminAuthError) {
+    return jsonError(err.status, err.code, err.message, {
+      "X-Robots-Tag": "noindex, nofollow, noarchive",
+      "Cache-Control": "no-store",
+    });
   }
   if (err instanceof ExtractionError) {
     return jsonError(err.status, err.code, err.message);

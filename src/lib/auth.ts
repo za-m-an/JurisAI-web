@@ -95,7 +95,12 @@ export async function signSessionToken(payload: SessionJwtPayload): Promise<stri
 export async function verifySessionToken(token: string): Promise<SessionJwtPayload> {
   const secret = getJwtSecretBytes();
   const { payload } = await jose.jwtVerify(token, secret, { algorithms: ["HS256"] });
-  if (!payload.sub || typeof payload.role !== "string" || typeof payload.tv !== "number") {
+  if (
+    !payload.sub ||
+    typeof payload.role !== "string" ||
+    typeof payload.tv !== "number" ||
+    payload.aud === "juris-admin"
+  ) {
     throw new AuthError(401, "unauthorized", "Invalid session token payload");
   }
   return {

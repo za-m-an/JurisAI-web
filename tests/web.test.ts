@@ -9,6 +9,10 @@ import {
   verifyCsrfOrigin,
   SESSION_COOKIE_NAME,
 } from "../src/lib/auth";
+import {
+  signAdminSessionToken,
+  ADMIN_SESSION_COOKIE_NAME,
+} from "../src/lib/admin-auth";
 import { decryptSecret, encryptSecret, maskApiKey } from "../src/lib/crypto";
 import { ensureMigrated, query, resetDbForTests } from "../src/lib/db";
 import {
@@ -35,11 +39,11 @@ import {
   PATCH as accountPATCH,
 } from "../src/app/api/account/route";
 import { POST as logoutAllPOST } from "../src/app/api/account/logout-all/route";
-import { GET as adminUsersGET } from "../src/app/api/admin/users/route";
+import { GET as adminUsersGET } from "../src/app/api/console/users/route";
 import {
   GET as adminIntegrationsGET,
   PUT as adminIntegrationsPUT,
-} from "../src/app/api/admin/integrations/route";
+} from "../src/app/api/console/integrations/route";
 
 /**
  * Helper to build a minimal valid ZIP buffer containing a single stored (uncompressed) entry.
@@ -155,6 +159,7 @@ function makeReq(
     headers?: Record<string, string>;
     body?: any;
     cookieToken?: string;
+    adminCookieToken?: string;
   } = {}
 ): NextRequest {
   const headers: Record<string, string> = {
@@ -164,6 +169,10 @@ function makeReq(
   };
   if (options.cookieToken) {
     headers.cookie = `${SESSION_COOKIE_NAME}=${options.cookieToken}`;
+  }
+  if (options.adminCookieToken) {
+    const existing = headers.cookie ? `${headers.cookie}; ` : "";
+    headers.cookie = `${existing}${ADMIN_SESSION_COOKIE_NAME}=${options.adminCookieToken}`;
   }
   const init: any = {
     method: options.method || "GET",
@@ -407,9 +416,9 @@ describe("Juris AI Web Service — Comprehensive Security & Functional Suite", (
       tv: 0,
     });
     const adminCheck = await adminUsersGET(
-      makeReq("http://localhost:3000/api/admin/users", { cookieToken: commonToken })
+      makeReq("http://localhost:3000/api/console/users", { cookieToken: commonToken })
     );
-    expect(adminCheck.status).toBe(403);
+    expect(adminCheck.status).toBe(404);
   });
 
   it("8. proves zero file persistence (fs spy + DB schema inspection) and happy-path /api/analyze + quota + privacy isolation", async () => {
@@ -538,10 +547,11 @@ describe("Juris AI Web Service — Comprehensive Security & Functional Suite", (
 
     // Integration secret write-only check
     const rawSecret = "rag-secret-key-9988";
+    const adminToken = await signAdminSessionToken({ sub: userId, tv: 0 });
     const putIntRes = await adminIntegrationsPUT(
-      makeReq("http://localhost:3000/api/admin/integrations", {
+      makeReq("http://localhost:3000/api/console/integrations", {
         method: "PUT",
-        cookieToken: token,
+        adminCookieToken: adminToken,
         body: {
           slug: "rag",
           name: "Juris AI RAG Service",
@@ -558,7 +568,7 @@ describe("Juris AI Web Service — Comprehensive Security & Functional Suite", (
     expect(putIntJson.integration.apiKeyMasked).toBe("••••9988");
 
     const getIntRes = await adminIntegrationsGET(
-      makeReq("http://localhost:3000/api/admin/integrations", { cookieToken: token })
+      makeReq("http://localhost:3000/api/console/integrations", { adminCookieToken: adminToken })
     );
     const getIntJson = await getIntRes.json();
     expect(JSON.stringify(getIntJson)).not.toContain(rawSecret);
