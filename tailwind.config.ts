@@ -9,22 +9,60 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        navy: {
-          50: "#f0f4f8",
-          100: "#d9e2ec",
-          700: "#102a43",
-          800: "#0b1f33",
-          900: "#061423",
+        paper: {
+          DEFAULT: "#F7F4EE",
+          warm: "#FAF8F5",
+          card: "#FFFFFF",
         },
-        parchment: {
-          50: "#fdfbf7",
-          100: "#f7f3e9",
-          200: "#efe8d8",
+        ink: {
+          DEFAULT: "#14181F",
+          muted: "#4A5260",
+          subtle: "#717B8A",
+        },
+        hairline: {
+          DEFAULT: "#E3DDD1",
+          subtle: "#EFECE4",
+          dark: "#CFC7B8",
+        },
+        accent: {
+          DEFAULT: "#7B1E22", // deep editorial oxblood
+          hover: "#64181B",
+          tint: "#FDF5F5",
+          border: "#E8BFC1",
+        },
+        status: {
+          verified: {
+            text: "#1B6E42",
+            bg: "#E8F5EE",
+            border: "#A3D9BD",
+          },
+          corpus: {
+            text: "#8A5B00",
+            bg: "#FFF8E6",
+            border: "#F0D597",
+          },
+          unverified: {
+            text: "#A61C1C",
+            bg: "#FDE8E8",
+            border: "#F8B4B4",
+          },
         },
       },
       fontFamily: {
-        serif: ["Georgia", "Cambria", "Times New Roman", "Times", "serif"],
-        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        serif: ["Newsreader", "Fraunces", "Georgia", "Cambria", "Times New Roman", "serif"],
+        sans: ["IBM Plex Sans", "Geist", "Inter", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        mono: ["IBM Plex Mono", "JetBrains Mono", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+      },
+      borderRadius: {
+        DEFAULT: "6px",
+        sm: "4px",
+        md: "6px",
+        lg: "8px",
+        xl: "10px",
+      },
+      boxShadow: {
+        subtle: "0 1px 2px rgba(20, 24, 31, 0.04), 0 1px 3px rgba(20, 24, 31, 0.06)",
+        raised: "0 2px 4px rgba(20, 24, 31, 0.05), 0 4px 8px rgba(20, 24, 31, 0.08)",
       },
     },
   },

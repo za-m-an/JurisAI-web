@@ -2,13 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Badge, Button, Input } from "@/components/ui/primitives";
 
 const STAGED_MESSAGES = [
-  "Reading file in memory & verifying magic bytes...",
-  "Retrieving statutes & landmark cases across BD, US & EU...",
-  "Analysing non-obvious multi-clause & competition risks...",
-  "Verifying citations deterministically against corpus index...",
-  "Writing legal memorandum & replacement mitigation clauses...",
+  "Reading file in volatile memory & verifying magic bytes...",
+  "Retrieving statutory acts & case precedents across BD, US, and EU...",
+  "Analysing multi-clause interactions & antitrust/competition exposure...",
+  "Verifying statutory citations deterministically in pure Python...",
+  "Drafting formal legal memorandum & replacement mitigation clauses...",
 ];
 
 export default function AnalyzePage() {
@@ -40,7 +41,7 @@ export default function AnalyzePage() {
     }
     const interval = setInterval(() => {
       setStageIndex((prev) => (prev < STAGED_MESSAGES.length - 1 ? prev + 1 : prev));
-    }, 1200);
+    }, 1400);
     return () => clearInterval(interval);
   }, [loading]);
 
@@ -120,60 +121,64 @@ export default function AnalyzePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto bg-white p-8 rounded-xl border border-slate-200 shadow-sm space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="max-w-4xl mx-auto py-6 space-y-6">
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-hairline pb-4">
         <div>
-          <h1 className="text-2xl font-serif font-bold text-[#0b1f33]">
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-ink">
             Analyse Legal Document or Scenario
           </h1>
-          <p className="text-sm text-slate-600">
-            Files are processed strictly in memory and discarded immediately after extraction.
+          <p className="text-xs text-ink-muted mt-1">
+            Uploaded files exist in volatile RAM only during parsing and are permanently purged immediately after.
           </p>
         </div>
-        <button
+        <Button
           type="button"
+          variant="outline"
+          size="sm"
           onClick={handleLoadSampleContract}
-          className="px-4 py-2 rounded-lg bg-amber-100 hover:bg-amber-200 text-[#0b1f33] text-xs font-semibold border border-amber-300"
+          className="self-start sm:self-auto"
         >
-          Try the sample contract
-        </button>
+          Try Sample Contract
+        </Button>
       </div>
 
+      {/* Demo Mode Notice Banner */}
       {isDemoMode && (
-        <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-sm font-medium flex items-center gap-2">
-          <span className="inline-block w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-          <span>Demo mode: simulated AI output</span>
+        <div className="p-3.5 rounded-md bg-amber-50 border border-amber-200 text-amber-900 text-xs font-medium flex items-center gap-2.5">
+          <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+          <span>Demo mode: simulated AI output. Connected to local mock analysis service.</span>
         </div>
       )}
 
-      {/* Mode Switch Tabs */}
-      <div className="flex border-b border-slate-200 text-sm font-medium">
+      {/* Mode Selector Tabs */}
+      <div className="flex border-b border-hairline text-xs font-semibold">
         <button
           type="button"
           onClick={() => setMode("upload")}
-          className={`px-4 py-2.5 border-b-2 ${
+          className={`px-4 py-2.5 border-b-2 transition-all -mb-px ${
             mode === "upload"
-              ? "border-[#0b1f33] text-[#0b1f33] font-bold"
-              : "border-transparent text-slate-500"
+              ? "border-[#7B1E22] text-[#7B1E22]"
+              : "border-transparent text-ink-muted hover:text-ink"
           }`}
         >
-          Upload File (PDF / DOCX / TXT)
+          Upload Document (PDF / DOCX / TXT)
         </button>
         <button
           type="button"
           onClick={() => setMode("paste")}
-          className={`px-4 py-2.5 border-b-2 ${
+          className={`px-4 py-2.5 border-b-2 transition-all -mb-px ${
             mode === "paste"
-              ? "border-[#0b1f33] text-[#0b1f33] font-bold"
-              : "border-transparent text-slate-500"
+              ? "border-[#7B1E22] text-[#7B1E22]"
+              : "border-transparent text-ink-muted hover:text-ink"
           }`}
         >
-          Paste Contract / Describe Scenario
+          Paste Contract Text / Scenario
         </button>
       </div>
 
       {error && (
-        <div className="p-4 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-sm">
+        <div className="p-3 rounded-md bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium">
           {error}
         </div>
       )}
@@ -187,51 +192,69 @@ export default function AnalyzePage() {
             }}
             onDragLeave={() => setIsDragging(false)}
             onDrop={handleDrop}
-            className={`border-2 border-dashed rounded-xl p-8 text-center space-y-3 transition-colors ${
-              isDragging ? "border-amber-500 bg-amber-50/50" : "border-slate-300 bg-slate-50"
+            className={`border-2 border-dashed rounded-lg p-8 sm:p-12 text-center space-y-3 transition-colors ${
+              isDragging
+                ? "border-[#7B1E22] bg-[#7B1E22]/5"
+                : "border-hairline bg-white hover:border-hairline-dark"
             }`}
           >
-            <div className="text-sm font-medium text-[#0b1f33]">
-              Drag and drop your contract here, or select a file (max 4 MB)
+            <div className="w-10 h-10 mx-auto rounded-full bg-paper-warm border border-hairline flex items-center justify-center text-ink-muted text-sm font-bold">
+              ↑
             </div>
+            <div>
+              <div className="font-serif text-base font-bold text-ink">
+                Drag and drop your contract here, or browse files
+              </div>
+              <p className="text-xs text-ink-muted mt-1">
+                Accepted: PDF, DOCX, TXT · Maximum file size: 10 MB · Memory-only parsing
+              </p>
+            </div>
+
             <input
               type="file"
               accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
               onChange={(e) => setFile(e.target.files?.[0] || null)}
-              className="block mx-auto text-sm text-slate-600"
+              className="block mx-auto text-xs text-ink-muted pt-2 file:mr-3 file:py-1 file:px-3 file:rounded file:border file:border-hairline file:text-xs file:font-semibold file:bg-paper-warm file:text-ink hover:file:bg-white"
             />
+
             {file && (
-              <div className="text-xs text-emerald-700 font-semibold">
-                Selected: {file.name} ({(file.size / 1024).toFixed(1)} KB)
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-[#E8F5EE] border border-[#A3D9BD] text-[#1B6E42] text-xs font-semibold">
+                <span>Selected: {file.name}</span>
+                <span className="font-mono text-[10px]">({(file.size / 1024).toFixed(1)} KB)</span>
               </div>
             )}
           </div>
         ) : (
-          <div>
-            <label className="block text-xs font-semibold uppercase text-slate-700 mb-1">
-              Contract Text or Commercial Scenario (200 to 150,000 characters)
-            </label>
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wider">
+                Contract Text or Commercial Scenario
+              </label>
+              <span className="text-[11px] font-mono text-ink-subtle">
+                {text.length.toLocaleString()} characters
+              </span>
+            </div>
             <textarea
               rows={12}
               value={text}
               onChange={(e) => setText(e.target.value)}
-              className="w-full p-3 rounded-lg border border-slate-300 font-mono text-xs"
-              placeholder="Paste the full agreement text or click 'Try the sample contract' above..."
+              className="w-full p-3.5 bg-white border border-hairline rounded-lg font-mono text-xs text-ink placeholder:text-ink-subtle shadow-subtle focus:border-accent transition-colors"
+              placeholder="Paste full agreement text or click 'Try Sample Contract' above..."
             />
           </div>
         )}
 
-        {/* Jurisdiction Multi-Select */}
-        <div>
-          <label className="block text-xs font-semibold uppercase text-slate-700 mb-2">
+        {/* Target Jurisdictions Selector */}
+        <div className="space-y-2">
+          <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wider">
             Target Jurisdictions
           </label>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-2.5">
             {(
               [
-                { code: "BD", label: "Bangladesh (BD)" },
-                { code: "US", label: "United States (US)" },
-                { code: "EU", label: "European Union (EU)" },
+                { code: "BD", label: "Bangladesh (BD)", desc: "Competition Act 2012, Contract Act 1872" },
+                { code: "US", label: "United States (US)", desc: "Sherman Act, FTC Act, UCC Article 2" },
+                { code: "EU", label: "European Union (EU)", desc: "Article 101/102 TFEU, VBER 2022/720" },
               ] as const
             ).map((j) => {
               const active = jurisdictions.includes(j.code);
@@ -240,55 +263,69 @@ export default function AnalyzePage() {
                   key={j.code}
                   type="button"
                   onClick={() => toggleJurisdiction(j.code)}
-                  className={`px-4 py-2 rounded-lg text-xs font-semibold border ${
+                  className={`px-3.5 py-2 rounded-md border text-xs text-left transition-all ${
                     active
-                      ? "bg-[#0b1f33] text-white border-[#0b1f33]"
-                      : "bg-white text-slate-700 border-slate-300"
+                      ? "border-[#7B1E22] bg-[#7B1E22]/10 text-[#7B1E22] font-semibold"
+                      : "border-hairline bg-white text-ink-muted hover:text-ink hover:border-hairline-dark"
                   }`}
                 >
-                  {active ? "✓ " : ""}
-                  {j.label}
+                  <div className="flex items-center gap-1.5">
+                    <span>{active ? "✓" : "○"}</span>
+                    <span>{j.label}</span>
+                  </div>
+                  <div className="text-[10px] text-ink-subtle mt-0.5">{j.desc}</div>
                 </button>
               );
             })}
           </div>
         </div>
 
-        <div>
-          <label className="block text-xs font-semibold uppercase text-slate-700 mb-1">
-            Optional Context / Focus Note
-          </label>
-          <input
-            type="text"
-            value={analysisNote}
-            onChange={(e) => setAnalysisNote(e.target.value)}
-            className="w-full px-3 py-2 rounded border border-slate-300 text-sm"
-            placeholder="e.g. We are the Bangladesh distributor importing from a US supplier and reselling in the EU."
-          />
-        </div>
+        {/* Optional Focus Note */}
+        <Input
+          label="Optional Context / Focus Note"
+          type="text"
+          value={analysisNote}
+          onChange={(e) => setAnalysisNote(e.target.value)}
+          placeholder="e.g. Distributor based in Dhaka importing industrial machinery from Delaware and reselling in Germany."
+          helperText="Guides risk prioritization toward specific cross-border transaction dynamics."
+        />
 
+        {/* Staged Execution Indicator */}
         {loading && (
-          <div className="p-5 rounded-xl bg-[#0b1f33] text-white space-y-3">
-            <div className="text-xs uppercase tracking-wider text-amber-300 font-semibold">
-              In-Memory Legal Analysis Pipeline Running
+          <div className="p-5 rounded-lg bg-white border border-hairline shadow-subtle space-y-3">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-bold uppercase tracking-wider text-accent">
+                In-Memory Pipeline Active
+              </span>
+              <span className="font-mono text-ink-muted">
+                Step {stageIndex + 1} of {STAGED_MESSAGES.length}
+              </span>
             </div>
-            <div className="text-sm font-medium">{STAGED_MESSAGES[stageIndex]}</div>
-            <div className="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+
+            <div className="text-xs font-semibold text-ink">{STAGED_MESSAGES[stageIndex]}</div>
+
+            <div className="w-full bg-paper-warm h-2 rounded-full overflow-hidden border border-hairline">
               <div
-                className="bg-amber-400 h-full transition-all duration-500"
+                className="bg-[#7B1E22] h-full transition-all duration-500"
                 style={{ width: `${((stageIndex + 1) / STAGED_MESSAGES.length) * 100}%` }}
               />
             </div>
+
+            <p className="text-[11px] text-ink-subtle">
+              Extracting terms in RAM · No disk storage · Deterministic verification against corpus.
+            </p>
           </div>
         )}
 
-        <button
+        <Button
           type="submit"
+          variant="primary"
+          size="lg"
           disabled={loading}
-          className="w-full py-3 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-semibold text-sm shadow"
+          className="w-full"
         >
-          {loading ? "Analysing Contract & Verifying Citations..." : "Run Legal Risk & Citation Analysis"}
-        </button>
+          {loading ? "Analysing Agreement & Verifying Citations..." : "Run Risk Analysis & Citation Verification"}
+        </Button>
       </form>
     </div>
   );

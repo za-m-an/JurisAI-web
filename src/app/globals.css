@@ -3,34 +3,66 @@
 @tailwind utilities;
 
 :root {
-  --navy-900: #061423;
-  --navy-800: #0b1f33;
-  --navy-700: #102a43;
-  --parchment-50: #fdfbf7;
-  --parchment-100: #f7f3e9;
+  --color-paper: #F7F4EE;
+  --color-paper-card: #FFFFFF;
+  --color-ink: #14181F;
+  --color-ink-muted: #4A5260;
+  --color-ink-subtle: #717B8A;
+  --color-hairline: #E3DDD1;
+  --color-accent: #7B1E22;
+  --color-accent-hover: #64181B;
 }
 
-body {
-  background-color: var(--parchment-50);
-  color: #102a43;
-  font-family: Inter, system-ui, -apple-system, sans-serif;
+@layer base {
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: "IBM Plex Sans", "Geist", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, .font-editorial {
+    font-family: "Newsreader", "Fraunces", Georgia, Cambria, "Times New Roman", serif;
+    letter-spacing: -0.015em;
+  }
+
+  /* High-contrast accessible focus ring */
+  *:focus-visible {
+    outline: 2px solid #7B1E22;
+    outline-offset: 2px;
+  }
 }
 
-h1, h2, h3, .font-serif-legal {
-  font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+/* Subtle transitions with prefers-reduced-motion respected */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
+/* Clean Editorial Print Stylesheet for Official Legal Memoranda */
 @media print {
-  header, nav, footer, .no-print {
+  header, nav, footer, .no-print, button, [role="button"] {
     display: none !important;
   }
   body {
     background: #ffffff !important;
     color: #000000 !important;
+    font-size: 11pt !important;
+    line-height: 1.5 !important;
   }
   .print-container {
     box-shadow: none !important;
     border: none !important;
     padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+  .page-break {
+    page-break-before: always;
   }
 }

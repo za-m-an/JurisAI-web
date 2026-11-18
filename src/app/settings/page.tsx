@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Badge, Button, Input } from "@/components/ui/primitives";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -44,8 +45,8 @@ export default function SettingsPage() {
       setError(data.message || "Failed to update profile.");
       return;
     }
-    setUser((prev: any) => ({ ...prev, fullName: data.user.full_name, organisation: data.user.organisation }));
-    setMessage("Profile information updated successfully.");
+    setUser((prev: any) => ({ ...prev, fullName: data.user.full_name || data.user.fullName, organisation: data.user.organisation }));
+    setMessage("Profile details saved successfully.");
   }
 
   async function handleChangePassword(e: React.FormEvent) {
@@ -64,7 +65,7 @@ export default function SettingsPage() {
     }
     setCurrentPassword("");
     setNewPassword("");
-    setMessage("Password updated and active token_version incremented.");
+    setMessage("Password successfully updated. All other active sessions have been revoked.");
   }
 
   async function handleLogoutEverywhere() {
@@ -77,6 +78,7 @@ export default function SettingsPage() {
   async function handleDeleteAccount(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    if (!confirm("Are you certain you want to permanently delete your account and all associated analyses?")) return;
     const res = await fetch("/api/account", {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
@@ -91,163 +93,169 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8">
-      <h1 className="text-2xl font-serif font-bold text-[#0b1f33]">Account & Security Settings</h1>
+    <div className="max-w-3xl mx-auto py-6 space-y-8">
+      <div className="border-b border-hairline pb-4">
+        <h1 className="font-serif text-2xl sm:text-3xl font-bold text-ink">
+          Account & Security Settings
+        </h1>
+        <p className="text-xs text-ink-muted mt-1">
+          Manage your personal details, credentials, data portability, and active sessions.
+        </p>
+      </div>
 
       {message && (
-        <div className="p-3 rounded bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
+        <div className="p-3.5 rounded-md bg-[#E8F5EE] border border-[#A3D9BD] text-[#1B6E42] text-xs font-medium">
           {message}
         </div>
       )}
       {error && (
-        <div className="p-3 rounded bg-rose-50 border border-rose-200 text-rose-800 text-sm">
+        <div className="p-3.5 rounded-md bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium">
           {error}
         </div>
       )}
 
-      {/* Profile Form */}
+      {/* 1. Profile Details */}
       <form
         onSubmit={handleProfileUpdate}
-        className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4"
+        className="bg-white border border-hairline rounded-lg p-6 shadow-subtle space-y-4"
       >
-        <h2 className="text-lg font-serif font-bold text-[#0b1f33]">Profile Information</h2>
-        <div>
-          <label className="block text-xs font-semibold uppercase text-slate-700 mb-1">
-            Full Name
-          </label>
-          <input
+        <h2 className="font-serif text-lg font-bold text-ink border-b border-hairline pb-2">
+          Profile Information
+        </h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input
+            label="Full Name"
             type="text"
             required
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
-            className="w-full px-3 py-2 rounded border border-slate-300 text-sm"
           />
-        </div>
-        <div>
-          <label className="block text-xs font-semibold uppercase text-slate-700 mb-1">
-            Email Address (Read-only)
-          </label>
-          <input
-            type="email"
-            disabled
-            value={user?.email || ""}
-            className="w-full px-3 py-2 rounded border border-slate-200 bg-slate-50 text-slate-500 text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-semibold uppercase text-slate-700 mb-1">
-            Account Role
-          </label>
-          <div className="text-xs uppercase font-semibold text-slate-600 bg-slate-100 px-3 py-2 rounded w-fit">
-            {user?.role || "common"}
-          </div>
-        </div>
-        {user?.role === "business" && (
+
           <div>
-            <label className="block text-xs font-semibold uppercase text-slate-700 mb-1">
-              Organisation Name
+            <label className="block text-xs font-semibold text-ink-muted uppercase tracking-wider mb-1">
+              Email Address
             </label>
             <input
-              type="text"
-              value={organisation}
-              onChange={(e) => setOrganisation(e.target.value)}
-              className="w-full px-3 py-2 rounded border border-slate-300 text-sm"
+              type="email"
+              disabled
+              value={user?.email || ""}
+              className="w-full px-3 py-2 bg-paper-warm border border-hairline rounded-md text-xs text-ink-muted cursor-not-allowed"
             />
           </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wider text-ink-muted">
+            Account Role:
+          </span>
+          <Badge variant="neutral" className="uppercase font-mono text-[10px]">
+            {user?.role || "common"}
+          </Badge>
+        </div>
+
+        {user?.role === "business" && (
+          <Input
+            label="Organisation Name"
+            type="text"
+            value={organisation}
+            onChange={(e) => setOrganisation(e.target.value)}
+          />
         )}
-        <button
-          type="submit"
-          className="px-4 py-2 rounded bg-[#0b1f33] text-white text-xs font-semibold"
-        >
-          Save Profile Changes
-        </button>
+
+        <div className="pt-2">
+          <Button type="submit" variant="primary" size="md">
+            Save Profile Changes
+          </Button>
+        </div>
       </form>
 
-      {/* Change Password */}
+      {/* 2. Change Password */}
       <form
         onSubmit={handleChangePassword}
-        className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-4"
+        className="bg-white border border-hairline rounded-lg p-6 shadow-subtle space-y-4"
       >
-        <h2 className="text-lg font-serif font-bold text-[#0b1f33]">
-          Change Password (Revokes Other Sessions)
-        </h2>
-        <input
-          type="password"
-          required
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-          placeholder="Current password"
-          className="w-full px-3 py-2 rounded border border-slate-300 text-sm"
-        />
-        <input
-          type="password"
-          required
-          minLength={10}
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          placeholder="New password (min 10 chars, letter + digit)"
-          className="w-full px-3 py-2 rounded border border-slate-300 text-sm"
-        />
-        <button
-          type="submit"
-          className="px-4 py-2 rounded bg-[#0b1f33] text-white text-xs font-semibold"
-        >
-          Update Password
-        </button>
-      </form>
-
-      {/* Session & Data Portability */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-wrap gap-4 items-center justify-between">
         <div>
-          <h2 className="text-lg font-serif font-bold text-[#0b1f33]">
-            Sessions & Data Portability
-          </h2>
-          <p className="text-xs text-slate-600">
-            Download all saved analysis outputs and chat logs as JSON, or sign out all devices immediately.
+          <h2 className="font-serif text-lg font-bold text-ink">Change Password</h2>
+          <p className="text-xs text-ink-muted mt-0.5">
+            Updating your password increments your security token version, automatically terminating other open sessions.
           </p>
         </div>
-        <div className="flex gap-3">
-          <a
-            href="/api/account/export"
-            className="px-4 py-2 rounded bg-amber-600 text-white text-xs font-semibold"
-          >
-            Export My Data (.json)
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Input
+            label="Current Password"
+            type="password"
+            required
+            value={currentPassword}
+            onChange={(e) => setCurrentPassword(e.target.value)}
+          />
+
+          <Input
+            label="New Password"
+            type="password"
+            required
+            minLength={10}
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            helperText="Minimum 10 characters, at least 1 letter & 1 digit"
+          />
+        </div>
+
+        <div className="pt-2">
+          <Button type="submit" variant="secondary" size="md">
+            Update Password
+          </Button>
+        </div>
+      </form>
+
+      {/* 3. Data Portability & Session Control */}
+      <div className="bg-white border border-hairline rounded-lg p-6 shadow-subtle space-y-4">
+        <div>
+          <h2 className="font-serif text-lg font-bold text-ink">Data Portability & Sessions</h2>
+          <p className="text-xs text-ink-muted mt-0.5">
+            Download your account history or terminate all active login sessions.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 pt-2">
+          <a href="/api/account/export">
+            <Button variant="outline" size="md">
+              Export All Data (.json)
+            </Button>
           </a>
-          <button
-            type="button"
-            onClick={handleLogoutEverywhere}
-            className="px-4 py-2 rounded border border-slate-300 text-xs font-semibold"
-          >
+          <Button variant="outline" size="md" onClick={handleLogoutEverywhere}>
             Log Out Everywhere
-          </button>
+          </Button>
         </div>
       </div>
 
-      {/* Delete Account */}
+      {/* 4. Danger Zone: Delete Account */}
       <form
         onSubmit={handleDeleteAccount}
-        className="bg-rose-50 p-6 rounded-xl border border-rose-200 space-y-4"
+        className="bg-rose-50/50 border border-rose-200 rounded-lg p-6 space-y-4"
       >
-        <h2 className="text-lg font-serif font-bold text-rose-950">
-          Delete Account & All Saved Data
-        </h2>
-        <p className="text-xs text-rose-800">
-          This permanently deletes your profile, all saved contract analyses, and all chat conversations via cascading deletion.
-        </p>
-        <input
+        <div>
+          <h2 className="font-serif text-lg font-bold text-rose-900">Danger Zone: Delete Account</h2>
+          <p className="text-xs text-rose-800 mt-0.5">
+            Permanently removes your account profile, all recorded contract analyses, and all chat transcripts. This action is irreversible.
+          </p>
+        </div>
+
+        <Input
+          label="Confirm Your Password"
           type="password"
           required
           value={deletePassword}
           onChange={(e) => setDeletePassword(e.target.value)}
-          placeholder="Confirm your password to delete account"
-          className="w-full px-3 py-2 rounded border border-rose-300 text-sm bg-white"
+          placeholder="Enter password to confirm"
         />
-        <button
-          type="submit"
-          className="px-4 py-2 rounded bg-rose-700 hover:bg-rose-600 text-white text-xs font-semibold"
-        >
-          Permanently Delete My Account
-        </button>
+
+        <div className="pt-2">
+          <Button type="submit" variant="danger" size="md">
+            Permanently Delete My Account
+          </Button>
+        </div>
       </form>
     </div>
   );

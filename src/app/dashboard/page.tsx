@@ -2,6 +2,16 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import {
+  Badge,
+  Button,
+  EmptyState,
+  Skeleton,
+  Table,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/primitives";
 
 export default function DashboardPage() {
   const [me, setMe] = useState<any>(null);
@@ -21,105 +31,202 @@ export default function DashboardPage() {
   }, []);
 
   if (loading) {
-    return <div className="text-sm text-slate-600">Loading dashboard...</div>;
+    return (
+      <div className="space-y-6 max-w-6xl mx-auto py-6">
+        <Skeleton className="h-10 w-64" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
+        </div>
+        <Skeleton className="h-64" />
+      </div>
+    );
   }
 
   const user = me?.user;
   const quota = me?.quota;
 
+  const analysisPercent = quota
+    ? Math.min(100, Math.round((quota.analysesUsedThisMonth / (quota.analysesLimitPerMonth || 1)) * 100))
+    : 0;
+  const chatPercent = quota
+    ? Math.min(100, Math.round((quota.chatUsedToday / (quota.chatLimitPerDay || 1)) * 100))
+    : 0;
+
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="max-w-6xl mx-auto py-6 space-y-8">
+      {/* Header with Title and Primary Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-hairline pb-6">
         <div>
-          <h1 className="text-3xl font-serif font-bold text-[#0b1f33]">
-            Welcome{user?.fullName ? `, ${user.fullName}` : " to Juris AI"}
-          </h1>
-          <p className="text-sm text-slate-600">
-            Role: <span className="font-semibold uppercase">{user?.role || "guest"}</span>
-            {user?.organisation ? ` · ${user.organisation}` : ""}
+          <div className="flex items-center gap-2">
+            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-ink">
+              Legal Workspace{user?.fullName ? ` · ${user.fullName}` : ""}
+            </h1>
+            <Badge variant="neutral" className="uppercase font-mono text-[10px]">
+              {user?.role || "user"}
+            </Badge>
+          </div>
+          <p className="text-xs text-ink-muted mt-1">
+            {user?.organisation ? `${user.organisation} · ` : ""}
+            Multi-jurisdiction legal risk intelligence for BD, US, and EU commercial contracts.
           </p>
         </div>
-        <div className="flex gap-3">
-          <Link
-            href="/analyze"
-            className="px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-sm font-semibold"
-          >
-            + New Contract Analysis
+
+        <div className="flex items-center gap-2.5">
+          <Link href="/analyze">
+            <Button variant="primary" size="md">
+              + New Analysis
+            </Button>
           </Link>
-          <Link
-            href="/chat"
-            className="px-4 py-2 rounded-lg bg-[#0b1f33] hover:bg-[#102a43] text-white text-sm font-medium"
-          >
-            Open Legal Chat
+          <Link href="/chat">
+            <Button variant="secondary" size="md">
+              Open Legal Chat
+            </Button>
           </Link>
         </div>
       </div>
 
-      {/* Quota Usage Cards */}
+      {/* Quota Usage Metrics */}
       {quota && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <div className="text-xs font-semibold uppercase text-slate-500">
-              Monthly Contract Analyses Quota
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="bg-white border border-hairline rounded-lg p-5 shadow-subtle space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
+                Monthly Contract Analyses
+              </span>
+              <span className="text-xs font-mono font-semibold text-ink">
+                {quota.analysesUsedThisMonth} / {quota.analysesLimitPerMonth}
+              </span>
             </div>
-            <div className="mt-2 text-2xl font-bold text-[#0b1f33]">
-              {quota.analysesUsedThisMonth} / {quota.analysesLimitPerMonth}
+            <div className="w-full bg-paper-warm rounded-full h-2 overflow-hidden border border-hairline">
+              <div
+                className={`h-full transition-all duration-300 ${
+                  analysisPercent > 85 ? "bg-rose-700" : "bg-[#7B1E22]"
+                }`}
+                style={{ width: `${analysisPercent}%` }}
+              />
             </div>
-            <p className="text-xs text-slate-500 mt-1">
-              Non-failed analyses performed this calendar month
+            <p className="text-[11px] text-ink-subtle">
+              Usage resets at the beginning of each calendar month. Files are strictly in-memory.
             </p>
           </div>
-          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-            <div className="text-xs font-semibold uppercase text-slate-500">
-              Daily Legal Chat Quota
+
+          <div className="bg-white border border-hairline rounded-lg p-5 shadow-subtle space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
+                Daily Legal Research Queries
+              </span>
+              <span className="text-xs font-mono font-semibold text-ink">
+                {quota.chatUsedToday} / {quota.chatLimitPerDay}
+              </span>
             </div>
-            <div className="mt-2 text-2xl font-bold text-[#0b1f33]">
-              {quota.chatUsedToday} / {quota.chatLimitPerDay}
+            <div className="w-full bg-paper-warm rounded-full h-2 overflow-hidden border border-hairline">
+              <div
+                className={`h-full transition-all duration-300 ${
+                  chatPercent > 85 ? "bg-rose-700" : "bg-ink"
+                }`}
+                style={{ width: `${chatPercent}%` }}
+              />
             </div>
-            <p className="text-xs text-slate-500 mt-1">
-              Questions submitted today across all conversations
+            <p className="text-[11px] text-ink-subtle">
+              Questions submitted today across all active research threads.
             </p>
           </div>
         </div>
       )}
 
-      {/* Recent Analyses */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-4">
+      {/* Recent Analyses Section */}
+      <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-serif font-bold text-[#0b1f33]">Recent Contract Analyses</h2>
-          <Link href="/history" className="text-xs font-semibold text-[#0b1f33] underline">
-            View Full History →
-          </Link>
-        </div>
-        {analyses.length === 0 ? (
-          <p className="text-sm text-slate-500">
-            No analyses yet. Click &ldquo;New Contract Analysis&rdquo; to test the sample distribution agreement or upload your own contract.
-          </p>
-        ) : (
-          <div className="divide-y divide-slate-200">
-            {analyses.slice(0, 6).map((a) => (
-              <div key={a.id} className="py-3 flex items-center justify-between gap-4">
-                <div>
-                  <Link
-                    href={`/analyses/${a.id}`}
-                    className="font-semibold text-sm text-[#0b1f33] hover:underline"
-                  >
-                    {a.docName}
-                  </Link>
-                  <div className="text-xs text-slate-500">
-                    Status: <span className="font-medium uppercase">{a.status}</span> · Jurisdictions:{" "}
-                    {(a.jurisdictions || []).join(", ")} · Risks: {a.risksCount}
-                  </div>
-                </div>
-                <Link
-                  href={`/analyses/${a.id}`}
-                  className="px-3 py-1 rounded border border-slate-300 text-xs font-medium hover:bg-slate-50"
-                >
-                  View Report
-                </Link>
-              </div>
-            ))}
+          <div>
+            <h2 className="font-serif text-lg font-bold text-ink">Recent Contract Analyses</h2>
+            <p className="text-xs text-ink-muted">
+              Completed cross-border analyses and generated memoranda.
+            </p>
           </div>
+          {analyses.length > 0 && (
+            <Link href="/history" className="text-xs font-semibold text-accent hover:underline">
+              View All History →
+            </Link>
+          )}
+        </div>
+
+        {analyses.length === 0 ? (
+          <EmptyState
+            title="No analyses recorded yet"
+            description="Upload an agreement (PDF, DOCX, or TXT) or test the pre-loaded cross-border sample contract to view identified risks and citation verification badges."
+            action={
+              <Link href="/analyze">
+                <Button variant="primary" size="sm">
+                  Run First Analysis
+                </Button>
+              </Link>
+            }
+          />
+        ) : (
+          <Table>
+            <TableHeader>
+              <tr>
+                <th className="p-3">Document</th>
+                <th className="p-3">Status</th>
+                <th className="p-3">Jurisdictions</th>
+                <th className="p-3">Risks</th>
+                <th className="p-3">Date</th>
+                <th className="p-3 text-right">Action</th>
+              </tr>
+            </TableHeader>
+            <tbody>
+              {analyses.slice(0, 8).map((a) => (
+                <TableRow key={a.id}>
+                  <TableCell className="font-medium">
+                    <Link
+                      href={`/analyses/${a.id}`}
+                      className="text-ink font-semibold hover:text-accent hover:underline"
+                    >
+                      {a.docName}
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        a.status === "completed"
+                          ? "verified"
+                          : a.status === "failed"
+                          ? "unverified"
+                          : "neutral"
+                      }
+                      className="uppercase text-[10px]"
+                    >
+                      {a.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-1">
+                      {(a.jurisdictions || []).map((j: string) => (
+                        <span
+                          key={j}
+                          className="px-1.5 py-0.5 rounded bg-paper-warm border border-hairline text-[10px] font-mono text-ink-muted"
+                        >
+                          {j}
+                        </span>
+                      ))}
+                    </div>
+                  </TableCell>
+                  <TableCell className="font-mono text-xs">{a.risksCount || 0}</TableCell>
+                  <TableCell className="text-ink-muted text-[11px]">
+                    {new Date(a.createdAt).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Link href={`/analyses/${a.id}`}>
+                      <Button variant="outline" size="sm">
+                        View Report
+                      </Button>
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </tbody>
+          </Table>
         )}
       </div>
     </div>
