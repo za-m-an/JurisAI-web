@@ -2,13 +2,18 @@ import { z } from "zod";
 
 export const JurisdictionEnum = z.enum(["BD", "US", "EU"]);
 
-export const RegisterSchema = z.object({
-  fullName: z.string().trim().min(2, "Full name must be at least 2 characters").max(120),
-  email: z.string().trim().email("Valid email address is required").transform((s) => s.toLowerCase()),
-  password: z.string().min(10, "Password must be at least 10 characters").max(200),
-  accountType: z.enum(["business", "common"]),
-  organisation: z.string().trim().max(160).optional().nullable(),
-});
+export const RegisterSchema = z
+  .object({
+    fullName: z.string().trim().min(2, "Full name must be at least 2 characters").max(120),
+    email: z.string().trim().email("Valid email address is required").transform((s) => s.toLowerCase()),
+    password: z.string().min(10, "Password must be at least 10 characters").max(200),
+    accountType: z.enum(["business", "common"]),
+    organisation: z.string().trim().max(160).optional().nullable(),
+  })
+  .refine((d) => d.accountType !== "business" || Boolean(d.organisation && d.organisation.trim().length > 0), {
+    message: "Organisation name is required for business accounts",
+    path: ["organisation"],
+  });
 
 export const LoginSchema = z.object({
   email: z.string().trim().email().transform((s) => s.toLowerCase()),
