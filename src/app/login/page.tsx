@@ -26,7 +26,7 @@ export default function LoginPage() {
         setError(data.message || "Invalid email or password.");
         return;
       }
-      router.push(data.user?.role === "admin" ? "/admin" : "/dashboard");
+      router.push("/dashboard");
     } catch {
       setError("Network error while signing in.");
     } finally {
