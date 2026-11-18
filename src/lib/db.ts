@@ -18,7 +18,27 @@ const globalForDb = globalThis as unknown as {
   __jurisMigrated?: boolean;
 };
 
+function loadEnvFileIfPresent(): void {
+  const envPath = path.resolve(process.cwd(), ".env");
+  if (fs.existsSync(envPath)) {
+    const lines = fs.readFileSync(envPath, "utf8").split("\n");
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eqIdx = trimmed.indexOf("=");
+      if (eqIdx !== -1) {
+        const key = trimmed.slice(0, eqIdx).trim();
+        const val = trimmed.slice(eqIdx + 1).trim();
+        if (!process.env[key] && val) {
+          process.env[key] = val;
+        }
+      }
+    }
+  }
+}
+
 function getDriver(): "pg" | "pglite" {
+  loadEnvFileIfPresent();
   const explicit = (process.env.DB_DRIVER || "").trim().toLowerCase();
   if (explicit === "pg") return "pg";
   if (explicit === "pglite") return "pglite";

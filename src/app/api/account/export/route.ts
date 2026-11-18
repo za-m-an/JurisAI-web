@@ -32,9 +32,7 @@ export async function GET(req: NextRequest) {
         "SELECT id, role, content, citations, created_at FROM messages WHERE conversation_id = $1 ORDER BY created_at ASC",
         [c.id]
       );
-      conversationsWithMessages.append
-        ? conversationsWithMessages.push({ ...c, messages: msgs.rows })
-        : conversationsWithMessages.push({ ...c, messages: msgs.rows });
+      conversationsWithMessages.push({ ...c, messages: msgs.rows });
     }
 
     const exportPayload = {

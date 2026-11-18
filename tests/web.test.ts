@@ -110,8 +110,23 @@ function createMinimalZipBuffer(entryName: string, contentUtf8: string): Uint8Ar
  * Helper to build a valid in-memory PDF buffer with embedded text stream.
  */
 function createMinimalPdfBuffer(textContent: string): Uint8Array {
-  const escaped = textContent.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
-  const contentStream = `BT /F1 12 Tf 72 720 Td (${escaped}) Tj ET`;
+  const words = textContent.split(" ");
+  const lines: string[] = [];
+  let cur = "";
+  for (const w of words) {
+    if ((cur + " " + w).length > 50) {
+      lines.push(cur);
+      cur = w;
+    } else {
+      cur = cur ? cur + " " + w : w;
+    }
+  }
+  if (cur) lines.push(cur);
+  const streamLines = lines.map((l, i) => {
+    const esc = l.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
+    return i === 0 ? `72 720 Td (${esc}) Tj` : `0 -15 Td (${esc}) Tj`;
+  });
+  const contentStream = `BT /F1 12 Tf\n${streamLines.join("\n")}\nET`;
   const pdf = [
     "%PDF-1.4",
     "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj",
@@ -303,7 +318,7 @@ describe("Juris AI Web Service — Comprehensive Security & Functional Suite", (
     expect(txtOut.text).toContain("EXCLUSIVE DISTRIBUTION AGREEMENT");
 
     // DOCX extraction
-    const docxXml = `<w:document><w:body><w:p><w:r><w:t>${longLegalClause}</w:t></w:r></w:p></w:body></w:document>`;
+    const docxXml = `<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body><w:p><w:r><w:t>${longLegalClause}</w:t></w:r></w:p></w:body></w:document>`;
     const docxBytes = createMinimalZipBuffer("word/document.xml", docxXml);
     const docxOut = await extractDocumentInMemory({
       bytes: docxBytes,
