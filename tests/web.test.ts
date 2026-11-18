@@ -183,7 +183,7 @@ let mockRagServer: any;
 let mockRagPort = 18081;
 
 beforeAll(async () => {
-  process.env.NODE_ENV = "test";
+  (process.env as any).NODE_ENV = "test";
   process.env.DB_DRIVER = "pglite";
   process.env.RAG_API_KEY = "dev-rag-key";
   mockRagServer = createMockRagServer();
