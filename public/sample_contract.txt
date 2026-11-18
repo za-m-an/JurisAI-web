@@ -1,0 +1,40 @@
+EXCLUSIVE INTERNATIONAL DISTRIBUTION AND SUPPLY AGREEMENT
+
+This Exclusive Distribution and Supply Agreement ("Agreement") is entered into as of November 1, 2026 ("Effective Date"), by and between:
+
+1. AURA PRECISION INDUSTRIAL SYSTEMS INC., a corporation organized and existing under the laws of the State of Delaware, United States, with its principal place of business in Chicago, Illinois, USA ("Supplier"); and
+2. BENGAL DELTA INDUSTRIAL SOLUTIONS LTD., a private limited company incorporated in Bangladesh with its registered headquarters in Dhaka, Bangladesh, and operating distribution warehouses in Dhaka, Chittagong, and Rotterdam, Netherlands ("Distributor").
+
+1. APPOINTMENT AND EXCLUSIVE TERRITORY
+1.1 Appointment. Supplier hereby appoints Distributor as its exclusive distributor for the marketing, sale, and distribution of the Industrial Sensor and Automation Products ("Products") within the People's Republic of Bangladesh and designated commercial accounts in the European Union ("Territory").
+1.2 Exclusive Supply and Purchasing Obligation. During the Term of this Agreement, Distributor shall purchase one hundred percent (100%) of its requirements for Products and any functionally comparable industrial sensor equipment exclusively from Supplier. Distributor shall not manufacture, source, represent, distribute, or sell any competing or similar products from any third-party supplier anywhere in the Territory or globally without Supplier's prior written consent.
+
+2. TERM AND AUTOMATIC FIVE-YEAR RENEWAL
+2.1 Initial Term. This Agreement shall commence on the Effective Date and shall continue in full force and effect for an initial period of five (5) years ("Initial Term").
+2.2 Automatic Renewal. Upon the expiration of the Initial Term and each subsequent renewal period, this Agreement (including all exclusivity and non-compete obligations herein) shall automatically renew for successive five (5) year renewal terms ("Renewal Terms"), unless Supplier provides written notice of non-renewal at least one hundred eighty (180) days prior to the end of the then-current term. Distributor may not terminate or decline renewal so long as Supplier continues to offer Products for shipment.
+
+3. POST-TERMINATION NON-COMPETE COVENANT
+3.1 Six-Year Post-Termination Restraint. In consideration of the exclusive appointment granted herein and access to Supplier's commercial pricing lists, Distributor covenants and agrees that during the Term of this Agreement and for a period of six (6) years following the expiration or termination of this Agreement for any reason whatsoever ("Restricted Period"), neither Distributor nor any of its affiliates, directors, or shareholders shall, directly or indirectly, engage in, carry on, or assist any business that imports, distributes, markets, services, or sells any industrial automation, control, or sensor products in Bangladesh, the European Union, or the United States.
+3.2 No Goodwill Purchase. The parties acknowledge that this covenant is a standalone commercial restriction and does not involve the sale of business goodwill.
+
+4. RECOMMENDED RESALE PRICES AND DEVIATION PENALTIES
+4.1 Recommended Resale Price Schedule. Supplier shall publish and update quarterly a "Recommended Resale Price" ("RRP") schedule for all Products sold in Bangladesh, the European Union, and North America.
+4.2 Strict Price Adherence and Penalty for Deviation. While denominated as a Recommended Resale Price, Distributor shall not advertise, offer, discount, or sell any Product at a net price more than two percent (2%) below the published RRP, whether online or offline. In the event Distributor sells or offers any Product below the RRP threshold without Supplier's express written authorization:
+(a) Distributor shall immediately pay Supplier a mandatory price-deviation penalty equal to thirty-five percent (35%) of the gross invoice value of the entire quarterly shipment in which the discounted unit was included;
+(b) Supplier shall retroactively forfeit all volume rebates and increase Distributor's wholesale transfer price by twenty percent (20%); and
+(c) Supplier may immediately suspend shipments or terminate Distributor's appointment for cause.
+4.3 Online Marketplace Prohibition. Distributor is strictly prohibited from selling or listing Products on any third-party online marketplace or cross-border e-commerce website accessible to customers in the European Union without Supplier's prior written approval of the exact retail price displayed.
+
+5. MINIMUM ORDER COMMITMENTS AND LATE ORDER PENALTY CLAUSE
+5.1 Quarterly Minimum Purchase Quotas. Distributor shall place binding purchase orders no later than the fifth (5th) business day of each calendar quarter for at least USD $450,000 worth of Products.
+5.2 Late Order Liquidated Damages / Penalty. Time is of the essence. If Distributor submits any quarterly purchase order after the fifth (5th) business day of the calendar quarter, or falls short of the quarterly minimum purchase quota for any reason (including port congestion or foreign exchange clearance delays in Bangladesh), Distributor shall pay Supplier, on demand, a fixed late-order penalty of USD $150,000 per late order plus two percent (2%) compounded daily interest, in addition to full payment for the unpurchased minimum quota. The parties agree this sum is payable as a fixed deterrent penalty regardless of whether Supplier suffers any actual loss or resells the inventory to other buyers.
+
+6. LIMITATION OF LIABILITY AND EXCLUSION OF REMEDIES
+6.1 Asymmetric Liability Cap. NOTWITHSTANDING ANYTHING TO THE CONTRARY IN THIS AGREEMENT OR APPLICABLE LAW, SUPPLIER'S TOTAL AGGREGATE LIABILITY TO DISTRIBUTOR FOR ALL CLAIMS ARISING OUT OF OR RELATING TO THIS AGREEMENT, WHETHER IN CONTRACT, TORT, STATUTORY BREACH, DEFECTIVE GOODS, OR OTHERWISE, SHALL IN NO EVENT EXCEED USD $1,000 (ONE THOUSAND US DOLLARS).
+6.2 Exclusion of Implied Warranties and Consequential Damages. All statutory or implied conditions and warranties as to title, description, merchantable quality, or fitness for a particular purpose are hereby excluded in their entirety. If any Product delivered by Supplier is defective or non-conforming, Distributor's sole and exclusive remedy shall be a credit voucher capped at USD $1,000 toward future purchases, even if the defect renders the entire shipment unusable. Distributor's liability to Supplier for breach, indemnity, or penalties under Clauses 3, 4, and 5 shall be unlimited.
+
+7. GOVERNING LAW AND CROSS-BORDER DISPUTE RESOLUTION
+7.1 Foreign Governing Law. This Agreement and any dispute or claim arising out of or in connection with it shall be governed by and construed exclusively in accordance with the substantive laws of the Republic of Singapore, without regard to its conflict of laws principles.
+7.2 Waiver of Local Mandatory Laws and Court Proceedings. The parties expressly waive the application of the competition, antitrust, and contract laws of the People's Republic of Bangladesh, the United States, and the European Union. Distributor further agrees that it shall not institute any legal proceedings, regulatory complaint, or competition inquiry before any court or commission in Bangladesh, the United States, or the European Union, and any attempt to do so shall be void and trigger an immediate liquidated penalty of USD $500,000.
+
+IN WITNESS WHEREOF, the parties have executed this Exclusive Distribution and Supply Agreement as of the Effective Date.
