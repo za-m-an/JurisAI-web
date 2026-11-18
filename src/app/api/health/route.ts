@@ -3,6 +3,7 @@ import { ensureMigrated, query } from "@/lib/db";
 import { ragHealth } from "@/lib/rag-client";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
