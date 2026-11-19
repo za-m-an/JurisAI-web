@@ -131,7 +131,15 @@ export async function getActiveAiHeaders(): Promise<Record<string, string>> {
   );
   const settings: Record<string, any> = {};
   for (const r of settingsRows.rows) {
-    settings[r.key] = typeof r.value === "string" ? JSON.parse(r.value) : r.value;
+    if (typeof r.value === "string") {
+      try {
+        settings[r.key] = JSON.parse(r.value);
+      } catch {
+        settings[r.key] = r.value;
+      }
+    } else {
+      settings[r.key] = r.value;
+    }
   }
 
   const mainProvider = String(settings["ai.provider_main"] || "anthropic").toLowerCase();
@@ -168,15 +176,27 @@ export async function getActiveAiHeaders(): Promise<Record<string, string>> {
     "X-RAG-LLM-Model": ragModel,
   };
 
-  if (bySlug[mainProvider]?.apiKey) {
-    headers["X-LLM-API-Key"] = bySlug[mainProvider].apiKey;
+  function getEnvKeyForProvider(provider: string): string {
+    const p = provider.toLowerCase();
+    if (p === "openrouter") return (process.env.OPENROUTER_API_KEY || "").trim();
+    if (p === "openai") return (process.env.OPENAI_API_KEY || "").trim();
+    if (p === "anthropic") return (process.env.ANTHROPIC_API_KEY || "").trim();
+    if (p === "deepseek") return (process.env.DEEPSEEK_API_KEY || "").trim();
+    if (p === "aws") return (process.env.AWS_API_KEY || "").trim();
+    return "";
+  }
+
+  const mainApiKey = bySlug[mainProvider]?.apiKey || getEnvKeyForProvider(mainProvider);
+  if (mainApiKey) {
+    headers["X-LLM-API-Key"] = mainApiKey;
   }
   if (bySlug[mainProvider]?.baseUrl && (mainProvider === "custom" || mainProvider === "custom-llm")) {
     headers["X-LLM-Base-URL"] = bySlug[mainProvider].baseUrl;
   }
 
-  if (bySlug[ragProvider]?.apiKey) {
-    headers["X-RAG-LLM-API-Key"] = bySlug[ragProvider].apiKey;
+  const ragApiKey = bySlug[ragProvider]?.apiKey || getEnvKeyForProvider(ragProvider) || mainApiKey;
+  if (ragApiKey) {
+    headers["X-RAG-LLM-API-Key"] = ragApiKey;
   }
   if (bySlug[ragProvider]?.baseUrl && (ragProvider === "custom" || ragProvider === "custom-llm")) {
     headers["X-RAG-LLM-Base-URL"] = bySlug[ragProvider].baseUrl;

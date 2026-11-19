@@ -120,9 +120,8 @@ export async function PUT(req: NextRequest) {
       ]
     );
 
-    if (parsed.slug === "rag") {
-      invalidateRagConfigCache();
-    }
+    // Invalidate cached AI headers and RAG config so hot-swapped keys apply immediately
+    invalidateRagConfigCache();
 
     await logAudit({
       userId: admin.id,

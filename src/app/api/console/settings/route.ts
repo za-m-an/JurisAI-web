@@ -5,6 +5,7 @@ import { logAudit } from "@/lib/audit";
 import { ensureMigrated, query } from "@/lib/db";
 import { handleRouteError } from "@/lib/http-error";
 import { getSystemSettings } from "@/lib/quota";
+import { invalidateRagConfigCache } from "@/lib/rag-client";
 import { AdminSettingsPutSchema } from "@/lib/validation";
 
 export const runtime = "nodejs";
@@ -53,6 +54,7 @@ export async function PUT(req: NextRequest) {
       meta: { console: true, ...parsed as Record<string, unknown> },
     });
 
+    invalidateRagConfigCache();
     const updated = await getSystemSettings();
     return adminJsonResponse({ settings: updated });
   } catch (err) {

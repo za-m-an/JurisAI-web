@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { ensureMigrated, query } from "@/lib/db";
-import { ragHealth } from "@/lib/rag-client";
+import { getActiveAiHeaders, ragHealth } from "@/lib/rag-client";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -18,6 +18,16 @@ export async function GET() {
     } catch {
       // RAG unreachable
     }
+
+    try {
+      const aiHeaders = await getActiveAiHeaders();
+      if (aiHeaders["X-LLM-API-Key"] && ragReachable) {
+        ragMock = false;
+      }
+    } catch {
+      // ignore
+    }
+
     return NextResponse.json(
       {
         status: "ok",

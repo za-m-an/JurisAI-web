@@ -43,6 +43,33 @@ export async function POST(
       }
     } else if (slug === "rag") {
       apiKey = process.env.RAG_API_KEY || "dev-rag-key";
+    } else if (slug === "openrouter" && process.env.OPENROUTER_API_KEY) {
+      apiKey = process.env.OPENROUTER_API_KEY.trim();
+    } else if (slug === "openai" && process.env.OPENAI_API_KEY) {
+      apiKey = process.env.OPENAI_API_KEY.trim();
+    } else if (slug === "anthropic" && process.env.ANTHROPIC_API_KEY) {
+      apiKey = process.env.ANTHROPIC_API_KEY.trim();
+    } else if (slug === "deepseek" && process.env.DEEPSEEK_API_KEY) {
+      apiKey = process.env.DEEPSEEK_API_KEY.trim();
+    } else if (slug === "aws" && process.env.AWS_API_KEY) {
+      apiKey = process.env.AWS_API_KEY.trim();
+    }
+
+    const aiSlugs = ["anthropic", "openai", "deepseek", "openrouter", "aws"];
+    if (aiSlugs.includes(slug) && !apiKey) {
+      const latencyMs = 0;
+      const statusText = "No API key configured (enter & hot-swap key)";
+      await query(
+        "UPDATE integrations SET last_status = $1, last_checked_at = NOW() WHERE slug = $2",
+        [statusText, slug]
+      );
+      return adminJsonResponse({
+        slug,
+        status: statusText,
+        ok: false,
+        latencyMs,
+        details: { error: "missing_key", message: "No API key has been entered or saved for this provider." },
+      });
     }
 
     const targetUrl = `${row.base_url.replace(/\/+$/, "")}${
