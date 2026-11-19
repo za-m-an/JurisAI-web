@@ -20,10 +20,11 @@ export interface SystemSettings {
   max_upload_mb: number;
   mask_pii: boolean;
   default_jurisdictions: Array<"BD" | "US" | "EU">;
-  "ai.provider_main"?: "anthropic" | "openai" | "deepseek" | "custom";
+  "ai.provider_main"?: "anthropic" | "openai" | "deepseek" | "openrouter" | "aws" | "custom";
   "ai.model_main"?: string;
-  "ai.provider_rag"?: "openai" | "deepseek" | "anthropic" | "custom";
+  "ai.provider_rag"?: "openai" | "deepseek" | "anthropic" | "openrouter" | "aws" | "custom";
   "ai.model_rag"?: string;
+  "ai.token_optimization_enabled"?: boolean;
 }
 
 const DEFAULT_SETTINGS: SystemSettings = {

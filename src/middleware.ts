@@ -12,6 +12,7 @@ const PROTECTED_USER_PREFIXES = [
   "/chat",
   "/history",
   "/settings",
+  "/lawyers",
 ];
 
 function getEdgeJwtSecret(): Uint8Array | null {

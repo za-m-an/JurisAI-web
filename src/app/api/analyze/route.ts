@@ -161,12 +161,23 @@ export async function POST(req: NextRequest) {
       // Immediately clear extracted text reference after RAG call
       extractedText = undefined;
 
+      const inputTokens = Math.max(100, Math.ceil(docSize / 4));
+      const outputTokens = Math.max(
+        400,
+        Math.ceil((ragResult.memo_markdown?.length || 3500) / 4) +
+          (ragResult.risks?.length || 3) * 150
+      );
+      const totalTokens = inputTokens + outputTokens;
+
       await query(
         `UPDATE analyses
          SET status = 'done',
              result = $2::jsonb,
              memo_markdown = $3,
              rag_timings = $4::jsonb,
+             input_tokens = $5,
+             output_tokens = $6,
+             total_tokens = $7,
              finished_at = NOW()
          WHERE id = $1`,
         [
@@ -174,6 +185,9 @@ export async function POST(req: NextRequest) {
           JSON.stringify(ragResult),
           ragResult.memo_markdown,
           JSON.stringify(ragResult.timings_ms || {}),
+          inputTokens,
+          outputTokens,
+          totalTokens,
         ]
       );
 

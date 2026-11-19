@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getClientIp, requireUser, verifyCsrfOrigin } from "@/lib/auth";
 import { logAudit } from "@/lib/audit";
 import { ensureMigrated, query } from "@/lib/db";
+import { extractDocumentInMemory } from "@/lib/extract";
 import { handleRouteError, jsonError } from "@/lib/http-error";
 import { enforceChatQuota, getSystemSettings } from "@/lib/quota";
 import { ragChat } from "@/lib/rag-client";
@@ -28,12 +29,80 @@ export async function POST(req: NextRequest) {
     });
     await enforceChatQuota(user);
 
-    const rawBody = await req.json();
-    const parsed = ChatRequestSchema.parse(rawBody);
     const settings = await getSystemSettings();
-    const jurisdictions = parsed.jurisdictions || settings.default_jurisdictions || ["BD", "US", "EU"];
+    const contentType = req.headers.get("content-type") || "";
 
-    let conversationId = parsed.conversationId || null;
+    let conversationId: string | null = null;
+    let message = "";
+    let jurisdictions: Array<"BD" | "US" | "EU"> = (settings.default_jurisdictions as any) || ["BD", "US", "EU"];
+    let analysisId: string | null = null;
+    let contextNote: string | undefined = undefined;
+    let mode: "conversational" | "memorandum" = "conversational";
+    let attachedFileName: string | null = null;
+
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await req.formData();
+      message = (formData.get("message") as string) || "";
+      conversationId = (formData.get("conversationId") as string) || null;
+      analysisId = (formData.get("analysisId") as string) || null;
+      contextNote = (formData.get("contextNote") as string) || undefined;
+      const rawMode = (formData.get("mode") as string) || "conversational";
+      mode = rawMode === "memorandum" ? "memorandum" : "conversational";
+
+      const jurRaw = formData.get("jurisdictions");
+      if (jurRaw && typeof jurRaw === "string") {
+        try {
+          const parsedJur = JSON.parse(jurRaw);
+          if (Array.isArray(parsedJur)) {
+            jurisdictions = parsedJur.filter((j) => ["BD", "US", "EU"].includes(j));
+          }
+        } catch {
+          // ignore parsing error
+        }
+      }
+
+      const fileEntry = formData.get("file");
+      if (
+        fileEntry &&
+        typeof fileEntry === "object" &&
+        typeof (fileEntry as any).arrayBuffer === "function" &&
+        ((fileEntry as any).size ?? 0) > 0
+      ) {
+        const fileBytes = new Uint8Array(await (fileEntry as any).arrayBuffer());
+        const safeFileName = (fileEntry as any).name || "agreement";
+        attachedFileName = safeFileName;
+        const extraction = await extractDocumentInMemory({
+          bytes: fileBytes,
+          fileName: safeFileName,
+          mimeType: (fileEntry as any).type,
+          maxUploadMb: settings.max_upload_mb,
+        });
+
+        // When a file is attached and sent, engage memorandum mode
+        mode = "memorandum";
+        const excerpt = extraction.text.slice(0, 7500);
+        contextNote = `[Attached Contract Document: ${attachedFileName} (${extraction.docSize} bytes)]\n${excerpt}`;
+        if (!message.trim()) {
+          message = `Please analyze the attached agreement (${attachedFileName}) and outline all non-obvious contractual risks.`;
+        }
+      }
+
+      if (!message.trim()) {
+        return jsonError(400, "empty_message", "Message or attached document cannot be empty.");
+      }
+    } else {
+      const rawBody = await req.json();
+      const parsed = ChatRequestSchema.parse(rawBody);
+      conversationId = parsed.conversationId || null;
+      message = parsed.message;
+      if (parsed.jurisdictions && parsed.jurisdictions.length > 0) {
+        jurisdictions = parsed.jurisdictions;
+      }
+      analysisId = parsed.analysisId || null;
+      contextNote = parsed.contextNote || undefined;
+      mode = parsed.mode || "conversational";
+    }
+
     if (conversationId) {
       const convCheck = await query<{ id: string; user_id: string }>(
         "SELECT id, user_id FROM conversations WHERE id = $1 LIMIT 1",
@@ -46,7 +115,9 @@ export async function POST(req: NextRequest) {
         return jsonError(403, "forbidden", "Access denied to this conversation.");
       }
     } else {
-      const title = parsed.message.slice(0, 60);
+      const title = attachedFileName
+        ? `Review: ${attachedFileName}`.slice(0, 60)
+        : message.slice(0, 60);
       const created = await query<{ id: string }>(
         "INSERT INTO conversations (user_id, title) VALUES ($1, $2) RETURNING id",
         [user.id, title]
@@ -55,11 +126,10 @@ export async function POST(req: NextRequest) {
     }
 
     // Build optional context_note from attached analysis if analysisId provided
-    let contextNote = parsed.contextNote || undefined;
-    if (!contextNote && parsed.analysisId) {
+    if (!contextNote && analysisId) {
       const anaRes = await query<{ user_id: string; result: any }>(
         "SELECT user_id, result FROM analyses WHERE id = $1 LIMIT 1",
-        [parsed.analysisId]
+        [analysisId]
       );
       if (anaRes.rows.length > 0 && anaRes.rows[0].user_id === user.id && anaRes.rows[0].result) {
         const r = anaRes.rows[0].result;
@@ -70,10 +140,14 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Insert user message
+    // Store user message with attachment notice if present
+    const userMessageToSave = attachedFileName
+      ? `📎 [Attached: ${attachedFileName}]\n\n${message}`
+      : message;
+
     await query(
       "INSERT INTO messages (conversation_id, role, content) VALUES ($1, 'user', $2)",
-      [conversationId, parsed.message]
+      [conversationId, userMessageToSave]
     );
 
     // Fetch at most the last 10 messages for RAG context
@@ -98,6 +172,7 @@ export async function POST(req: NextRequest) {
       messages: ragMessages,
       jurisdictions,
       context_note: contextNote ? contextNote.slice(0, 8000) : undefined,
+      mode,
     });
 
     const savedAssistant = await query<{ id: string; created_at: string }>(
@@ -115,7 +190,7 @@ export async function POST(req: NextRequest) {
       target: conversationId,
       ip,
       userAgent: req.headers.get("user-agent"),
-      meta: { citationsCount: ragResp.citations?.length ?? 0 },
+      meta: { citationsCount: ragResp.citations?.length ?? 0, mode, attached: !!attachedFileName },
     });
 
     return NextResponse.json({
@@ -125,6 +200,8 @@ export async function POST(req: NextRequest) {
       citations: ragResp.citations,
       disclaimer: ragResp.disclaimer,
       mock: ragResp.mock,
+      mode,
+      attachedFileName,
     });
   } catch (err) {
     return handleRouteError(err);

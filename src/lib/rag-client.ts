@@ -364,6 +364,7 @@ export async function ragChat(params: {
   messages: Array<{ role: "user" | "assistant"; content: string }>;
   jurisdictions?: Array<"BD" | "US" | "EU">;
   context_note?: string;
+  mode?: "conversational" | "memorandum";
 }): Promise<RagChatResponse> {
   return ragFetch<RagChatResponse>("/chat", {
     method: "POST",

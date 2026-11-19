@@ -26,7 +26,7 @@ export default function Navigation() {
   const [loading, setLoading] = useState(true);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Skip rendering public navigation on console routes
+  // Skip rendering public navigation entirely on dedicated console routes
   const isConsole = pathname.startsWith("/console");
 
   useEffect(() => {
@@ -42,17 +42,19 @@ export default function Navigation() {
         if (!active) return;
         if (data?.user) {
           setUser(data.user);
-          // Fetch user quota usage
-          try {
-            const anRes = await fetch("/api/analyses");
-            if (anRes.ok) {
-              const anData = await anRes.json();
-              if (anData.quota) {
-                setQuota(anData.quota);
+          // Fetch user quota usage for non-admins
+          if (data.user.role !== "admin") {
+            try {
+              const anRes = await fetch("/api/analyses");
+              if (anRes.ok) {
+                const anData = await anRes.json();
+                if (anData.quota) {
+                  setQuota(anData.quota);
+                }
               }
+            } catch {
+              // Quota fetch fallback
             }
-          } catch {
-            // Quota fetch fallback
           }
         } else {
           setUser(null);
@@ -92,6 +94,8 @@ export default function Navigation() {
     return null;
   }
 
+  const isAdmin = user?.role === "admin";
+
   // Calculate initials for avatar
   const initials = user?.fullName
     ? user.fullName
@@ -109,13 +113,18 @@ export default function Navigation() {
         <div className="flex items-center space-x-8">
           <Link
             href="/"
-            className="text-xl font-serif font-bold tracking-tight text-amber-100 hover:text-white transition-colors"
+            className="text-xl font-serif font-bold tracking-tight text-amber-100 hover:text-white transition-colors flex items-center gap-2"
           >
-            Juris AI
+            <span>Juris AI</span>
+            {isAdmin && (
+              <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                Admin
+              </span>
+            )}
           </Link>
 
-          {/* Primary Navigation — Logged In */}
-          {user && (
+          {/* Primary Navigation — Authenticated Normal Users Only */}
+          {user && !isAdmin && (
             <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
               <Link
                 href="/dashboard"
@@ -135,7 +144,7 @@ export default function Navigation() {
                     : "text-slate-300 hover:text-white"
                 }`}
               >
-                Analyze
+                Analyse Document
               </Link>
               <Link
                 href="/chat"
@@ -145,7 +154,17 @@ export default function Navigation() {
                     : "text-slate-300 hover:text-white"
                 }`}
               >
-                Chats
+                AI Copilot
+              </Link>
+              <Link
+                href="/lawyers"
+                className={`transition-colors ${
+                  pathname === "/lawyers"
+                    ? "text-amber-200 font-semibold"
+                    : "text-slate-300 hover:text-white"
+                }`}
+              >
+                Recommended Lawyers
               </Link>
               <Link
                 href="/history"
@@ -159,6 +178,14 @@ export default function Navigation() {
               </Link>
             </nav>
           )}
+
+          {/* Administrator Notice for Admins */}
+          {user && isAdmin && (
+            <div className="hidden md:flex items-center space-x-3 text-xs font-mono text-slate-300">
+              <span className="text-amber-400">●</span>
+              <span>Administrator Portal Active — Manage platform in Command Center</span>
+            </div>
+          )}
         </div>
 
         {/* Right Navigation Controls */}
@@ -166,78 +193,129 @@ export default function Navigation() {
           {loading ? (
             <div className="w-8 h-8 rounded-full bg-slate-800 animate-pulse" />
           ) : user ? (
-            /* Logged In Account Menu */
-            <div className="relative" ref={menuRef}>
-              <button
-                type="button"
-                onClick={() => setMenuOpen(!menuOpen)}
-                aria-expanded={menuOpen}
-                aria-label="User Account Menu"
-                className="flex items-center space-x-2 p-1 rounded-full border border-slate-700 hover:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all"
-              >
-                <div className="w-8 h-8 rounded-full bg-amber-600 text-white font-bold text-xs flex items-center justify-center font-mono">
-                  {initials}
-                </div>
-              </button>
-
-              {menuOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-white text-slate-900 rounded-lg shadow-xl border border-slate-200 py-2 z-50 text-xs">
-                  {/* Account Header Details */}
-                  <div className="px-4 py-2 border-b border-slate-100 space-y-1">
-                    <p className="font-bold text-slate-900 truncate">{user.fullName}</p>
-                    <p className="text-[11px] text-slate-500 font-mono truncate">{user.email}</p>
-                    {user.role === "business" && user.organisation && (
-                      <p className="text-[11px] text-slate-600 font-medium">
-                        Organisation: {user.organisation}
-                      </p>
-                    )}
-                    {quota && (
-                      <div className="pt-1.5 text-[11px] text-amber-900 font-medium">
-                        Monthly Quota: {quota.used} / {quota.limit} used
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Menu Items */}
-                  <div className="py-1">
-                    <Link
-                      href="/settings"
-                      onClick={() => setMenuOpen(false)}
-                      className="block px-4 py-2 hover:bg-slate-50 text-slate-700 transition-colors"
-                    >
-                      Settings
-                    </Link>
-                    <Link
-                      href="/privacy"
-                      onClick={() => setMenuOpen(false)}
-                      className="block px-4 py-2 hover:bg-slate-50 text-slate-700 transition-colors"
-                    >
-                      Privacy
-                    </Link>
-                    <Link
-                      href="/how-verification-works"
-                      onClick={() => setMenuOpen(false)}
-                      className="block px-4 py-2 hover:bg-slate-50 text-slate-700 transition-colors"
-                    >
-                      How verification works
-                    </Link>
-                  </div>
-
-                  {/* Sign Out */}
-                  <div className="border-t border-slate-100 pt-1">
-                    <button
-                      type="button"
-                      onClick={handleSignOut}
-                      className="w-full text-left px-4 py-2 text-rose-700 hover:bg-rose-50 font-semibold transition-colors"
-                    >
-                      Sign out
-                    </button>
-                  </div>
-                </div>
+            /* Logged In Controls */
+            <div className="flex items-center space-x-3">
+              {isAdmin && (
+                <Link
+                  href="/console"
+                  className="px-3.5 py-1.5 rounded bg-amber-600 hover:bg-amber-500 text-white font-mono text-xs font-bold transition-colors shadow-sm"
+                >
+                  Open Command Center →
+                </Link>
               )}
+
+              <div className="relative" ref={menuRef}>
+                <button
+                  type="button"
+                  onClick={() => setMenuOpen(!menuOpen)}
+                  aria-expanded={menuOpen}
+                  aria-label="User Account Menu"
+                  className="flex items-center space-x-2 p-1 rounded-full border border-slate-700 hover:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all"
+                >
+                  <div className={`w-8 h-8 rounded-full ${isAdmin ? "bg-slate-700 text-amber-300" : "bg-amber-600 text-white"} font-bold text-xs flex items-center justify-center font-mono`}>
+                    {initials}
+                  </div>
+                </button>
+
+                {menuOpen && (
+                  <div className="absolute right-0 mt-2 w-64 bg-white text-slate-900 rounded-lg shadow-xl border border-slate-200 py-2 z-50 text-xs">
+                    {/* Account Header Details */}
+                    <div className="px-4 py-2 border-b border-slate-100 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <p className="font-bold text-slate-900 truncate">{user.fullName}</p>
+                        <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold">
+                          {user.role}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 font-mono truncate">{user.email}</p>
+                      {user.role === "business" && user.organisation && (
+                        <p className="text-[11px] text-slate-600 font-medium">
+                          Org: {user.organisation}
+                        </p>
+                      )}
+                      {quota && !isAdmin && (
+                        <div className="pt-1 text-[11px] text-amber-900 font-medium">
+                          Monthly Quota: {quota.used} / {quota.limit} used
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Menu Items */}
+                    <div className="py-1 font-mono text-xs">
+                      {isAdmin ? (
+                        <>
+                          <Link
+                            href="/console"
+                            onClick={() => setMenuOpen(false)}
+                            className="block px-4 py-2 hover:bg-slate-50 text-amber-900 font-bold transition-colors"
+                          >
+                            Admin Command Center
+                          </Link>
+                          <Link
+                            href="/console/users"
+                            onClick={() => setMenuOpen(false)}
+                            className="block px-4 py-2 hover:bg-slate-50 text-slate-700 transition-colors"
+                          >
+                            Manage Users
+                          </Link>
+                          <Link
+                            href="/console/integrations"
+                            onClick={() => setMenuOpen(false)}
+                            className="block px-4 py-2 hover:bg-slate-50 text-slate-700 transition-colors"
+                          >
+                            AI Models &amp; RAG Keys
+                          </Link>
+                        </>
+                      ) : (
+                        <>
+                          <Link
+                            href="/dashboard"
+                            onClick={() => setMenuOpen(false)}
+                            className="block px-4 py-2 hover:bg-slate-50 text-slate-700 transition-colors"
+                          >
+                            My Dashboard
+                          </Link>
+                          <Link
+                            href="/settings"
+                            onClick={() => setMenuOpen(false)}
+                            className="block px-4 py-2 hover:bg-slate-50 text-slate-700 transition-colors"
+                          >
+                            Account Settings
+                          </Link>
+                        </>
+                      )}
+                      <Link
+                        href="/privacy"
+                        onClick={() => setMenuOpen(false)}
+                        className="block px-4 py-2 hover:bg-slate-50 text-slate-700 transition-colors"
+                      >
+                        Privacy &amp; Data Promise
+                      </Link>
+                      <Link
+                        href="/how-verification-works"
+                        onClick={() => setMenuOpen(false)}
+                        className="block px-4 py-2 hover:bg-slate-50 text-slate-700 transition-colors"
+                      >
+                        How Verification Works
+                      </Link>
+                    </div>
+
+                    {/* Sign Out */}
+                    <div className="border-t border-slate-100 pt-1">
+                      <button
+                        type="button"
+                        onClick={handleSignOut}
+                        className="w-full text-left px-4 py-2 text-rose-700 hover:bg-rose-50 font-semibold font-mono text-xs transition-colors"
+                      >
+                        Sign out
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           ) : (
-            /* Logged Out Navigation */
+            /* Logged Out / Unauthenticated Navigation */
             <nav className="flex items-center space-x-4 text-xs font-medium">
               <Link
                 href="/how-verification-works"

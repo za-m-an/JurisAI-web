@@ -61,7 +61,13 @@ export async function POST(
       if (slug === "anthropic") {
         if (apiKey) headers["x-api-key"] = apiKey;
         headers["anthropic-version"] = "2023-06-01";
-      } else if (slug === "openai" || slug === "deepseek") {
+      } else if (slug === "openai" || slug === "deepseek" || slug === "openrouter") {
+        if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
+        if (slug === "openrouter") {
+          headers["HTTP-Referer"] = "http://localhost:3000";
+          headers["X-Title"] = "Juris AI";
+        }
+      } else if (slug === "aws") {
         if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
       } else if (slug === "rag") {
         if (apiKey) headers["X-API-Key"] = apiKey;

@@ -97,6 +97,57 @@ export async function GET(req: NextRequest) {
       // Offline RAG fallback
     }
 
+    // Per-user token usage analytics
+    const tokenUsageRes = await query<{
+      id: string;
+      email: string;
+      full_name: string;
+      role: string;
+      organisation: string | null;
+      analyses_count: number | string;
+      total_tokens: number | string;
+      input_tokens: number | string;
+      output_tokens: number | string;
+      last_analysis_at: string | null;
+    }>(
+      `SELECT 
+         u.id, 
+         u.email, 
+         u.full_name, 
+         u.role, 
+         u.organisation,
+         COUNT(a.id)::int AS analyses_count,
+         COALESCE(SUM(a.total_tokens), 0)::int AS total_tokens,
+         COALESCE(SUM(a.input_tokens), 0)::int AS input_tokens,
+         COALESCE(SUM(a.output_tokens), 0)::int AS output_tokens,
+         MAX(a.created_at) AS last_analysis_at
+       FROM users u
+       LEFT JOIN analyses a ON a.user_id = u.id AND a.status = 'done'
+       GROUP BY u.id, u.email, u.full_name, u.role, u.organisation
+       ORDER BY total_tokens DESC
+       LIMIT 50`
+    );
+
+    const grandTokensRes = await query<{
+      grand_total_tokens: number | string;
+      grand_input_tokens: number | string;
+      grand_output_tokens: number | string;
+    }>(
+      `SELECT 
+         COALESCE(SUM(total_tokens), 0)::int as grand_total_tokens,
+         COALESCE(SUM(input_tokens), 0)::int as grand_input_tokens,
+         COALESCE(SUM(output_tokens), 0)::int as grand_output_tokens
+       FROM analyses WHERE status = 'done'`
+    );
+
+    const grandTotal = Number(grandTokensRes.rows[0]?.grand_total_tokens || 0);
+    const grandInput = Number(grandTokensRes.rows[0]?.grand_input_tokens || 0);
+    const grandOutput = Number(grandTokensRes.rows[0]?.grand_output_tokens || 0);
+    // Standard blended cost estimation (~$3/M input, ~$15/M output)
+    const estimatedCostUsd = Number(
+      ((grandInput / 1_000_000) * 3.0 + (grandOutput / 1_000_000) * 15.0).toFixed(4)
+    );
+
     return adminJsonResponse({
       usersByRole,
       analyses: {
@@ -106,6 +157,31 @@ export async function GET(req: NextRequest) {
         total: totalAnalyses,
         failureRate,
         averageAnalysisTimeSeconds,
+      },
+      tokens: {
+        totalTokens: grandTotal,
+        inputTokens: grandInput,
+        outputTokens: grandOutput,
+        estimatedCostUsd,
+        tokenOptimizationEnabled: true,
+        perUser: tokenUsageRes.rows.map((r) => ({
+          id: r.id,
+          email: r.email,
+          fullName: r.full_name,
+          role: r.role,
+          organisation: r.organisation,
+          analysesCount: Number(r.analyses_count || 0),
+          totalTokens: Number(r.total_tokens || 0),
+          inputTokens: Number(r.input_tokens || 0),
+          outputTokens: Number(r.output_tokens || 0),
+          lastAnalysisAt: r.last_analysis_at,
+          estimatedCostUsd: Number(
+            (
+              (Number(r.input_tokens || 0) / 1_000_000) * 3.0 +
+              (Number(r.output_tokens || 0) / 1_000_000) * 15.0
+            ).toFixed(4)
+          ),
+        })),
       },
       rag,
       system: {

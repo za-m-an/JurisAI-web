@@ -75,12 +75,17 @@ export default function DashboardPage() {
         <div className="flex items-center gap-2.5">
           <Link href="/analyze">
             <Button variant="primary" size="md">
-              + New Analysis
+              + Launch Agentic Analysis
             </Button>
           </Link>
           <Link href="/chat">
             <Button variant="secondary" size="md">
-              Open Legal Chat
+              Legal AI Copilot
+            </Button>
+          </Link>
+          <Link href="/lawyers">
+            <Button variant="outline" size="md">
+              Recommended Lawyers
             </Button>
           </Link>
         </div>
@@ -228,6 +233,67 @@ export default function DashboardPage() {
             </tbody>
           </Table>
         )}
+      </div>
+
+      {/* Recommended Cross-Border Legal Counsel Preview */}
+      <div className="bg-white border border-hairline rounded-lg p-6 shadow-subtle space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-hairline pb-3">
+          <div>
+            <span className="text-[10px] font-mono uppercase text-ink-subtle">Advisory Directory</span>
+            <h2 className="font-serif text-lg font-bold text-ink">
+              Recommended Cross-Border Legal Practitioners
+            </h2>
+            <p className="text-xs text-ink-muted">
+              Pre-screened counsel admitted to practice before Supreme Courts and Competition Tribunals.
+            </p>
+          </div>
+          <Link href="/lawyers">
+            <Button variant="outline" size="sm">
+              View All Practitioners →
+            </Button>
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+          <div className="p-4 rounded border border-hairline bg-paper-warm/40 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-serif font-bold text-xs text-ink">Barrister Rafiqul Islam, KC</span>
+              <Badge variant="high">BD Counsel</Badge>
+            </div>
+            <p className="text-[11px] text-ink-muted font-sans line-clamp-2">
+              Senior Advocate, Supreme Court of Bangladesh. Specialized in Competition Act 2012 &amp; Contract Act 1872.
+            </p>
+            <Link href="/lawyers" className="text-[11px] font-semibold text-accent hover:underline block pt-1">
+              Consult Chambers →
+            </Link>
+          </div>
+
+          <div className="p-4 rounded border border-hairline bg-paper-warm/40 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-serif font-bold text-xs text-ink">Eleanor Vance, Esq.</span>
+              <Badge variant="medium">US Counsel</Badge>
+            </div>
+            <p className="text-[11px] text-ink-muted font-sans line-clamp-2">
+              Partner, Antitrust &amp; Trade Regulation (NY &amp; DC Bar). Sherman Act §§ 1-2 &amp; Clayton Act § 3 defense.
+            </p>
+            <Link href="/lawyers" className="text-[11px] font-semibold text-accent hover:underline block pt-1">
+              Consult Chambers →
+            </Link>
+          </div>
+
+          <div className="p-4 rounded border border-hairline bg-paper-warm/40 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-serif font-bold text-xs text-ink">Dr. Maximilian Becker</span>
+              <Badge variant="verified">EU Counsel</Badge>
+            </div>
+            <p className="text-[11px] text-ink-muted font-sans line-clamp-2">
+              Partner, Brussels &amp; Frankfurt. Specialized in TFEU Article 101/102 and VBER cross-border distribution.
+            </p>
+            <Link href="/lawyers" className="text-[11px] font-semibold text-accent hover:underline block pt-1">
+              Consult Chambers →
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

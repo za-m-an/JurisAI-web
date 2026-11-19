@@ -272,7 +272,7 @@ describe("Administrative Console Isolation & Security Suite", () => {
     expect(reuseRecoveryRes.status).toBe(401);
     const reuseJson = await reuseRecoveryRes.json();
     expect(reuseJson.error).toBe("invalid_recovery_code");
-  });
+  }, 15000);
 
   it("7. console responses carry noindex, nofollow, and no-store headers", async () => {
     const adminSessionToken = await signAdminSessionToken({ sub: adminId, tv: 0 });

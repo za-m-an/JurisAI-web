@@ -1,8 +1,21 @@
 import React from "react";
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { Badge, Button } from "@/components/ui/primitives";
 
-export default function LandingPage() {
+export default function Page() {
+  const cookieStore = cookies();
+  if (cookieStore.get("juris_admin_session")) {
+    redirect("/console");
+  }
+  if (cookieStore.get("juris_session")) {
+    redirect("/dashboard");
+  }
+  return <LandingPageView />;
+}
+
+function LandingPageView() {
   return (
     <div className="space-y-20 py-6">
       {/* Editorial 12-Column Hero */}
