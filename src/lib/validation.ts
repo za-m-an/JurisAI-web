@@ -83,4 +83,8 @@ export const AdminSettingsPutSchema = z.object({
   max_upload_mb: z.number().min(1).max(4).optional(),
   mask_pii: z.boolean().optional(),
   default_jurisdictions: z.array(JurisdictionEnum).min(1).max(3).optional(),
+  "ai.provider_main": z.enum(["anthropic", "openai", "deepseek", "custom"]).optional(),
+  "ai.model_main": z.string().trim().min(1).max(120).optional(),
+  "ai.provider_rag": z.enum(["openai", "deepseek", "anthropic", "custom"]).optional(),
+  "ai.model_rag": z.string().trim().min(1).max(120).optional(),
 });

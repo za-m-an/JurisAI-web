@@ -20,6 +20,10 @@ export interface SystemSettings {
   max_upload_mb: number;
   mask_pii: boolean;
   default_jurisdictions: Array<"BD" | "US" | "EU">;
+  "ai.provider_main"?: "anthropic" | "openai" | "deepseek" | "custom";
+  "ai.model_main"?: string;
+  "ai.provider_rag"?: "openai" | "deepseek" | "anthropic" | "custom";
+  "ai.model_rag"?: string;
 }
 
 const DEFAULT_SETTINGS: SystemSettings = {
@@ -32,6 +36,10 @@ const DEFAULT_SETTINGS: SystemSettings = {
   max_upload_mb: 4,
   mask_pii: true,
   default_jurisdictions: ["BD", "US", "EU"],
+  "ai.provider_main": "anthropic",
+  "ai.model_main": "claude-sonnet-5-5",
+  "ai.provider_rag": "openai",
+  "ai.model_rag": "gpt-4o-mini",
 };
 
 export async function getSystemSettings(): Promise<SystemSettings> {

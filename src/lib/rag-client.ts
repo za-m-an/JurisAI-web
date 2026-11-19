@@ -111,9 +111,81 @@ interface CachedRagConfig {
 }
 
 let cachedConfig: CachedRagConfig | null = null;
+let cachedAiHeaders: { headers: Record<string, string>; expiresAt: number } | null = null;
 
 export function invalidateRagConfigCache(): void {
   cachedConfig = null;
+  cachedAiHeaders = null;
+}
+
+export async function getActiveAiHeaders(): Promise<Record<string, string>> {
+  const now = Date.now();
+  if (cachedAiHeaders && cachedAiHeaders.expiresAt > now) {
+    return cachedAiHeaders.headers;
+  }
+
+  await ensureMigrated();
+  const settingsRows = await query<{ key: string; value: any }>(
+    "SELECT key, value FROM settings WHERE key LIKE 'ai.%'"
+  );
+  const settings: Record<string, any> = {};
+  for (const r of settingsRows.rows) {
+    settings[r.key] = typeof r.value === "string" ? JSON.parse(r.value) : r.value;
+  }
+
+  const mainProvider = String(settings["ai.provider_main"] || "anthropic").toLowerCase();
+  const mainModel = String(settings["ai.model_main"] || "claude-sonnet-5-5");
+  const ragProvider = String(settings["ai.provider_rag"] || "openai").toLowerCase();
+  const ragModel = String(settings["ai.model_rag"] || "gpt-4o-mini");
+
+  const intRows = await query<{
+    slug: string;
+    base_url: string;
+    api_key_enc: string | null;
+  }>("SELECT slug, base_url, api_key_enc FROM integrations WHERE slug IN ($1, $2)", [
+    mainProvider,
+    ragProvider,
+  ]);
+
+  const bySlug: Record<string, { baseUrl: string; apiKey: string }> = {};
+  for (const row of intRows.rows) {
+    let key = "";
+    if (row.api_key_enc) {
+      try {
+        key = decryptSecret(row.api_key_enc);
+      } catch {
+        key = "";
+      }
+    }
+    bySlug[row.slug] = { baseUrl: row.base_url, apiKey: key };
+  }
+
+  const headers: Record<string, string> = {
+    "X-LLM-Provider": mainProvider,
+    "X-LLM-Model-Main": mainModel,
+    "X-RAG-LLM-Provider": ragProvider,
+    "X-RAG-LLM-Model": ragModel,
+  };
+
+  if (bySlug[mainProvider]?.apiKey) {
+    headers["X-LLM-API-Key"] = bySlug[mainProvider].apiKey;
+  }
+  if (bySlug[mainProvider]?.baseUrl && (mainProvider === "custom" || mainProvider === "custom-llm")) {
+    headers["X-LLM-Base-URL"] = bySlug[mainProvider].baseUrl;
+  }
+
+  if (bySlug[ragProvider]?.apiKey) {
+    headers["X-RAG-LLM-API-Key"] = bySlug[ragProvider].apiKey;
+  }
+  if (bySlug[ragProvider]?.baseUrl && (ragProvider === "custom" || ragProvider === "custom-llm")) {
+    headers["X-RAG-LLM-Base-URL"] = bySlug[ragProvider].baseUrl;
+  }
+
+  cachedAiHeaders = {
+    headers,
+    expiresAt: now + 30_000,
+  };
+  return headers;
 }
 
 export async function getRagConfig(): Promise<{ baseUrl: string; apiKey: string; enabled: boolean }> {
@@ -190,6 +262,15 @@ async function ragFetch<T>(
   }
   if (options.body !== undefined) {
     headers["Content-Type"] = "application/json";
+  }
+
+  try {
+    const aiHeaders = await getActiveAiHeaders();
+    for (const [k, v] of Object.entries(aiHeaders)) {
+      if (v) headers[k] = v;
+    }
+  } catch {
+    // Non-blocking fallback to server defaults
   }
 
   let response: Response;

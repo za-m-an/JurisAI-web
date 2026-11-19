@@ -58,7 +58,19 @@ export async function POST(
     const timer = setTimeout(() => controller.abort(), 10_000);
     try {
       const headers: Record<string, string> = { Accept: "application/json" };
-      if (apiKey) headers["X-API-Key"] = apiKey;
+      if (slug === "anthropic") {
+        if (apiKey) headers["x-api-key"] = apiKey;
+        headers["anthropic-version"] = "2023-06-01";
+      } else if (slug === "openai" || slug === "deepseek") {
+        if (apiKey) headers["Authorization"] = `Bearer ${apiKey}`;
+      } else if (slug === "rag") {
+        if (apiKey) headers["X-API-Key"] = apiKey;
+      } else {
+        if (apiKey) {
+          headers["X-API-Key"] = apiKey;
+          headers["Authorization"] = `Bearer ${apiKey}`;
+        }
+      }
       const resp = await fetch(targetUrl, {
         method: "GET",
         headers,
