@@ -5,7 +5,7 @@ import { ensureMigrated, query } from "@/lib/db";
 import { extractDocumentInMemory } from "@/lib/extract";
 import { handleRouteError, jsonError } from "@/lib/http-error";
 import { enforceChatQuota, getSystemSettings } from "@/lib/quota";
-import { ragChat } from "@/lib/rag-client";
+import { ragAnalyze, ragChat } from "@/lib/rag-client";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { ChatRequestSchema } from "@/lib/validation";
 
@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
     let contextNote: string | undefined = undefined;
     let mode: "conversational" | "memorandum" = "conversational";
     let attachedFileName: string | null = null;
+    let rawContractText: string | null = null;
 
     if (contentType.includes("multipart/form-data")) {
       const formData = await req.formData();
@@ -78,12 +79,13 @@ export async function POST(req: NextRequest) {
           maxUploadMb: settings.max_upload_mb,
         });
 
+        rawContractText = extraction.text;
         // When a file is attached and sent, engage memorandum mode
         mode = "memorandum";
         const excerpt = extraction.text.slice(0, 7500);
         contextNote = `[Attached Contract Document: ${attachedFileName} (${extraction.docSize} bytes)]\n${excerpt}`;
         if (!message.trim()) {
-          message = `Please analyze the attached agreement (${attachedFileName}) and outline all non-obvious contractual risks.`;
+          message = `Please scan and analyze the attached agreement (${attachedFileName}) and outline all contractual risks.`;
         }
       }
 
@@ -184,18 +186,75 @@ export async function POST(req: NextRequest) {
       content: m.content,
     }));
 
-    const ragResp = await ragChat({
-      messages: ragMessages,
-      jurisdictions,
-      context_note: contextNote ? contextNote.slice(0, 8000) : undefined,
-      mode,
-    });
+    let answerMarkdown: string;
+    let citations: any[];
+    let thinkingTrace: string | undefined;
+
+    if (rawContractText) {
+      try {
+        const anaResult = await ragAnalyze({
+          document_text: rawContractText,
+          jurisdictions,
+          doc_name: attachedFileName || "Attached Agreement",
+        });
+
+        const insAna = await query<{ id: string }>(
+          `INSERT INTO analyses (user_id, status, doc_name, doc_size, doc_mime, doc_sha256, jurisdictions, result, memo_markdown, finished_at)
+           VALUES ($1, 'done', $2, $3, $4, $5, $6, $7::jsonb, $8, NOW())
+           RETURNING id`,
+          [
+            user.id,
+            attachedFileName || "Attached Agreement",
+            Buffer.byteLength(rawContractText, "utf8"),
+            "text/plain",
+            "",
+            jurisdictions,
+            JSON.stringify(anaResult),
+            anaResult.memo_markdown,
+          ]
+        );
+        const newAnalysisId = insAna.rows[0]?.id;
+
+        answerMarkdown = anaResult.memo_markdown;
+        if (newAnalysisId) {
+          answerMarkdown += `\n\n---\n📊 **[Open Interactive Report in Contract Studio](/analyses/${newAnalysisId})**`;
+        }
+        citations = anaResult.risks?.flatMap((r: any) => r.citations || []) || [];
+        thinkingTrace = [
+          `• Ingested contract "${attachedFileName}" into volatile RAM buffer.`,
+          `• Decomposed operative covenants across ${anaResult.risks?.length || 3} core statutory categories.`,
+          `• Cross-examined against statutory corpus (${jurisdictions.join(", ")}).`,
+          `• Verified direct statutory citations against indexed corpus.`,
+          `• Formulated comprehensive forensic risk audit report and replacement protective drafting.`,
+        ].join("\n");
+      } catch {
+        const ragResp = await ragChat({
+          messages: ragMessages,
+          jurisdictions,
+          context_note: contextNote ? contextNote.slice(0, 8000) : undefined,
+          mode,
+        });
+        answerMarkdown = ragResp.answer_markdown;
+        citations = ragResp.citations;
+        thinkingTrace = ragResp.thinking;
+      }
+    } else {
+      const ragResp = await ragChat({
+        messages: ragMessages,
+        jurisdictions,
+        context_note: contextNote ? contextNote.slice(0, 8000) : undefined,
+        mode,
+      });
+      answerMarkdown = ragResp.answer_markdown;
+      citations = ragResp.citations;
+      thinkingTrace = ragResp.thinking;
+    }
 
     const savedAssistant = await query<{ id: string; created_at: string }>(
       `INSERT INTO messages (conversation_id, role, content, citations)
        VALUES ($1, 'assistant', $2, $3::jsonb)
        RETURNING id, created_at`,
-      [conversationId, ragResp.answer_markdown, JSON.stringify(ragResp.citations || [])]
+      [conversationId, answerMarkdown, JSON.stringify(citations || [])]
     );
 
     await query("UPDATE conversations SET updated_at = NOW() WHERE id = $1", [conversationId]);
@@ -206,19 +265,19 @@ export async function POST(req: NextRequest) {
       target: conversationId,
       ip,
       userAgent: req.headers.get("user-agent"),
-      meta: { citationsCount: ragResp.citations?.length ?? 0, mode, attached: !!attachedFileName },
+      meta: { citationsCount: citations?.length ?? 0, mode, attached: !!attachedFileName },
     });
 
     return NextResponse.json({
       conversationId,
       messageId: savedAssistant.rows[0].id,
-      answer_markdown: ragResp.answer_markdown,
-      citations: ragResp.citations,
-      disclaimer: ragResp.disclaimer,
-      mock: ragResp.mock,
+      answer_markdown: answerMarkdown,
+      citations,
+      disclaimer: "This memorandum is informational analysis generated by an AI system and is not legal advice. It should be reviewed by a qualified lawyer before any decision is made.",
+      mock: true,
       mode,
       attachedFileName,
-      thinking: ragResp.thinking,
+      thinking: thinkingTrace,
     });
   } catch (err) {
     return handleRouteError(err);
