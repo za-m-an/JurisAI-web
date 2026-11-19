@@ -189,6 +189,7 @@ export async function POST(req: NextRequest) {
     let answerMarkdown: string;
     let citations: any[];
     let thinkingTrace: string | undefined;
+    let isMock = false;
 
     if (rawContractText) {
       try {
@@ -197,6 +198,7 @@ export async function POST(req: NextRequest) {
           jurisdictions,
           doc_name: attachedFileName || "Attached Agreement",
         });
+        isMock = Boolean(anaResult.model_info?.mock);
 
         const insAna = await query<{ id: string }>(
           `INSERT INTO analyses (user_id, status, doc_name, doc_size, doc_mime, doc_sha256, jurisdictions, result, memo_markdown, finished_at)
@@ -237,15 +239,8 @@ export async function POST(req: NextRequest) {
         answerMarkdown = ragResp.answer_markdown;
         citations = ragResp.citations;
         thinkingTrace = ragResp.thinking;
+        isMock = Boolean(ragResp.mock);
       }
-    let isMock = true;
-    if (contentType.includes("multipart/form-data") && rawContractText) {
-      // document scan via ragAnalyze
-      isMock = false;
-    }
-
-    if (contentType.includes("multipart/form-data") && rawContractText) {
-      // already processed above
     } else {
       const ragResp = await ragChat({
         messages: ragMessages,
