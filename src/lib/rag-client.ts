@@ -67,6 +67,7 @@ export interface RagChatResponse {
   }>;
   disclaimer: string;
   mock: boolean;
+  thinking?: string;
 }
 
 export interface RagHealthResponse {

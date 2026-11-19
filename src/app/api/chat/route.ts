@@ -103,6 +103,22 @@ export async function POST(req: NextRequest) {
       mode = parsed.mode || "conversational";
     }
 
+    // Smart jurisdiction scoping: if user specifically refers to a single jurisdiction in prompt
+    const msgLower = message.toLowerCase();
+    const bdTerms = ["bangladesh", "bangladeshi", "dhaka", "contract act 1872", "competition act 2012", "sale of goods act 1930", "labour act 2006", "specific relief act 1877"];
+    const usTerms = ["united states", " u.s.", "sherman act", "clayton act", "ucc §"];
+    const euTerms = ["european union", "tfeu", "vber", "gdpr", "celex", "european commission"];
+
+    if (!contentType.includes("multipart/form-data") && jurisdictions.length === 3) {
+      if (bdTerms.some((t) => msgLower.includes(t)) && !usTerms.some((t) => msgLower.includes(t)) && !euTerms.some((t) => msgLower.includes(t))) {
+        jurisdictions = ["BD"];
+      } else if (usTerms.some((t) => msgLower.includes(t)) && !bdTerms.some((t) => msgLower.includes(t)) && !euTerms.some((t) => msgLower.includes(t))) {
+        jurisdictions = ["US"];
+      } else if (euTerms.some((t) => msgLower.includes(t)) && !bdTerms.some((t) => msgLower.includes(t)) && !usTerms.some((t) => msgLower.includes(t))) {
+        jurisdictions = ["EU"];
+      }
+    }
+
     if (conversationId) {
       const convCheck = await query<{ id: string; user_id: string }>(
         "SELECT id, user_id FROM conversations WHERE id = $1 LIMIT 1",
@@ -202,6 +218,7 @@ export async function POST(req: NextRequest) {
       mock: ragResp.mock,
       mode,
       attachedFileName,
+      thinking: ragResp.thinking,
     });
   } catch (err) {
     return handleRouteError(err);

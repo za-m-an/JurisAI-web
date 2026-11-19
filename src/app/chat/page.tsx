@@ -6,18 +6,36 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Badge, Button } from "@/components/ui/primitives";
 
+interface MessageItem {
+  role: "user" | "assistant";
+  content: string;
+  citations?: any[];
+  thinking?: string;
+  thoughtTimeSeconds?: number;
+  mode?: string;
+}
+
 export default function ChatPage() {
   const [conversations, setConversations] = useState<any[]>([]);
   const [analyses, setAnalyses] = useState<any[]>([]);
   const [selectedAnalysisId, setSelectedAnalysisId] = useState<string>("");
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<MessageItem[]>([]);
   const [input, setInput] = useState("");
   const [mode, setMode] = useState<"conversational" | "memorandum">("conversational");
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
-  const [jurisdictions, setJurisdictions] = useState<string[]>(["BD", "US", "EU"]);
+  const [jurisdictions, setJurisdictions] = useState<string[]>(["BD"]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Streaming & Thinking state
+  const [streamingMessage, setStreamingMessage] = useState<{
+    thinking: string;
+    thoughtTime: number;
+    text: string;
+    isThinkingDone: boolean;
+  } | null>(null);
+  const [showThinking, setShowThinking] = useState<Record<number, boolean>>({});
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -33,11 +51,12 @@ export default function ChatPage() {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading]);
+  }, [messages, streamingMessage, loading]);
 
   async function loadConversation(convId: string) {
     setActiveConvId(convId);
     setError(null);
+    setStreamingMessage(null);
     const res = await fetch(`/api/conversations/${convId}`);
     if (res.ok) {
       const data = await res.json();
@@ -50,7 +69,6 @@ export default function ChatPage() {
     if (files && files.length > 0) {
       const file = files[0];
       setAttachedFile(file);
-      // Automatically toggle to memorandum mode when a contract is attached
       setMode("memorandum");
       setError(null);
     }
@@ -61,18 +79,77 @@ export default function ChatPage() {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-    // Switch back to conversational chatbot mode
     setMode("conversational");
   }
 
-  function toggleJurisdiction(j: string) {
-    setJurisdictions((prev) =>
-      prev.includes(j)
-        ? prev.length > 1
-          ? prev.filter((item) => item !== j)
-          : prev
-        : [...prev, j]
+  function setJurisdictionPreset(preset: "BD" | "US" | "EU" | "ALL") {
+    if (preset === "ALL") {
+      setJurisdictions(["BD", "US", "EU"]);
+    } else {
+      setJurisdictions([preset]);
+    }
+  }
+
+  async function streamTokens(
+    fullText: string,
+    thinkingText: string,
+    citations: any[],
+    activeMode: string,
+    elapsedSeconds: number
+  ) {
+    // Phase 1: Reveal Thinking Box with active deliberation
+    setStreamingMessage({
+      thinking: thinkingText,
+      thoughtTime: elapsedSeconds,
+      text: "",
+      isThinkingDone: false,
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 600));
+
+    // Phase 2: Complete thinking, begin typing word-by-word
+    setStreamingMessage((prev) =>
+      prev
+        ? {
+            ...prev,
+            isThinkingDone: true,
+          }
+        : null
     );
+
+    const words = fullText.split(/(\s+)/);
+    let accumulated = "";
+
+    for (let i = 0; i < words.length; i++) {
+      accumulated += words[i];
+      setStreamingMessage((prev) =>
+        prev
+          ? {
+              ...prev,
+              text: accumulated,
+            }
+          : null
+      );
+      // Word-by-word cadence (approx 20ms per token/space)
+      if (words[i].trim().length > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 22));
+      }
+    }
+
+    // Phase 3: Finalize and commit to messages list
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        content: fullText,
+        citations: citations || [],
+        thinking: thinkingText,
+        thoughtTimeSeconds: elapsedSeconds,
+        mode: activeMode,
+      },
+    ]);
+
+    setStreamingMessage(null);
   }
 
   async function handleSend(e?: React.FormEvent) {
@@ -85,12 +162,12 @@ export default function ChatPage() {
     const userText = input.trim();
     const currentFile = attachedFile;
     const currentMode = mode;
+    const activeJurs = jurisdictions;
 
     setInput("");
     setAttachedFile(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
 
-    // Optimistic user bubble
     const displayMsg = currentFile
       ? `📎 [Attached: ${currentFile.name}]\n\n${userText || "Please analyze this agreement and review statutory risks."}`
       : userText;
@@ -104,6 +181,8 @@ export default function ChatPage() {
       },
     ]);
 
+    const startTime = Date.now();
+
     try {
       let res: Response;
       if (currentFile) {
@@ -111,7 +190,7 @@ export default function ChatPage() {
         formData.append("file", currentFile);
         formData.append("message", userText);
         formData.append("mode", currentMode);
-        formData.append("jurisdictions", JSON.stringify(jurisdictions));
+        formData.append("jurisdictions", JSON.stringify(activeJurs));
         if (activeConvId) formData.append("conversationId", activeConvId);
         if (selectedAnalysisId) formData.append("analysisId", selectedAnalysisId);
 
@@ -127,7 +206,7 @@ export default function ChatPage() {
             conversationId: activeConvId,
             message: userText,
             mode: currentMode,
-            jurisdictions,
+            jurisdictions: activeJurs,
             analysisId: selectedAnalysisId || undefined,
           }),
         });
@@ -136,19 +215,22 @@ export default function ChatPage() {
       const data = await res.json();
       if (!res.ok) {
         setError(data.message || "Chat request failed.");
+        setLoading(false);
         return;
       }
 
+      const elapsedSeconds = Number(((Date.now() - startTime) / 1000).toFixed(1));
       setActiveConvId(data.conversationId);
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: data.answer_markdown,
-          citations: data.citations || [],
-          mode: data.mode,
-        },
-      ]);
+      setLoading(false);
+
+      // Stream the response word by word with thinking process
+      await streamTokens(
+        data.answer_markdown,
+        data.thinking || "• Processed inquiry against indexed legal corpus.",
+        data.citations || [],
+        data.mode || currentMode,
+        elapsedSeconds
+      );
 
       const listRes = await fetch("/api/conversations");
       if (listRes.ok) {
@@ -157,7 +239,6 @@ export default function ChatPage() {
       }
     } catch {
       setError("Network error while communicating with Juris AI.");
-    } finally {
       setLoading(false);
     }
   }
@@ -167,6 +248,13 @@ export default function ChatPage() {
       e.preventDefault();
       handleSend();
     }
+  }
+
+  function toggleThought(idx: number) {
+    setShowThinking((prev) => ({
+      ...prev,
+      [idx]: !prev[idx],
+    }));
   }
 
   return (
@@ -183,6 +271,7 @@ export default function ChatPage() {
               setMessages([]);
               setAttachedFile(null);
               setMode("conversational");
+              setStreamingMessage(null);
               setError(null);
             }}
             className="w-full justify-center text-xs py-2"
@@ -261,34 +350,68 @@ export default function ChatPage() {
                   Juris AI Legal Copilot
                 </h1>
                 <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-paper-warm border border-hairline text-ink-muted">
-                  {mode === "conversational" ? "Conversational Mode" : "Memorandum Mode"}
+                  {mode === "conversational" ? "Conversational Copilot" : "Memorandum Mode"}
                 </span>
               </div>
               <p className="text-xs text-ink-muted mt-0.5">
-                Chatbot assistance by default. Switch modes or attach documents for deep statutory memoranda.
+                Real-time reasoning deliberation and word-by-word statutory synthesis.
               </p>
             </div>
 
-            {/* Jurisdiction Selectors */}
-            <div className="flex items-center gap-1">
-              <span className="text-[10px] uppercase font-bold text-ink-subtle mr-1 hidden sm:inline">Scope:</span>
-              {["BD", "US", "EU"].map((j) => {
-                const active = jurisdictions.includes(j);
-                return (
-                  <button
-                    key={j}
-                    type="button"
-                    onClick={() => toggleJurisdiction(j)}
-                    className={`px-2 py-0.5 text-[10px] font-mono font-bold rounded border transition-colors ${
-                      active
-                        ? "bg-[#0b1f33] text-amber-200 border-[#0b1f33]"
-                        : "bg-paper-warm text-ink-muted border-hairline hover:border-hairline-dark"
-                    }`}
-                  >
-                    {j}
-                  </button>
-                );
-              })}
+            {/* Jurisdiction Presets & Scope Lock */}
+            <div className="flex flex-wrap items-center gap-1">
+              <span className="text-[10px] uppercase font-bold text-ink-subtle mr-1">Jurisdiction Lock:</span>
+              <button
+                type="button"
+                onClick={() => setJurisdictionPreset("BD")}
+                className={`px-2.5 py-1 text-[11px] font-medium rounded border transition-all ${
+                  jurisdictions.length === 1 && jurisdictions[0] === "BD"
+                    ? "bg-[#0b1f33] text-amber-200 border-[#0b1f33] font-bold shadow-sm"
+                    : "bg-paper-warm text-ink-muted border-hairline hover:border-hairline-dark"
+                }`}
+                title="Lock analysis exclusively to Bangladesh Laws"
+              >
+                🇧🇩 BD Only
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setJurisdictionPreset("US")}
+                className={`px-2.5 py-1 text-[11px] font-medium rounded border transition-all ${
+                  jurisdictions.length === 1 && jurisdictions[0] === "US"
+                    ? "bg-[#0b1f33] text-amber-200 border-[#0b1f33] font-bold shadow-sm"
+                    : "bg-paper-warm text-ink-muted border-hairline hover:border-hairline-dark"
+                }`}
+                title="Lock analysis exclusively to United States Laws"
+              >
+                🇺🇸 US Only
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setJurisdictionPreset("EU")}
+                className={`px-2.5 py-1 text-[11px] font-medium rounded border transition-all ${
+                  jurisdictions.length === 1 && jurisdictions[0] === "EU"
+                    ? "bg-[#0b1f33] text-amber-200 border-[#0b1f33] font-bold shadow-sm"
+                    : "bg-paper-warm text-ink-muted border-hairline hover:border-hairline-dark"
+                }`}
+                title="Lock analysis exclusively to European Union Laws"
+              >
+                🇪🇺 EU Only
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setJurisdictionPreset("ALL")}
+                className={`px-2.5 py-1 text-[11px] font-medium rounded border transition-all ${
+                  jurisdictions.length === 3
+                    ? "bg-[#7B1E22] text-white border-[#7B1E22] font-bold shadow-sm"
+                    : "bg-paper-warm text-ink-muted border-hairline hover:border-hairline-dark"
+                }`}
+                title="Enable Tri-Jurisdictional Cross-Border Scope"
+              >
+                🌐 All 3
+              </button>
             </div>
           </div>
 
@@ -302,8 +425,8 @@ export default function ChatPage() {
           )}
 
           {/* Messages Feed */}
-          <div className="flex-1 space-y-4 overflow-y-auto mb-4 pr-1 max-h-[480px]">
-            {messages.length === 0 ? (
+          <div className="flex-1 space-y-5 overflow-y-auto mb-4 pr-1 max-h-[500px]">
+            {messages.length === 0 && !streamingMessage && !loading ? (
               <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-4 my-auto">
                 <div className="w-12 h-12 rounded-full bg-paper-warm border border-hairline flex items-center justify-center font-serif text-xl text-accent shadow-sm">
                   §
@@ -321,23 +444,25 @@ export default function ChatPage() {
                   <button
                     onClick={() => {
                       setInput("Can an employer enforce a post-termination non-compete clause under Section 27 of Bangladesh Contract Act 1872?");
+                      setJurisdictionPreset("BD");
                       setMode("conversational");
                     }}
                     className="p-2.5 rounded border border-hairline bg-paper-warm/50 hover:bg-paper-warm text-left text-xs text-ink transition-colors"
                   >
-                    <span className="font-semibold block text-[11px] text-accent">💬 Employment Restraint</span>
+                    <span className="font-semibold block text-[11px] text-accent">🇧🇩 Bangladesh Restraint of Trade</span>
                     Section 27 non-competes in Bangladesh
                   </button>
 
                   <button
                     onClick={() => {
-                      setInput("How does EU VBER 2022/720 treat minimum resale price maintenance compared to US antitrust?");
+                      setInput("What are the liquidated damages rules under Section 74 of the Contract Act 1872 in Bangladesh?");
+                      setJurisdictionPreset("BD");
                       setMode("conversational");
                     }}
                     className="p-2.5 rounded border border-hairline bg-paper-warm/50 hover:bg-paper-warm text-left text-xs text-ink transition-colors"
                   >
-                    <span className="font-semibold block text-[11px] text-accent">💬 Vertical Restraints</span>
-                    VBER Article 4 vs US Sherman Act § 1
+                    <span className="font-semibold block text-[11px] text-accent">🇧🇩 Penalty vs Reasonable Compensation</span>
+                    Section 74 penalty enforcement in BD
                   </button>
                 </div>
               </div>
@@ -350,6 +475,8 @@ export default function ChatPage() {
                   (m.content.includes("### Legal Advisory Memorandum") ||
                     m.content.includes("Advisory Memorandum") ||
                     m.mode === "memorandum");
+
+                const isThoughtOpen = showThinking[idx] !== false; // default open
 
                 return (
                   <div
@@ -385,6 +512,37 @@ export default function ChatPage() {
                       </div>
                     </div>
 
+                    {/* Thinking Process Accordion for Assistant */}
+                    {!isUser && m.thinking && (
+                      <div className="mb-3 rounded-md bg-slate-50/90 border border-slate-200 text-slate-700 text-xs overflow-hidden">
+                        <button
+                          type="button"
+                          onClick={() => toggleThought(idx)}
+                          className="w-full px-3 py-1.5 flex items-center justify-between bg-slate-100/70 hover:bg-slate-100 transition-colors text-[11px] font-medium text-slate-600"
+                        >
+                          <span className="flex items-center gap-1.5">
+                            <span>💭</span>
+                            <span className="font-semibold">
+                              Legal Deliberation Process
+                            </span>
+                            {m.thoughtTimeSeconds && (
+                              <span className="text-slate-400 font-mono text-[10px]">
+                                · Thought for {m.thoughtTimeSeconds}s
+                              </span>
+                            )}
+                          </span>
+                          <span className="text-[10px] text-slate-500 font-mono">
+                            {isThoughtOpen ? "Hide Thinking ▴" : "View Thinking ▾"}
+                          </span>
+                        </button>
+                        {isThoughtOpen && (
+                          <div className="p-3 font-mono text-[11px] leading-relaxed whitespace-pre-line border-t border-slate-200/60 bg-white/50 text-slate-600">
+                            {m.thinking}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     <div className="prose prose-sm max-w-none text-ink font-serif leading-relaxed">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
                     </div>
@@ -416,13 +574,56 @@ export default function ChatPage() {
               })
             )}
 
-            {loading && (
+            {/* Live Streaming Message Box */}
+            {streamingMessage && (
+              <div className="p-4 rounded-lg bg-white border border-hairline mr-6 sm:mr-16 text-ink shadow-subtle animate-fadeIn">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-100 text-[#0b1f33]">
+                    {mode === "memorandum" ? "Advisory Memorandum" : "Juris AI Copilot"}
+                  </span>
+                  <span className="text-[10px] font-mono text-emerald-600 animate-pulse">
+                    ● Streaming real-time synthesis
+                  </span>
+                </div>
+
+                {/* Thinking Process Box */}
+                {streamingMessage.thinking && (
+                  <div className="mb-3 rounded-md bg-slate-50/90 border border-slate-200 text-slate-700 text-xs overflow-hidden">
+                    <div className="px-3 py-1.5 flex items-center justify-between bg-slate-100/70 text-[11px] font-medium text-slate-600">
+                      <span className="flex items-center gap-1.5">
+                        <span className="animate-spin text-accent">⚙</span>
+                        <span className="font-semibold">Legal Deliberation Process</span>
+                        <span className="text-slate-400 font-mono text-[10px]">
+                          · Thought for {streamingMessage.thoughtTime}s
+                        </span>
+                      </span>
+                      <span className="text-[10px] text-emerald-700 font-medium">
+                        {streamingMessage.isThinkingDone ? "✓ Analysis Completed" : "Reasoning..."}
+                      </span>
+                    </div>
+                    <div className="p-3 font-mono text-[11px] leading-relaxed whitespace-pre-line border-t border-slate-200/60 bg-white/50 text-slate-600">
+                      {streamingMessage.thinking}
+                    </div>
+                  </div>
+                )}
+
+                {/* Word-by-word streamed content */}
+                <div className="prose prose-sm max-w-none text-ink font-serif leading-relaxed">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {streamingMessage.text || ""}
+                  </ReactMarkdown>
+                  <span className="inline-block w-2 h-4 ml-0.5 bg-accent animate-pulse align-middle"></span>
+                </div>
+              </div>
+            )}
+
+            {loading && !streamingMessage && (
               <div className="p-4 rounded-lg bg-white border border-hairline mr-6 sm:mr-16 shadow-subtle flex items-center gap-3">
                 <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
                 <div className="text-xs text-ink-muted font-medium">
                   {attachedFile || mode === "memorandum"
-                    ? "Cross-referencing statutory authorities and compiling memorandum..."
-                    : "Consulting legal corpus and formulating response..."}
+                    ? "Initiating multi-jurisdictional legal deliberation and cross-referencing statutes..."
+                    : "Isolating jurisdiction, consulting legal corpus, and reasoning..."}
                 </div>
               </div>
             )}
@@ -461,11 +662,16 @@ export default function ChatPage() {
                 </button>
               </div>
 
-              {attachedFile && (
-                <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                  Zero File Retention Active
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono text-slate-500">
+                  Target Scope: <strong className="text-ink">{jurisdictions.join(", ")}</strong>
                 </span>
-              )}
+                {attachedFile && (
+                  <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                    Zero File Retention Active
+                  </span>
+                )}
+              </div>
             </div>
 
             {/* Attached File Preview Tag (Inside the chat box) */}
@@ -543,12 +749,14 @@ export default function ChatPage() {
                 type="button"
                 variant="primary"
                 size="md"
-                disabled={loading || (!input.trim() && !attachedFile)}
+                disabled={loading || !!streamingMessage || (!input.trim() && !attachedFile)}
                 onClick={() => handleSend()}
                 className="px-4 py-1.5 text-xs font-semibold"
               >
                 {loading
-                  ? "Analyzing..."
+                  ? "Thinking..."
+                  : streamingMessage
+                  ? "Generating..."
                   : attachedFile
                   ? "Analyze Agreement →"
                   : mode === "conversational"

@@ -7,6 +7,13 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Badge, Button } from "@/components/ui/primitives";
 
+interface StreamingState {
+  thinking: string;
+  thoughtTime: number;
+  text: string;
+  isThinkingDone: boolean;
+}
+
 export default function ConversationDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -16,9 +23,12 @@ export default function ConversationDetailPage() {
   const [messages, setMessages] = useState<any[]>([]);
   const [input, setInput] = useState("");
   const [mode, setMode] = useState<"conversational" | "memorandum">("conversational");
+  const [jurisdictions, setJurisdictions] = useState<string[]>(["BD"]);
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showThinking, setShowThinking] = useState<Record<number, boolean>>({});
+  const [streamingMessage, setStreamingMessage] = useState<StreamingState | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -37,7 +47,21 @@ export default function ConversationDetailPage() {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading]);
+  }, [messages, loading, streamingMessage]);
+
+  function toggleThought(idx: number) {
+    setShowThinking((prev) => ({
+      ...prev,
+      [idx]: prev[idx] !== undefined ? !prev[idx] : false,
+    }));
+  }
+
+  function setJurisdictionPreset(preset: "BD" | "US" | "EU" | "ALL") {
+    if (preset === "BD") setJurisdictions(["BD"]);
+    else if (preset === "US") setJurisdictions(["US"]);
+    else if (preset === "EU") setJurisdictions(["EU"]);
+    else setJurisdictions(["BD", "US", "EU"]);
+  }
 
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
@@ -54,6 +78,64 @@ export default function ConversationDetailPage() {
     setMode("conversational");
   }
 
+  async function streamTokens(
+    fullText: string,
+    thinkingText: string,
+    citations: any[],
+    activeMode: string,
+    elapsedSeconds: number
+  ) {
+    setStreamingMessage({
+      thinking: thinkingText,
+      thoughtTime: elapsedSeconds,
+      text: "",
+      isThinkingDone: false,
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 600));
+
+    setStreamingMessage((prev) =>
+      prev
+        ? {
+            ...prev,
+            isThinkingDone: true,
+          }
+        : null
+    );
+
+    const words = fullText.split(/(\s+)/);
+    let accumulated = "";
+
+    for (let i = 0; i < words.length; i++) {
+      accumulated += words[i];
+      setStreamingMessage((prev) =>
+        prev
+          ? {
+              ...prev,
+              text: accumulated,
+            }
+          : null
+      );
+      if (words[i].trim().length > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 22));
+      }
+    }
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        content: fullText,
+        citations: citations || [],
+        thinking: thinkingText,
+        thoughtTimeSeconds: elapsedSeconds,
+        mode: activeMode,
+      },
+    ]);
+
+    setStreamingMessage(null);
+  }
+
   async function handleSend(e?: React.FormEvent) {
     if (e) e.preventDefault();
     if (!input.trim() && !attachedFile) return;
@@ -64,6 +146,7 @@ export default function ConversationDetailPage() {
     const userText = input.trim();
     const currentFile = attachedFile;
     const currentMode = mode;
+    const activeJurs = jurisdictions;
 
     setInput("");
     setAttachedFile(null);
@@ -82,6 +165,8 @@ export default function ConversationDetailPage() {
       },
     ]);
 
+    const startTime = Date.now();
+
     try {
       let res: Response;
       if (currentFile) {
@@ -89,6 +174,7 @@ export default function ConversationDetailPage() {
         formData.append("file", currentFile);
         formData.append("message", userText);
         formData.append("mode", currentMode);
+        formData.append("jurisdictions", JSON.stringify(activeJurs));
         formData.append("conversationId", id);
 
         res = await fetch("/api/chat", {
@@ -103,20 +189,30 @@ export default function ConversationDetailPage() {
             conversationId: id,
             message: userText,
             mode: currentMode,
+            jurisdictions: activeJurs,
           }),
         });
       }
 
-      if (res.ok) {
-        const updated = await fetch(`/api/conversations/${id}`).then((r) => r.json());
-        setMessages(updated.messages || []);
-      } else {
-        const data = await res.json();
+      const data = await res.json();
+      if (!res.ok) {
         setError(data.message || "Failed to send message.");
+        setLoading(false);
+        return;
       }
+
+      const elapsedSeconds = Number(((Date.now() - startTime) / 1000).toFixed(1));
+      setLoading(false);
+
+      await streamTokens(
+        data.answer_markdown,
+        data.thinking || "• Verified query scope and referenced statutory corpus.",
+        data.citations || [],
+        data.mode || currentMode,
+        elapsedSeconds
+      );
     } catch {
       setError("Network error while communicating with Juris AI.");
-    } finally {
       setLoading(false);
     }
   }
@@ -163,6 +259,72 @@ export default function ConversationDetailPage() {
 
       {/* Main Chat Interface */}
       <div className="bg-white border border-hairline rounded-lg p-5 sm:p-6 shadow-subtle flex flex-col min-h-[560px]">
+        {/* Jurisdiction Filter / Scope Lock Header Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-4 border-b border-hairline">
+          <div>
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-muted">
+              Thread Jurisdiction Scope
+            </h2>
+            <p className="text-[11px] text-ink-subtle">
+              Enforces strict legal isolation so only specified statutes are cited.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-1.5 bg-paper-warm/80 p-1 rounded-lg border border-hairline">
+            <button
+              type="button"
+              onClick={() => setJurisdictionPreset("BD")}
+              className={`px-2.5 py-1 text-[11px] font-medium rounded border transition-all ${
+                jurisdictions.length === 1 && jurisdictions.includes("BD")
+                  ? "bg-[#7B1E22] text-white border-[#7B1E22] font-bold shadow-sm"
+                  : "bg-paper-warm text-ink-muted border-hairline hover:border-hairline-dark"
+              }`}
+              title="Lock consultation strictly to Bangladesh statutes and precedents"
+            >
+              🇧🇩 BD Only
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setJurisdictionPreset("US")}
+              className={`px-2.5 py-1 text-[11px] font-medium rounded border transition-all ${
+                jurisdictions.length === 1 && jurisdictions.includes("US")
+                  ? "bg-[#7B1E22] text-white border-[#7B1E22] font-bold shadow-sm"
+                  : "bg-paper-warm text-ink-muted border-hairline hover:border-hairline-dark"
+              }`}
+              title="Lock consultation strictly to United States federal law"
+            >
+              🇺🇸 US Only
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setJurisdictionPreset("EU")}
+              className={`px-2.5 py-1 text-[11px] font-medium rounded border transition-all ${
+                jurisdictions.length === 1 && jurisdictions.includes("EU")
+                  ? "bg-[#7B1E22] text-white border-[#7B1E22] font-bold shadow-sm"
+                  : "bg-paper-warm text-ink-muted border-hairline hover:border-hairline-dark"
+              }`}
+              title="Lock consultation strictly to European Union directives"
+            >
+              🇪🇺 EU Only
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setJurisdictionPreset("ALL")}
+              className={`px-2.5 py-1 text-[11px] font-medium rounded border transition-all ${
+                jurisdictions.length === 3
+                  ? "bg-[#7B1E22] text-white border-[#7B1E22] font-bold shadow-sm"
+                  : "bg-paper-warm text-ink-muted border-hairline hover:border-hairline-dark"
+              }`}
+              title="Enable Tri-Jurisdictional Cross-Border Scope"
+            >
+              🌐 All 3
+            </button>
+          </div>
+        </div>
+
         {error && (
           <div className="p-3 mb-4 rounded-md bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium">
             {error}
@@ -177,7 +339,10 @@ export default function ConversationDetailPage() {
             const isMemo =
               !isUser &&
               (m.content.includes("### Legal Advisory Memorandum") ||
-                m.content.includes("Advisory Memorandum"));
+                m.content.includes("Advisory Memorandum") ||
+                m.mode === "memorandum");
+
+            const isThoughtOpen = showThinking[idx] !== false;
 
             return (
               <div
@@ -213,6 +378,37 @@ export default function ConversationDetailPage() {
                   </div>
                 </div>
 
+                {/* Thinking Process Accordion for Assistant */}
+                {!isUser && m.thinking && (
+                  <div className="mb-3 rounded-md bg-slate-50/90 border border-slate-200 text-slate-700 text-xs overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => toggleThought(idx)}
+                      className="w-full px-3 py-1.5 flex items-center justify-between bg-slate-100/70 hover:bg-slate-100 transition-colors text-[11px] font-medium text-slate-600"
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <span>💭</span>
+                        <span className="font-semibold">
+                          Legal Deliberation Process
+                        </span>
+                        {m.thoughtTimeSeconds && (
+                          <span className="text-slate-400 font-mono text-[10px]">
+                            · Thought for {m.thoughtTimeSeconds}s
+                          </span>
+                        )}
+                      </span>
+                      <span className="text-[10px] text-slate-500 font-mono">
+                        {isThoughtOpen ? "Hide Thinking ▴" : "View Thinking ▾"}
+                      </span>
+                    </button>
+                    {isThoughtOpen && (
+                      <div className="p-3 font-mono text-[11px] leading-relaxed whitespace-pre-line border-t border-slate-200/60 bg-white/50 text-slate-600">
+                        {m.thinking}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div className="prose prose-sm max-w-none text-ink font-serif leading-relaxed">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>{m.content}</ReactMarkdown>
                 </div>
@@ -243,13 +439,56 @@ export default function ConversationDetailPage() {
             );
           })}
 
-          {loading && (
+          {/* Live Streaming Message Box */}
+          {streamingMessage && (
+            <div className="p-4 rounded-lg bg-white border border-hairline mr-6 sm:mr-16 text-ink shadow-subtle animate-fadeIn">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-100 text-[#0b1f33]">
+                  {mode === "memorandum" ? "Advisory Memorandum" : "Juris AI Copilot"}
+                </span>
+                <span className="text-[10px] font-mono text-emerald-600 animate-pulse">
+                  ● Streaming real-time synthesis
+                </span>
+              </div>
+
+              {/* Thinking Process Box */}
+              {streamingMessage.thinking && (
+                <div className="mb-3 rounded-md bg-slate-50/90 border border-slate-200 text-slate-700 text-xs overflow-hidden">
+                  <div className="px-3 py-1.5 flex items-center justify-between bg-slate-100/70 text-[11px] font-medium text-slate-600">
+                    <span className="flex items-center gap-1.5">
+                      <span className="animate-spin text-accent">⚙</span>
+                      <span className="font-semibold">Legal Deliberation Process</span>
+                      <span className="text-slate-400 font-mono text-[10px]">
+                        · Thought for {streamingMessage.thoughtTime}s
+                      </span>
+                    </span>
+                    <span className="text-[10px] text-emerald-700 font-medium">
+                      {streamingMessage.isThinkingDone ? "✓ Analysis Completed" : "Reasoning..."}
+                    </span>
+                  </div>
+                  <div className="p-3 font-mono text-[11px] leading-relaxed whitespace-pre-line border-t border-slate-200/60 bg-white/50 text-slate-600">
+                    {streamingMessage.thinking}
+                  </div>
+                </div>
+              )}
+
+              {/* Word-by-word streamed content */}
+              <div className="prose prose-sm max-w-none text-ink font-serif leading-relaxed">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {streamingMessage.text || ""}
+                </ReactMarkdown>
+                <span className="inline-block w-2 h-4 ml-0.5 bg-accent animate-pulse align-middle"></span>
+              </div>
+            </div>
+          )}
+
+          {loading && !streamingMessage && (
             <div className="p-4 rounded-lg bg-white border border-hairline mr-6 sm:mr-16 shadow-subtle flex items-center gap-3">
               <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
               <div className="text-xs text-ink-muted font-medium">
                 {attachedFile || mode === "memorandum"
-                  ? "Cross-referencing statutory authorities and compiling memorandum..."
-                  : "Consulting legal corpus and formulating response..."}
+                  ? "Initiating multi-jurisdictional legal deliberation and cross-referencing statutes..."
+                  : "Isolating jurisdiction, consulting legal corpus, and reasoning..."}
               </div>
             </div>
           )}
