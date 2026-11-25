@@ -20,12 +20,14 @@ export async function GET(req: NextRequest) {
       doc_mime: string;
       doc_sha256: string;
       jurisdictions: string[];
+      reference_code: string | null;
+      brief_summary: string | null;
       error: string | null;
       created_at: string;
       finished_at: string | null;
       result: any;
     }>(
-      `SELECT id, status, doc_name, doc_size, doc_mime, doc_sha256, jurisdictions, error, created_at, finished_at, result
+      `SELECT id, status, doc_name, doc_size, doc_mime, doc_sha256, jurisdictions, reference_code, brief_summary, error, created_at, finished_at, result
        FROM analyses
        WHERE user_id = $1
        ORDER BY created_at DESC
@@ -41,10 +43,12 @@ export async function GET(req: NextRequest) {
       docMime: r.doc_mime,
       docSha256: r.doc_sha256,
       jurisdictions: r.jurisdictions,
+      referenceCode: r.reference_code || `JRS-${r.id.slice(0, 8).toUpperCase()}`,
+      briefSummary: r.brief_summary || r.result?.summary || r.result?.executive_summary || null,
       error: r.error,
       createdAt: r.created_at,
       finishedAt: r.finished_at,
-      summary: r.result?.summary || null,
+      summary: r.brief_summary || r.result?.summary || r.result?.executive_summary || null,
       risksCount: Array.isArray(r.result?.risks) ? r.result.risks.length : 0,
     }));
 

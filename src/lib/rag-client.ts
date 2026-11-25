@@ -182,6 +182,7 @@ export async function getActiveAiHeaders(): Promise<Record<string, string>> {
     if (p === "openai") return (process.env.OPENAI_API_KEY || "").trim();
     if (p === "anthropic") return (process.env.ANTHROPIC_API_KEY || "").trim();
     if (p === "deepseek") return (process.env.DEEPSEEK_API_KEY || "").trim();
+    if (p === "gemini") return (process.env.GEMINI_API_KEY || "").trim();
     if (p === "aws") return (process.env.AWS_API_KEY || "").trim();
     return "";
   }
@@ -190,7 +191,10 @@ export async function getActiveAiHeaders(): Promise<Record<string, string>> {
   if (mainApiKey) {
     headers["X-LLM-API-Key"] = mainApiKey;
   }
-  if (bySlug[mainProvider]?.baseUrl && (mainProvider === "custom" || mainProvider === "custom-llm")) {
+  if (mainProvider === "gemini") {
+    headers["X-LLM-Provider"] = "custom";
+    headers["X-LLM-Base-URL"] = "https://generativelanguage.googleapis.com/v1beta/openai";
+  } else if (bySlug[mainProvider]?.baseUrl && (mainProvider === "custom" || mainProvider === "custom-llm")) {
     headers["X-LLM-Base-URL"] = bySlug[mainProvider].baseUrl;
   }
 
@@ -368,14 +372,38 @@ export async function ragSearch(params: {
   });
 }
 
+async function isTokenOptimizationEnabled(): Promise<boolean> {
+  try {
+    await ensureMigrated();
+    const res = await query<{ value: unknown }>(
+      "SELECT value FROM settings WHERE key = 'ai.token_optimization_enabled' LIMIT 1"
+    );
+    if (res.rows.length > 0) {
+      return res.rows[0].value === true || res.rows[0].value === "true";
+    }
+  } catch {
+    // default false
+  }
+  return false;
+}
+
 export async function ragAnalyze(params: {
   document_text: string;
   jurisdictions?: Array<"BD" | "US" | "EU">;
   doc_name?: string;
 }): Promise<RagAnalyzeResponse> {
+  const optimize = await isTokenOptimizationEnabled();
+  const payload = { ...params };
+  if (optimize && payload.document_text) {
+    payload.document_text = payload.document_text
+      .replace(/[ \t]+/g, " ")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim()
+      .slice(0, 40_000);
+  }
   return ragFetch<RagAnalyzeResponse>("/analyze", {
     method: "POST",
-    body: params,
+    body: payload,
     timeoutMs: 280_000,
     includeAuth: true,
   });
@@ -387,9 +415,19 @@ export async function ragChat(params: {
   context_note?: string;
   mode?: "conversational" | "memorandum";
 }): Promise<RagChatResponse> {
+  const optimize = await isTokenOptimizationEnabled();
+  const payload = { ...params };
+  if (optimize) {
+    if (payload.messages && payload.messages.length > 8) {
+      payload.messages = payload.messages.slice(-8);
+    }
+    if (payload.context_note && payload.context_note.length > 4_500) {
+      payload.context_note = payload.context_note.slice(0, 4_500);
+    }
+  }
   return ragFetch<RagChatResponse>("/chat", {
     method: "POST",
-    body: params,
+    body: payload,
     timeoutMs: 60_000,
     includeAuth: true,
   });

@@ -3,581 +3,482 @@
 import React, { useEffect, useState } from "react";
 
 interface IntegrationItem {
-  id: string;
   slug: string;
   name: string;
   baseUrl: string;
   hasApiKey: boolean;
-  apiKeyMasked: string | null;
-  healthPath: string;
+  maskedKey: string | null;
   enabled: boolean;
   lastStatus: string | null;
-  lastCheckedAt: string | null;
+  config: { models?: string[] };
 }
+
+const PROVIDER_SLUGS = ["openai", "deepseek", "anthropic", "gemini", "openrouter"];
 
 export default function ConsoleIntegrationsPage() {
   const [integrations, setIntegrations] = useState<IntegrationItem[]>([]);
-  const [apiKeyInputs, setApiKeyInputs] = useState<Record<string, string>>({});
-  const [testResults, setTestResults] = useState<Record<string, string>>({});
-  const [testingSlugs, setTestingSlugs] = useState<Record<string, boolean>>({});
+  const [activeProvider, setActiveProvider] = useState("openrouter");
+  const [activeModel, setActiveModel] = useState("google/gemini-2.5-flash");
+  const [tokenOpt, setTokenOpt] = useState(false);
 
-  // Model Routing State
-  const [mainProvider, setMainProvider] = useState<string>("anthropic");
-  const [mainModel, setMainModel] = useState<string>("claude-sonnet-5-5");
-  const [ragProvider, setRagProvider] = useState<string>("openai");
-  const [ragModel, setRagModel] = useState<string>("gpt-4o-mini");
-  const [routingSaving, setRoutingSaving] = useState(false);
+  const [keyInputs, setKeyInputs] = useState<Record<string, string>>({});
+  const [urlInputs, setUrlInputs] = useState<Record<string, string>>({});
+  const [loadedModels, setLoadedModels] = useState<Record<string, string[]>>({});
+  const [selectedModels, setSelectedModels] = useState<Record<string, string>>({});
+  const [liveStatus, setLiveStatus] = useState<Record<string, { ok: boolean; text: string }>>({});
+  const [busySlug, setBusySlug] = useState<string | null>(null);
+  const [banner, setBanner] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Add Custom Integration State
-  const [newSlug, setNewSlug] = useState("");
-  const [newName, setNewName] = useState("");
-  const [newBaseUrl, setNewBaseUrl] = useState("");
-  const [newKey, setNewKey] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
-
-  async function loadData() {
+  async function loadAll() {
     try {
       const [intRes, setRes] = await Promise.all([
         fetch("/api/console/integrations"),
         fetch("/api/console/settings"),
       ]);
-
       if (intRes.ok) {
-        const intData = await intRes.json();
-        setIntegrations(intData.integrations || []);
+        const data = await intRes.json();
+        const list: IntegrationItem[] = data.integrations || [];
+        setIntegrations(list);
+
+        const modelsMap: Record<string, string[]> = {};
+        const urlMap: Record<string, string> = {};
+        const statusMap: Record<string, { ok: boolean; text: string }> = {};
+        for (const item of list) {
+          urlMap[item.slug] = item.baseUrl;
+          if (item.config?.models) {
+            modelsMap[item.slug] = item.config.models;
+          }
+          if (item.lastStatus) {
+            statusMap[item.slug] = {
+              ok: item.lastStatus.toLowerCase().startsWith("ok"),
+              text: item.lastStatus,
+            };
+          }
+        }
+        setLoadedModels(modelsMap);
+        setUrlInputs(urlMap);
+        setLiveStatus(statusMap);
       }
 
       if (setRes.ok) {
-        const setData = await setRes.json();
-        const s = setData.settings || {};
-        if (s["ai.provider_main"]) setMainProvider(s["ai.provider_main"]);
-        if (s["ai.model_main"]) setMainModel(s["ai.model_main"]);
-        if (s["ai.provider_rag"]) setRagProvider(s["ai.provider_rag"]);
-        if (s["ai.model_rag"]) setRagModel(s["ai.model_rag"]);
+        const sData = await setRes.json();
+        const cfg = sData.settings || {};
+        if (cfg["ai.provider_main"]) setActiveProvider(cfg["ai.provider_main"]);
+        if (cfg["ai.model_main"]) setActiveModel(cfg["ai.model_main"]);
+        setTokenOpt(Boolean(cfg["ai.token_optimization_enabled"]));
       }
-    } catch {
-      // ignore fetch error on unmount
+    } finally {
+      setLoading(false);
     }
   }
 
   useEffect(() => {
-    loadData();
+    loadAll();
   }, []);
 
-  async function handleSaveRouting(e: React.FormEvent) {
-    e.preventDefault();
-    setMessage(null);
-    setRoutingSaving(true);
+  async function handleSaveKey(item: IntegrationItem) {
+    setBusySlug(item.slug);
+    setBanner(null);
+    try {
+      const res = await fetch("/api/console/integrations", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          slug: item.slug,
+          name: item.name,
+          baseUrl: urlInputs[item.slug] || item.baseUrl,
+          apiKey: keyInputs[item.slug]?.trim() || undefined,
+          healthPath: item.slug === "rag" ? "/health" : "/models",
+          enabled: true,
+        }),
+      });
+      if (res.ok) {
+        setKeyInputs((prev) => ({ ...prev, [item.slug]: "" }));
+        setBanner(`Saved API credentials for ${item.name}.`);
+        await loadAll();
+      }
+    } finally {
+      setBusySlug(null);
+    }
+  }
+
+  async function handleTestKey(slug: string) {
+    setBusySlug(slug);
+    setBanner(null);
+    try {
+      const res = await fetch(`/api/console/integrations/${slug}/test`, { method: "POST" });
+      const data = await res.json();
+      setLiveStatus((prev) => ({
+        ...prev,
+        [slug]: { ok: Boolean(data.ok), text: data.ok ? "Live" : data.status || "Offline" },
+      }));
+    } finally {
+      setBusySlug(null);
+    }
+  }
+
+  async function handleLoadModels(slug: string) {
+    setBusySlug(slug);
+    setBanner(null);
+    try {
+      const res = await fetch(`/api/console/integrations/${slug}/models`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiKey: keyInputs[slug]?.trim() || "" }),
+      });
+      const data = await res.json();
+      if (res.ok && Array.isArray(data.models)) {
+        setLoadedModels((prev) => ({ ...prev, [slug]: data.models }));
+        if (data.models.length > 0 && !selectedModels[slug]) {
+          setSelectedModels((prev) => ({ ...prev, [slug]: data.models[0] }));
+        }
+        setLiveStatus((prev) => ({
+          ...prev,
+          [slug]: { ok: true, text: `Live (${data.models.length} models)` },
+        }));
+        setBanner(`Loaded ${data.models.length} available models for ${slug.toUpperCase()}.`);
+      } else {
+        setLiveStatus((prev) => ({
+          ...prev,
+          [slug]: { ok: false, text: data.message || "Key Rejected" },
+        }));
+        setBanner(data.message || "Unable to load models for this API key.");
+      }
+    } finally {
+      setBusySlug(null);
+    }
+  }
+
+  async function handleSetActive(slug: string) {
+    setBusySlug(slug);
+    setBanner(null);
+    const modelChoice =
+      selectedModels[slug] ||
+      (loadedModels[slug] && loadedModels[slug][0]) ||
+      activeModel;
+
     try {
       const res = await fetch("/api/console/settings", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          "ai.provider_main": mainProvider,
-          "ai.model_main": mainModel.trim(),
-          "ai.provider_rag": ragProvider,
-          "ai.model_rag": ragModel.trim(),
+          "ai.provider_main": slug,
+          "ai.model_main": modelChoice,
         }),
       });
-
       if (res.ok) {
-        setMessage("AI Model Routing and RAG Auxiliary settings saved successfully.");
-      } else {
-        const err = await res.json();
-        setMessage(`Failed to update routing: ${err.message || "Unknown error"}`);
+        setActiveProvider(slug);
+        setActiveModel(modelChoice);
+        setBanner(`Active provider switched to ${slug.toUpperCase()} (${modelChoice}).`);
       }
-    } catch {
-      setMessage("Network error saving AI routing.");
     } finally {
-      setRoutingSaving(false);
+      setBusySlug(null);
     }
   }
 
-  async function handleSaveIntegration(item: IntegrationItem) {
-    setMessage(null);
-    const res = await fetch("/api/console/integrations", {
+  async function handleToggleTokenOpt() {
+    const next = !tokenOpt;
+    setTokenOpt(next);
+    await fetch("/api/console/settings", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        slug: item.slug,
-        name: item.name,
-        baseUrl: item.baseUrl,
-        healthPath: item.healthPath,
-        enabled: item.enabled,
-        apiKey: apiKeyInputs[item.slug] || undefined,
-      }),
+      body: JSON.stringify({ "ai.token_optimization_enabled": next }),
     });
-    if (res.ok) {
-      setMessage(`Integration "${item.name}" updated successfully.`);
-      setApiKeyInputs((p) => ({ ...p, [item.slug]: "" }));
-      loadData();
-    }
+    setBanner(`Token Optimizer ${next ? "enabled" : "disabled"} across Copilot and Document Analyzer.`);
   }
 
-  async function handleTestConnection(slug: string) {
-    setTestingSlugs((p) => ({ ...p, [slug]: true }));
-    setTestResults((p) => ({ ...p, [slug]: "Testing connection..." }));
-    try {
-      const res = await fetch(`/api/console/integrations/${slug}/test`, { method: "POST" });
-      const data = await res.json();
-      setTestResults((p) => ({
-        ...p,
-        [slug]: `${data.status} (${data.latencyMs ?? 0}ms)`,
-      }));
-    } catch {
-      setTestResults((p) => ({ ...p, [slug]: "Connection failed (network error)" }));
-    } finally {
-      setTestingSlugs((p) => ({ ...p, [slug]: false }));
-      loadData();
-    }
+  if (loading) {
+    return (
+      <div className="py-16 text-center text-xs font-mono uppercase tracking-wider text-[#71717A]">
+        Loading Providers...
+      </div>
+    );
   }
 
-  async function handleAddIntegration(e: React.FormEvent) {
-    e.preventDefault();
-    setMessage(null);
-    const res = await fetch("/api/console/integrations", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        slug: newSlug.trim().toLowerCase(),
-        name: newName.trim(),
-        baseUrl: newBaseUrl.trim(),
-        healthPath: "/models",
-        apiKey: newKey.trim() || undefined,
+  const aiProviders = PROVIDER_SLUGS.map(
+    (slug) =>
+      integrations.find((i) => i.slug === slug) || {
+        slug,
+        name: slug.toUpperCase(),
+        baseUrl: "",
+        hasApiKey: false,
+        maskedKey: null,
         enabled: true,
-      }),
-    });
-    if (res.ok) {
-      setNewSlug("");
-      setNewName("");
-      setNewBaseUrl("");
-      setNewKey("");
-      setMessage("New custom AI / upstream service configured.");
-      loadData();
-    }
-  }
-
-  // Split into AI providers and services
-  const aiSlugs = ["anthropic", "openai", "deepseek", "custom-llm"];
-  const aiIntegrations = integrations.filter((i) => aiSlugs.includes(i.slug));
-  const otherIntegrations = integrations.filter((i) => !aiSlugs.includes(i.slug));
+        lastStatus: null,
+        config: {},
+      }
+  );
+  const ragService = integrations.find((i) => i.slug === "rag");
 
   return (
-    <div className="space-y-8">
-      {/* Page Header */}
-      <div className="border-b border-slate-200 pb-4">
-        <h1 className="text-xl font-mono font-bold text-slate-900 tracking-tight">
-          AI Providers &amp; Upstream Integrations
-        </h1>
-        <p className="text-xs text-slate-500 font-mono mt-1">
-          Manage API keys for Anthropic, OpenAI, DeepSeek, and custom models. All credentials are encrypted at rest with AES-256-GCM.
-        </p>
+    <div className="space-y-8 pb-10">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#E5E2DC] pb-5">
+        <div className="space-y-1">
+          <span className="text-[11px] font-mono uppercase tracking-widest text-[#B45309]">
+            AI Routing &amp; Cost Control
+          </span>
+          <h1 className="text-3xl font-serif font-medium text-[#18181B]">
+            Providers &amp; Model Selection
+          </h1>
+          <p className="text-sm text-[#52525B]">
+            Hot-swap provider keys, verify live status, load models dynamically, and control token cost.
+          </p>
+        </div>
+
+        <div className="px-4 py-2.5 rounded-xl bg-white border border-[#E5E2DC] text-xs space-y-0.5">
+          <div className="text-[10px] font-mono uppercase text-[#71717A]">Currently Active</div>
+          <div className="font-semibold text-[#134E4A] capitalize">
+            {activeProvider} · <span className="font-mono">{activeModel}</span>
+          </div>
+        </div>
       </div>
 
-      {message && (
-        <div className="p-3 bg-slate-900 text-slate-100 rounded text-xs font-mono border-l-4 border-amber-400">
-          {message}
+      {banner && (
+        <div className="p-3.5 rounded-xl bg-[#F0FDF4] border border-[#BBF7D0] text-[#166534] text-xs font-medium">
+          {banner}
         </div>
       )}
 
-      {/* AI Model Routing Configuration */}
-      <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm space-y-5">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <div>
-            <h2 className="text-sm font-mono font-bold uppercase text-slate-800">
-              AI Engine &amp; Model Routing
-            </h2>
-            <p className="text-xs text-slate-500 font-mono mt-0.5">
-              Decouple primary legal analysis reasoning from RAG auxiliary search operations.
-            </p>
-          </div>
-          <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-bold">
-            Dynamic Dispatch
-          </span>
-        </div>
-
-        <form onSubmit={handleSaveRouting} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Primary Model */}
-            <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold uppercase text-slate-900">
-                  1. Primary Reasoning Engine
-                </span>
-                <span className="text-[10px] font-mono text-slate-500">Contract Analysis &amp; Memo</span>
-              </div>
-              <p className="text-[11px] text-slate-600 font-mono leading-relaxed">
-                Powers comprehensive legal risk detection, cross-border analysis, and memorandum generation.
-              </p>
-
-              <div className="space-y-2 pt-1 text-xs font-mono">
-                <div>
-                  <label className="block text-[10px] uppercase text-slate-500 mb-1">Provider</label>
-                  <select
-                    value={mainProvider}
-                    onChange={(e) => {
-                      setMainProvider(e.target.value);
-                      if (e.target.value === "anthropic") setMainModel("claude-sonnet-5-5");
-                      else if (e.target.value === "openai") setMainModel("gpt-4o");
-                      else if (e.target.value === "deepseek") setMainModel("deepseek-chat");
-                    }}
-                    className="w-full px-3 py-1.5 border border-slate-300 rounded bg-white text-xs font-mono focus:outline-none focus:border-slate-500"
-                  >
-                    <option value="anthropic">Anthropic (Claude)</option>
-                    <option value="openai">OpenAI (GPT-4o / o3-mini)</option>
-                    <option value="deepseek">DeepSeek (V3 / R1)</option>
-                    <option value="custom">Custom / Self-Hosted (OpenAI Compatible)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] uppercase text-slate-500 mb-1">Model Name / ID</label>
-                  <input
-                    type="text"
-                    required
-                    value={mainModel}
-                    onChange={(e) => setMainModel(e.target.value)}
-                    placeholder="e.g. claude-sonnet-5-5, gpt-4o, deepseek-chat"
-                    className="w-full px-3 py-1.5 border border-slate-300 rounded bg-white text-xs font-mono focus:outline-none focus:border-slate-500"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* RAG Auxiliary Model */}
-            <div className="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold uppercase text-slate-900">
-                  2. RAG Auxiliary Engine
-                </span>
-                <span className="text-[10px] font-mono text-slate-500">Query Rewriting &amp; Selection</span>
-              </div>
-              <p className="text-[11px] text-slate-600 font-mono leading-relaxed">
-                Uses a separate cloud model to eliminate local SLM hosting. Keeps search fast, low-cost, and reliable.
-              </p>
-
-              <div className="space-y-2 pt-1 text-xs font-mono">
-                <div>
-                  <label className="block text-[10px] uppercase text-slate-500 mb-1">Provider</label>
-                  <select
-                    value={ragProvider}
-                    onChange={(e) => {
-                      setRagProvider(e.target.value);
-                      if (e.target.value === "openai") setRagModel("gpt-4o-mini");
-                      else if (e.target.value === "deepseek") setRagModel("deepseek-chat");
-                      else if (e.target.value === "anthropic") setRagModel("claude-haiku-5-5");
-                    }}
-                    className="w-full px-3 py-1.5 border border-slate-300 rounded bg-white text-xs font-mono focus:outline-none focus:border-slate-500"
-                  >
-                    <option value="openai">OpenAI (gpt-4o-mini)</option>
-                    <option value="deepseek">DeepSeek (deepseek-chat)</option>
-                    <option value="anthropic">Anthropic (Claude Haiku)</option>
-                    <option value="custom">Custom / Self-Hosted (OpenAI Compatible)</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-[10px] uppercase text-slate-500 mb-1">Model Name / ID</label>
-                  <input
-                    type="text"
-                    required
-                    value={ragModel}
-                    onChange={(e) => setRagModel(e.target.value)}
-                    placeholder="e.g. gpt-4o-mini, deepseek-chat, claude-haiku-5-5"
-                    className="w-full px-3 py-1.5 border border-slate-300 rounded bg-white text-xs font-mono focus:outline-none focus:border-slate-500"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              disabled={routingSaving}
-              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 text-white font-mono text-xs font-bold rounded transition-colors"
+      {/* Token Optimizer Control */}
+      <section className="vellum-card rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <h2 className="font-serif text-xl font-medium text-[#18181B]">Token Optimizer</h2>
+            <span
+              className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded border ${
+                tokenOpt
+                  ? "bg-[#F0FDF4] text-[#166534] border-[#BBF7D0]"
+                  : "bg-[#FAF9F6] text-[#71717A] border-[#E5E2DC]"
+              }`}
             >
-              {routingSaving ? "Saving..." : "Save AI Routing Configuration"}
+              {tokenOpt ? "Active" : "Off"}
+            </span>
+          </div>
+          <p className="text-xs text-[#52525B]">
+            Automatically condenses conversation history and document whitespace in Copilot and Document Analyzer to reduce AI cost.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleToggleTokenOpt}
+          className={`px-5 py-2.5 rounded-lg text-xs font-medium editorial-transition shrink-0 ${
+            tokenOpt
+              ? "bg-[#134E4A] text-[#FAF9F6]"
+              : "border border-[#E5E2DC] bg-[#FAF9F6] text-[#18181B] hover:bg-white"
+          }`}
+        >
+          {tokenOpt ? "Disable Optimizer" : "Enable Optimizer"}
+        </button>
+      </section>
+
+      {/* Main Inference Providers */}
+      <section className="space-y-4">
+        <h2 className="font-serif text-2xl font-medium text-[#18181B]">
+          Inference Providers
+        </h2>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {aiProviders.map((item) => {
+            const isActive = activeProvider === item.slug;
+            const live = liveStatus[item.slug];
+            const models = loadedModels[item.slug] || [];
+            const chosenModel =
+              selectedModels[item.slug] ||
+              (isActive ? activeModel : models[0] || "");
+
+            return (
+              <div
+                key={item.slug}
+                className={`vellum-card rounded-2xl p-6 space-y-4 ${
+                  isActive ? "border-[#134E4A] ring-1 ring-[#134E4A]" : ""
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3 border-b border-[#E5E2DC] pb-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-serif text-xl font-medium text-[#18181B]">
+                        {item.name}
+                      </h3>
+                      {isActive && (
+                        <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#134E4A] text-[#FAF9F6]">
+                          Active
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] font-mono text-[#71717A]">
+                      {item.hasApiKey ? `Saved Key: ${item.maskedKey}` : "No key saved"}
+                    </p>
+                  </div>
+
+                  {/* Separate Live Key Indicator */}
+                  <span
+                    className={`text-[10px] font-mono uppercase px-2.5 py-1 rounded border flex items-center gap-1.5 ${
+                      live?.ok
+                        ? "bg-[#F0FDF4] text-[#166534] border-[#BBF7D0]"
+                        : live
+                        ? "bg-[#FEF2F2] text-[#991B1B] border-[#FECACA]"
+                        : "bg-[#FAF9F6] text-[#71717A] border-[#E5E2DC]"
+                    }`}
+                  >
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        live?.ok ? "bg-[#166534]" : live ? "bg-[#991B1B]" : "bg-[#71717A]"
+                      }`}
+                    />
+                    {live?.ok ? "Key Live" : live ? "Key Offline" : "Untested"}
+                  </span>
+                </div>
+
+                {/* Hot-Swap Key Input */}
+                <div className="space-y-2">
+                  <label className="block text-[11px] font-medium text-[#52525B]">
+                    Hot-Swap API Key
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      type="password"
+                      value={keyInputs[item.slug] || ""}
+                      onChange={(e) =>
+                        setKeyInputs((prev) => ({ ...prev, [item.slug]: e.target.value }))
+                      }
+                      placeholder={item.hasApiKey ? "Enter new key to replace saved..." : "Paste provider API key..."}
+                      className="flex-1 px-3 py-2 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-xs font-mono"
+                    />
+                    <button
+                      type="button"
+                      disabled={busySlug === item.slug}
+                      onClick={() => handleSaveKey(item)}
+                      className="px-3.5 py-2 rounded-lg border border-[#E5E2DC] bg-white hover:bg-[#FAF9F6] text-xs font-medium text-[#18181B]"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+
+                {/* Test & Load Models */}
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    disabled={busySlug === item.slug}
+                    onClick={() => handleTestKey(item.slug)}
+                    className="px-3.5 py-2 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] hover:bg-white text-xs font-medium text-[#18181B]"
+                  >
+                    Test Key
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busySlug === item.slug}
+                    onClick={() => handleLoadModels(item.slug)}
+                    className="px-3.5 py-2 rounded-lg border border-[#134E4A]/30 bg-[#134E4A]/5 hover:bg-[#134E4A]/10 text-xs font-medium text-[#134E4A]"
+                  >
+                    {busySlug === item.slug ? "Loading..." : "Load Models"}
+                  </button>
+                </div>
+
+                {/* Loaded Models Dropdown + Set Active */}
+                <div className="pt-2 border-t border-[#E5E2DC] flex flex-col sm:flex-row gap-2.5">
+                  <select
+                    value={chosenModel}
+                    onChange={(e) =>
+                      setSelectedModels((prev) => ({ ...prev, [item.slug]: e.target.value }))
+                    }
+                    className="flex-1 px-3 py-2 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-xs font-mono text-[#18181B]"
+                  >
+                    {models.length === 0 ? (
+                      <option value={chosenModel}>
+                        {chosenModel || "Click Load Models to fetch available models"}
+                      </option>
+                    ) : (
+                      models.map((m) => (
+                        <option key={m} value={m}>
+                          {m}
+                        </option>
+                      ))
+                    )}
+                  </select>
+
+                  <button
+                    type="button"
+                    disabled={busySlug === item.slug}
+                    onClick={() => handleSetActive(item.slug)}
+                    className={`px-4 py-2 rounded-lg text-xs font-medium editorial-transition shrink-0 ${
+                      isActive
+                        ? "bg-[#134E4A] text-[#FAF9F6]"
+                        : "bg-[#18181B] hover:bg-[#134E4A] text-white"
+                    }`}
+                  >
+                    {isActive ? "Update Active Model" : "Set Active"}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Advisory Service Connection (RAG Hot-Swap) */}
+      {ragService && (
+        <section className="vellum-card rounded-2xl p-6 space-y-4">
+          <div className="flex items-center justify-between border-b border-[#E5E2DC] pb-4">
+            <div>
+              <h2 className="font-serif text-xl font-medium text-[#18181B]">
+                Legal Advisory Service Connection
+              </h2>
+              <p className="text-xs text-[#52525B]">
+                Hot-swap endpoint URL and access key for the statutory analysis service.
+              </p>
+            </div>
+            <span
+              className={`text-[10px] font-mono uppercase px-2.5 py-1 rounded border ${
+                liveStatus["rag"]?.ok
+                  ? "bg-[#F0FDF4] text-[#166534] border-[#BBF7D0]"
+                  : "bg-[#FAF9F6] text-[#71717A] border-[#E5E2DC]"
+              }`}
+            >
+              {liveStatus["rag"]?.ok ? "Live" : "Check Status"}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-[#18181B]">Service URL</label>
+              <input
+                type="url"
+                value={urlInputs["rag"] || ""}
+                onChange={(e) => setUrlInputs((prev) => ({ ...prev, rag: e.target.value }))}
+                className="w-full px-3.5 py-2 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-xs font-mono"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-[#18181B]">Service Access Key</label>
+              <input
+                type="password"
+                value={keyInputs["rag"] || ""}
+                onChange={(e) => setKeyInputs((prev) => ({ ...prev, rag: e.target.value }))}
+                placeholder={ragService.hasApiKey ? `Saved (${ragService.maskedKey})` : "Enter key..."}
+                className="w-full px-3.5 py-2 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-xs font-mono"
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => handleSaveKey(ragService)}
+              className="px-4 py-2 rounded-lg bg-[#134E4A] text-[#FAF9F6] text-xs font-medium"
+            >
+              Save Connection
+            </button>
+            <button
+              type="button"
+              onClick={() => handleTestKey("rag")}
+              className="px-4 py-2 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-xs font-medium text-[#18181B]"
+            >
+              Test Connection
             </button>
           </div>
-        </form>
-      </div>
-
-      {/* AI Model Providers Section */}
-      <div className="space-y-4">
-        <div className="border-b border-slate-200 pb-2 flex items-center justify-between">
-          <h2 className="text-sm font-mono font-bold uppercase text-slate-800">
-            Supported AI Model Providers
-          </h2>
-          <span className="text-[11px] font-mono text-slate-500">
-            Enter provider API keys below to enable live inference
-          </span>
-        </div>
-
-        <div className="space-y-4">
-          {aiIntegrations.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm space-y-4"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded bg-slate-100 border border-slate-200 flex items-center justify-center font-mono font-bold text-xs text-slate-700">
-                    {item.slug === "anthropic" && "A"}
-                    {item.slug === "openai" && "O"}
-                    {item.slug === "deepseek" && "D"}
-                    {item.slug === "custom-llm" && "C"}
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-mono font-bold text-slate-900">{item.name}</h3>
-                    <span className="text-[11px] font-mono text-slate-500">
-                      Slug: <span className="font-semibold text-slate-700">{item.slug}</span>
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase font-mono ${
-                      item.enabled ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600"
-                    }`}
-                  >
-                    {item.enabled ? "Enabled" : "Disabled"}
-                  </span>
-                  <button
-                    type="button"
-                    disabled={testingSlugs[item.slug]}
-                    onClick={() => handleTestConnection(item.slug)}
-                    className="px-3 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded text-xs font-mono font-semibold text-slate-800 transition-colors disabled:opacity-50"
-                  >
-                    {testingSlugs[item.slug] ? "Testing..." : "Test Connection"}
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
-                <div>
-                  <label className="block text-[10px] font-mono uppercase text-slate-500 mb-1">
-                    API Endpoint Base URL
-                  </label>
-                  <input
-                    type="text"
-                    value={item.baseUrl}
-                    onChange={(e) =>
-                      setIntegrations((prev) =>
-                        prev.map((i) => (i.slug === item.slug ? { ...i, baseUrl: e.target.value } : i))
-                      )
-                    }
-                    className="w-full px-2.5 py-1.5 border border-slate-300 rounded font-mono text-xs focus:outline-none focus:border-slate-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-mono uppercase text-slate-500 mb-1">
-                    Health Check Path
-                  </label>
-                  <input
-                    type="text"
-                    value={item.healthPath}
-                    onChange={(e) =>
-                      setIntegrations((prev) =>
-                        prev.map((i) => (i.slug === item.slug ? { ...i, healthPath: e.target.value } : i))
-                      )
-                    }
-                    className="w-full px-2.5 py-1.5 border border-slate-300 rounded font-mono text-xs focus:outline-none focus:border-slate-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-mono uppercase text-slate-500 mb-1">
-                    API Key ({item.hasApiKey ? `Encrypted: ${item.apiKeyMasked}` : "Unset"})
-                  </label>
-                  <input
-                    type="password"
-                    placeholder="Enter new key to update..."
-                    value={apiKeyInputs[item.slug] || ""}
-                    onChange={(e) =>
-                      setApiKeyInputs((prev) => ({ ...prev, [item.slug]: e.target.value }))
-                    }
-                    className="w-full px-2.5 py-1.5 border border-slate-300 rounded font-mono text-xs focus:outline-none focus:border-slate-500"
-                  />
-                </div>
-
-                <div className="flex flex-col justify-end">
-                  <button
-                    type="button"
-                    onClick={() => handleSaveIntegration(item)}
-                    className="w-full py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-mono text-xs font-bold rounded transition-colors"
-                  >
-                    Save API Key &amp; Settings
-                  </button>
-                </div>
-              </div>
-
-              {testResults[item.slug] && (
-                <div className="p-2.5 bg-slate-50 border border-slate-200 rounded font-mono text-xs text-slate-800">
-                  Connection probe result: {testResults[item.slug]}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Core Services Section */}
-      <div className="space-y-4">
-        <div className="border-b border-slate-200 pb-2">
-          <h2 className="text-sm font-mono font-bold uppercase text-slate-800">
-            Core Microservices &amp; Legal Repositories
-          </h2>
-        </div>
-
-        <div className="space-y-4">
-          {otherIntegrations.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm space-y-4"
-            >
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                <div>
-                  <h3 className="text-sm font-mono font-bold text-slate-900">{item.name}</h3>
-                  <span className="text-[11px] font-mono text-slate-500">
-                    Slug: <span className="font-semibold text-slate-700">{item.slug}</span>
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase font-mono ${
-                      item.enabled ? "bg-emerald-100 text-emerald-800" : "bg-slate-100 text-slate-600"
-                    }`}
-                  >
-                    {item.enabled ? "Active" : "Disabled"}
-                  </span>
-                  <button
-                    type="button"
-                    disabled={testingSlugs[item.slug]}
-                    onClick={() => handleTestConnection(item.slug)}
-                    className="px-3 py-1 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded text-xs font-mono font-semibold text-slate-800 transition-colors disabled:opacity-50"
-                  >
-                    {testingSlugs[item.slug] ? "Testing..." : "Test Connection"}
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs font-mono">
-                <div>
-                  <label className="block text-[10px] font-mono uppercase text-slate-500 mb-1">
-                    Base URL
-                  </label>
-                  <input
-                    type="text"
-                    value={item.baseUrl}
-                    onChange={(e) =>
-                      setIntegrations((prev) =>
-                        prev.map((i) => (i.slug === item.slug ? { ...i, baseUrl: e.target.value } : i))
-                      )
-                    }
-                    className="w-full px-2.5 py-1.5 border border-slate-300 rounded font-mono text-xs focus:outline-none focus:border-slate-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-mono uppercase text-slate-500 mb-1">
-                    Health Check Endpoint
-                  </label>
-                  <input
-                    type="text"
-                    value={item.healthPath}
-                    onChange={(e) =>
-                      setIntegrations((prev) =>
-                        prev.map((i) => (i.slug === item.slug ? { ...i, healthPath: e.target.value } : i))
-                      )
-                    }
-                    className="w-full px-2.5 py-1.5 border border-slate-300 rounded font-mono text-xs focus:outline-none focus:border-slate-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[10px] font-mono uppercase text-slate-500 mb-1">
-                    API Key ({item.hasApiKey ? `Encrypted: ${item.apiKeyMasked}` : "Unset"})
-                  </label>
-                  <input
-                    type="password"
-                    placeholder="Enter new key to update..."
-                    value={apiKeyInputs[item.slug] || ""}
-                    onChange={(e) =>
-                      setApiKeyInputs((prev) => ({ ...prev, [item.slug]: e.target.value }))
-                    }
-                    className="w-full px-2.5 py-1.5 border border-slate-300 rounded font-mono text-xs focus:outline-none focus:border-slate-500"
-                  />
-                </div>
-
-                <div className="flex flex-col justify-end">
-                  <button
-                    type="button"
-                    onClick={() => handleSaveIntegration(item)}
-                    className="w-full py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-mono text-xs font-bold rounded transition-colors"
-                  >
-                    Save Service
-                  </button>
-                </div>
-              </div>
-
-              {testResults[item.slug] && (
-                <div className="p-2.5 bg-slate-50 border border-slate-200 rounded font-mono text-xs text-slate-800">
-                  Telemetry probe: {testResults[item.slug]}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Add Custom Service Form */}
-      <div className="bg-white p-5 rounded-lg border border-slate-200 shadow-sm space-y-4">
-        <h2 className="text-xs font-mono font-bold uppercase text-slate-700">
-          Add Custom External Provider / Retrieval Service
-        </h2>
-        <form onSubmit={handleAddIntegration} className="grid grid-cols-1 md:grid-cols-5 gap-3">
-          <input
-            type="text"
-            required
-            placeholder="slug (e.g. groq, vllm)"
-            value={newSlug}
-            onChange={(e) => setNewSlug(e.target.value)}
-            className="px-3 py-1.5 border border-slate-300 rounded text-xs font-mono focus:outline-none focus:border-slate-500"
-          />
-          <input
-            type="text"
-            required
-            placeholder="Provider Display Name"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            className="px-3 py-1.5 border border-slate-300 rounded text-xs font-mono focus:outline-none focus:border-slate-500"
-          />
-          <input
-            type="url"
-            required
-            placeholder="Base URL (http://...)"
-            value={newBaseUrl}
-            onChange={(e) => setNewBaseUrl(e.target.value)}
-            className="px-3 py-1.5 border border-slate-300 rounded text-xs font-mono focus:outline-none focus:border-slate-500"
-          />
-          <input
-            type="password"
-            placeholder="Write-only API Key"
-            value={newKey}
-            onChange={(e) => setNewKey(e.target.value)}
-            className="px-3 py-1.5 border border-slate-300 rounded text-xs font-mono focus:outline-none focus:border-slate-500"
-          />
-          <button
-            type="submit"
-            className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-mono text-xs font-bold rounded transition-colors"
-          >
-            Register Custom Service
-          </button>
-        </form>
-      </div>
+        </section>
+      )}
     </div>
   );
 }

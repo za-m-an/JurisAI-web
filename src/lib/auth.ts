@@ -19,6 +19,10 @@ export interface AuthenticatedUser {
   role: UserRole;
   professional_level: ProfessionalLevel;
   organisation: string | null;
+  region?: string;
+  language?: string;
+  avatar_url?: string | null;
+  subscription_tier?: string;
   is_active: boolean;
   token_version: number;
   created_at: string;
@@ -145,7 +149,7 @@ export async function requireUser(req: NextRequest | Request): Promise<Authentic
   }
 
   const res = await query<AuthenticatedUser>(
-    `SELECT id, email, full_name, role, professional_level, organisation, is_active, token_version, created_at, last_login_at
+    `SELECT id, email, full_name, role, professional_level, organisation, region, language, avatar_url, subscription_tier, is_active, token_version, created_at, last_login_at
      FROM users WHERE id = $1 LIMIT 1`,
     [jwtPayload.sub]
   );

@@ -1,213 +1,152 @@
 import React from "react";
 import Link from "next/link";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { Badge, Button } from "@/components/ui/primitives";
 
-export default function Page() {
-  const cookieStore = cookies();
-  if (cookieStore.get("juris_admin_session")) {
-    redirect("/console");
-  }
-  if (cookieStore.get("juris_session")) {
-    redirect("/dashboard");
-  }
-  return <LandingPageView />;
-}
-
-function LandingPageView() {
+export default function LandingPage() {
   return (
-    <div className="space-y-20 py-6">
-      {/* Editorial 12-Column Hero */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start border-b border-hairline pb-16">
-        <div className="lg:col-span-7 space-y-6">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded border border-hairline bg-paper-warm text-[11px] font-mono text-ink-muted">
-            <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-            <span>Multi-Jurisdictional Advisory · BD · US · EU</span>
+    <div className="space-y-16 pb-12">
+      {/* Asymmetric Editorial Hero */}
+      <section className="editorial-grid-bg border border-[#E5E2DC] rounded-2xl bg-[#FAF9F6] p-8 sm:p-12 lg:p-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+          <div className="lg:col-span-7 space-y-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#E5E2DC] bg-white text-[11px] font-mono uppercase tracking-wider text-[#52525B]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#134E4A]" />
+              Bangladesh · United States · European Union
+            </div>
+
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif font-medium text-[#18181B] leading-[1.08] tracking-tight">
+              Authoritative legal counsel for every contract you sign.
+            </h1>
+
+            <p className="text-base sm:text-lg text-[#52525B] max-w-xl leading-relaxed">
+              Juris AI examines commercial agreements against statutory codes,
+              identifies unenforceable clauses, prepares institutional legal
+              memoranda, and connects you with top-rated advocates in your jurisdiction.
+            </p>
+
+            <div className="pt-2 flex flex-wrap items-center gap-4">
+              <Link
+                href="/login"
+                className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl bg-[#134E4A] hover:bg-[#0F3F3C] text-[#FAF9F6] text-sm font-medium editorial-transition shadow-sm"
+              >
+                <span>Get Started</span>
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </Link>
+              <span className="text-xs font-mono uppercase tracking-wider text-[#71717A]">
+                Statutory &amp; Precedent Grounded
+              </span>
+            </div>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-serif font-bold text-ink leading-[1.15] tracking-tight">
-            Identify non-obvious contractual risks before closing.
-          </h1>
+          {/* Authentic Legal Memorandum Preview Card (Anti-AI Guardrail: Real Product UI) */}
+          <div className="lg:col-span-5">
+            <div className="vellum-card rounded-xl overflow-hidden">
+              <div className="px-5 py-3.5 border-b border-[#E5E2DC] bg-[#FAF9F6] flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-mono uppercase tracking-wider text-[#71717A]">
+                    REF: JRS-2026-8F4A2C
+                  </span>
+                </div>
+                <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-[#134E4A]/10 text-[#134E4A] font-medium">
+                  BD Governing Law
+                </span>
+              </div>
 
-          <p className="text-base sm:text-lg text-ink-muted leading-relaxed font-sans max-w-xl">
-            Juris AI analyzes commercial contracts for clause interactions, vertical restraints, and cross-border enforceability traps. Every cited statutory provision and judicial decision is verified in pure Python against our indexed corpus.
+              <div className="p-5 space-y-4">
+                <div>
+                  <h3 className="font-serif text-lg font-medium text-[#18181B]">
+                    Commercial Supply &amp; Distribution Agreement
+                  </h3>
+                  <p className="text-xs text-[#71717A] mt-0.5">
+                    3 Statutory Risk Vectors Identified · Formal Letterhead Ready
+                  </p>
+                </div>
+
+                <div className="space-y-2.5">
+                  <div className="p-3 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6]/60">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="text-xs font-semibold text-[#18181B]">
+                        Clause 3.1 — Post-Termination Restraint
+                      </span>
+                      <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#FEF2F2] text-[#991B1B] border border-[#FECACA]">
+                        High Risk
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#52525B] leading-relaxed">
+                      Void under Section 27 of the Contract Act 1872; post-termination
+                      territorial trade bans are unenforceable unless tied to goodwill sale.
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6]/60">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="text-xs font-semibold text-[#18181B]">
+                        Clause 2.3 — Stipulated Penalty Interest
+                      </span>
+                      <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#FFFBEB] text-[#92400E] border border-[#FDE68A]">
+                        Moderate
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#52525B] leading-relaxed">
+                      Subject to reasonable compensation limits under Section 74;
+                      automatic punitive forfeiture will be reduced by courts.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-[#E5E2DC] flex items-center justify-between text-[11px] font-mono text-[#166534]">
+                  <span>✓ Verified Statutory Citations</span>
+                  <span className="text-[#B45309]">Institutional PDF Export</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Architectural 3-Column Capabilities */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-0 border border-[#E5E2DC] rounded-xl bg-white overflow-hidden">
+        <div className="p-8 border-b md:border-b-0 md:border-r border-[#E5E2DC] space-y-3">
+          <span className="text-[11px] font-mono uppercase tracking-widest text-[#B45309]">
+            01 — Document Analyzer
+          </span>
+          <h2 className="text-2xl font-serif font-medium text-[#18181B]">
+            Statutory Clause Audit
+          </h2>
+          <p className="text-sm text-[#52525B] leading-relaxed">
+            Upload agreements, select your governing jurisdiction, and add case
+            context. Receive structured risk findings and formal letterhead memoranda
+            ready for submission to legal institutions.
           </p>
-
-          <div className="flex flex-wrap items-center gap-3 pt-2">
-            <Link href="/analyze">
-              <Button size="lg" variant="primary">
-                Analyse a Contract
-              </Button>
-            </Link>
-            <Link href="/how-verification-works">
-              <Button size="lg" variant="outline">
-                How Verification Works
-              </Button>
-            </Link>
-            <Link href="/register">
-              <Button size="lg" variant="ghost">
-                Create Account
-              </Button>
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-hairline text-xs font-mono text-ink-muted">
-            <div>
-              <strong className="block text-ink font-semibold">Zero File Storage</strong>
-              Buffers discarded in RAM
-            </div>
-            <div>
-              <strong className="block text-ink font-semibold">Pure-Python Verification</strong>
-              Exact citation checking
-            </div>
-            <div>
-              <strong className="block text-ink font-semibold">3 Jurisdictions</strong>
-              BD, US, and EU statutes
-            </div>
-          </div>
         </div>
 
-        {/* Real Coded Report Preview */}
-        <div className="lg:col-span-5 bg-white border border-hairline rounded-lg p-6 shadow-subtle space-y-5">
-          <div className="flex items-center justify-between border-b border-hairline pb-3">
-            <div>
-              <span className="text-[10px] font-mono uppercase text-ink-subtle">Sample Analysis Output</span>
-              <h2 className="text-sm font-serif font-bold text-ink">Global Software Distribution Agreement</h2>
-            </div>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-paper-warm border border-hairline text-ink-muted">
-              Governing: NY, US
-            </span>
-          </div>
-
-          {/* Verification Bar */}
-          <div className="p-2.5 rounded bg-paper-warm border border-hairline flex items-center justify-between text-xs font-mono">
-            <span className="text-ink-muted text-[11px]">Citation Audit (3 Checked)</span>
-            <div className="flex gap-1.5">
-              <Badge variant="verified">2 Verified</Badge>
-              <Badge variant="corpus">1 In Corpus</Badge>
-            </div>
-          </div>
-
-          {/* Risk 1 */}
-          <div className="space-y-2 border-b border-hairline-subtle pb-4">
-            <div className="flex items-start justify-between gap-2">
-              <h3 className="text-xs font-serif font-bold text-ink leading-snug">
-                1. Post-Term Non-Compete &amp; Territory Allocation
-              </h3>
-              <Badge variant="high">High Risk</Badge>
-            </div>
-            <p className="text-[11px] text-ink-muted leading-relaxed font-sans">
-              Clause 14.2 imposes a 3-year global territory ban. Violates vertical competition rules under EU Art. 101 and BD Competition Act s.15.
-            </p>
-            <div className="flex flex-wrap gap-1.5 pt-1">
-              <Badge variant="verified">TFEU Art. 101(1)</Badge>
-              <Badge variant="corpus">BD Competition Act 2012, s.15</Badge>
-            </div>
-          </div>
-
-          {/* Risk 2 */}
-          <div className="space-y-2">
-            <div className="flex items-start justify-between gap-2">
-              <h3 className="text-xs font-serif font-bold text-ink leading-snug">
-                2. Mandatory Arbitral Seat Conflict &amp; Enforceability
-              </h3>
-              <Badge variant="medium">Medium</Badge>
-            </div>
-            <p className="text-[11px] text-ink-muted leading-relaxed font-sans">
-              Asymmetry between Clause 19 (exclusive Dhaka seat) and Clause 22 (New York jurisdiction) risks pre-enforcement invalidation.
-            </p>
-            <div className="flex flex-wrap gap-1.5 pt-1">
-              <Badge variant="verified">Arbitration Act 2001, s.3</Badge>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3 Core Editorial Principles */}
-      <section className="space-y-8">
-        <div>
-          <span className="text-xs font-mono uppercase text-ink-subtle">Engine Design</span>
-          <h2 className="text-2xl font-serif font-bold text-ink mt-1">
-            Built for legal precision, not general-purpose chat.
+        <div className="p-8 border-b md:border-b-0 md:border-r border-[#E5E2DC] space-y-3">
+          <span className="text-[11px] font-mono uppercase tracking-widest text-[#B45309]">
+            02 — Legal Copilot
+          </span>
+          <h2 className="text-2xl font-serif font-medium text-[#18181B]">
+            Strategic Case Counsel
           </h2>
+          <p className="text-sm text-[#52525B] leading-relaxed">
+            Expand any analysis report directly into your private Copilot workspace.
+            Review actionable next steps, negotiation leverage, and statutory remedies
+            tailored to your case.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="space-y-2 border-t border-hairline pt-4">
-            <div className="text-xs font-mono text-accent font-bold">01 / PRIVACY PROMISE</div>
-            <h3 className="font-serif font-bold text-base text-ink">In-Memory Upload &amp; Discard</h3>
-            <p className="text-xs text-ink-muted leading-relaxed">
-              Uploaded files (PDF, DOCX, TXT) are validated by magic bytes, extracted in RAM, and dereferenced immediately. Neither file bytes nor raw extracted text are ever committed to our database.
-            </p>
-          </div>
-
-          <div className="space-y-2 border-t border-hairline pt-4">
-            <div className="text-xs font-mono text-accent font-bold">02 / CITATION AUDIT</div>
-            <h3 className="font-serif font-bold text-base text-ink">Deterministic Verification</h3>
-            <p className="text-xs text-ink-muted leading-relaxed">
-              We never ask a generative model whether a citation is valid. A pure-Python verification algorithm cross-checks citations against indexed statutory provisions and full-text primary records.
-            </p>
-          </div>
-
-          <div className="space-y-2 border-t border-hairline pt-4">
-            <div className="text-xs font-mono text-accent font-bold">03 / MULTI-JURISDICTION</div>
-            <h3 className="font-serif font-bold text-base text-ink">BD, US &amp; EU Statute Harmonization</h3>
-            <p className="text-xs text-ink-muted leading-relaxed">
-              Cross-border contracts often trigger conflicting rules. Our hybrid ChromaDB + BM25 retrieval captures regulatory exposures across Bangladesh, US federal, and European Union commercial law.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Honest Scope & Limitations Table */}
-      <section className="space-y-6 border-t border-hairline pt-16">
-        <div>
-          <span className="text-xs font-mono uppercase text-ink-subtle">Honest Scope</span>
-          <h2 className="text-2xl font-serif font-bold text-ink mt-1">
-            What Juris AI Does and Does Not Do
+        <div className="p-8 space-y-3">
+          <span className="text-[11px] font-mono uppercase tracking-widest text-[#B45309]">
+            03 — Regional Law Firms
+          </span>
+          <h2 className="text-2xl font-serif font-medium text-[#18181B]">
+            Verified Counsel Matching
           </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-xs font-sans">
-          <div className="p-5 bg-white border border-hairline rounded-lg space-y-3 shadow-subtle">
-            <h3 className="font-serif font-bold text-sm text-[#1B6E42]">What Juris AI Does</h3>
-            <ul className="space-y-2 text-ink-muted">
-              <li>• Identifies non-obvious clause interactions and vertical competition restraints.</li>
-              <li>• Evaluates governing law conflicts across Bangladesh, United States, and the EU.</li>
-              <li>• Categorises legal citations into 3 transparent verification tiers.</li>
-              <li>• Generates replacement mitigation clauses ready for counsel review.</li>
-              <li>• Permanently discards source documents after in-memory extraction.</li>
-            </ul>
-          </div>
-
-          <div className="p-5 bg-white border border-hairline rounded-lg space-y-3 shadow-subtle">
-            <h3 className="font-serif font-bold text-sm text-accent">What Juris AI Does Not Do</h3>
-            <ul className="space-y-2 text-ink-muted">
-              <li>• Does not provide formal legal advice or substitute for licensed counsel.</li>
-              <li>• Does not store or retain uploaded client agreements on disk or in the database.</li>
-              <li>• Does not allow unverified or hallucinated citations into final legal memoranda.</li>
-              <li>• Does not sell, share, or train AI foundation models on uploaded document text.</li>
-              <li>• Does not support jurisdictions outside the loaded BD, US, and EU corpus.</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* Editorial Bottom Callout */}
-      <section className="bg-paper-warm border border-hairline rounded-lg p-8 sm:p-12 text-center space-y-4">
-        <h2 className="text-2xl font-serif font-bold text-ink">
-          Examine your agreement against statutory law today.
-        </h2>
-        <p className="text-xs text-ink-muted max-w-md mx-auto leading-relaxed font-sans">
-          Upload a sample contract or paste scenario text. Review risks, verify citations, and export structured memoranda.
-        </p>
-        <div className="pt-2">
-          <Link href="/analyze">
-            <Button size="lg" variant="primary">
-              Begin Contract Analysis
-            </Button>
-          </Link>
+          <p className="text-sm text-[#52525B] leading-relaxed">
+            Browse top-rated law firms and barristers in your region, complete with
+            AI-evaluated case ratings, practice histories, and direct representation
+            contact details.
+          </p>
         </div>
       </section>
     </div>

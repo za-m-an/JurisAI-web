@@ -10,23 +10,21 @@ interface UserProfile {
   fullName: string;
   role: "common" | "business" | "lawyer" | "admin";
   organisation: string | null;
-}
-
-interface QuotaInfo {
-  used: number;
-  limit: number;
+  region?: "BD" | "US" | "EU";
+  language?: "en" | "bn";
+  avatarUrl?: string | null;
+  subscriptionTier?: string;
 }
 
 export default function Navigation() {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [quota, setQuota] = useState<QuotaInfo | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Skip rendering public navigation entirely on dedicated console routes
   const isConsole = pathname.startsWith("/console");
 
   useEffect(() => {
@@ -38,24 +36,10 @@ export default function Navigation() {
     let active = true;
     fetch("/api/auth/me")
       .then((r) => (r.ok ? r.json() : null))
-      .then(async (data) => {
+      .then((data) => {
         if (!active) return;
         if (data?.user) {
           setUser(data.user);
-          // Fetch user quota usage for non-admins
-          if (data.user.role !== "admin") {
-            try {
-              const anRes = await fetch("/api/analyses");
-              if (anRes.ok) {
-                const anData = await anRes.json();
-                if (anData.quota) {
-                  setQuota(anData.quota);
-                }
-              }
-            } catch {
-              // Quota fetch fallback
-            }
-          }
         } else {
           setUser(null);
         }
@@ -72,7 +56,6 @@ export default function Navigation() {
     };
   }, [pathname, isConsole]);
 
-  // Close dropdown on click outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -87,6 +70,7 @@ export default function Navigation() {
     await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
     setMenuOpen(false);
+    setMobileOpen(false);
     router.push("/login");
   }
 
@@ -95,8 +79,6 @@ export default function Navigation() {
   }
 
   const isAdmin = user?.role === "admin";
-
-  // Calculate initials for avatar
   const initials = user?.fullName
     ? user.fullName
         .split(" ")
@@ -106,245 +88,178 @@ export default function Navigation() {
         .toUpperCase()
     : "U";
 
+  const navItems = [
+    { href: "/chat", label: "Copilot" },
+    { href: "/analyze", label: "Document Analyzer" },
+    { href: "/lawyers", label: "Law Firms" },
+    { href: "/settings", label: "Settings" },
+  ];
+
+  const isActive = (href: string) =>
+    pathname === href || pathname.startsWith(`${href}/`) || (href === "/analyze" && pathname.startsWith("/analyses"));
+
   return (
-    <header className="bg-[#0b1f33] text-white border-b border-slate-800 no-print sticky top-0 z-40 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Brand / Logo */}
-        <div className="flex items-center space-x-8">
+    <header className="sticky top-0 z-40 no-print pt-3 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto glass-vellum rounded-xl px-5 h-14 flex items-center justify-between editorial-transition">
+        {/* Brand Wordmark (links to /dashboard when signed in, / when signed out) */}
+        <div className="flex items-center gap-8">
           <Link
-            href="/"
-            className="text-xl font-serif font-bold tracking-tight text-amber-100 hover:text-white transition-colors flex items-center gap-2"
+            href={user && !isAdmin ? "/dashboard" : "/"}
+            className="flex items-center gap-2.5 group"
           >
-            <span>Juris AI</span>
-            {isAdmin && (
-              <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                Admin
-              </span>
-            )}
+            <span className="w-7 h-7 rounded-md bg-[#134E4A] text-[#FAF9F6] flex items-center justify-center font-serif font-bold text-sm tracking-tight group-hover:bg-[#0F3F3C] editorial-transition">
+              J
+            </span>
+            <span className="text-lg font-serif font-semibold tracking-tight text-[#18181B]">
+              Juris AI
+            </span>
           </Link>
 
-          {/* Primary Navigation — Authenticated Normal Users Only */}
+          {/* Authenticated Navigation — Plain, No Dashboard / Home label */}
           {user && !isAdmin && (
-            <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-              <Link
-                href="/dashboard"
-                className={`transition-colors ${
-                  pathname === "/dashboard"
-                    ? "text-amber-200 font-semibold"
-                    : "text-slate-300 hover:text-white"
-                }`}
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/analyze"
-                className={`transition-colors ${
-                  pathname === "/analyze"
-                    ? "text-amber-200 font-semibold"
-                    : "text-slate-300 hover:text-white"
-                }`}
-              >
-                Analyse Document
-              </Link>
-              <Link
-                href="/chat"
-                className={`transition-colors ${
-                  pathname === "/chat" || pathname.startsWith("/chat/")
-                    ? "text-amber-200 font-semibold"
-                    : "text-slate-300 hover:text-white"
-                }`}
-              >
-                AI Copilot
-              </Link>
-              <Link
-                href="/lawyers"
-                className={`transition-colors ${
-                  pathname === "/lawyers"
-                    ? "text-amber-200 font-semibold"
-                    : "text-slate-300 hover:text-white"
-                }`}
-              >
-                Recommended Lawyers
-              </Link>
-              <Link
-                href="/history"
-                className={`transition-colors ${
-                  pathname === "/history"
-                    ? "text-amber-200 font-semibold"
-                    : "text-slate-300 hover:text-white"
-                }`}
-              >
-                History
-              </Link>
+            <nav className="hidden md:flex items-center gap-1">
+              {navItems.map((item) => {
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`px-3 py-1.5 rounded-lg text-[13px] font-medium editorial-transition ${
+                      active
+                        ? "bg-[#134E4A]/10 text-[#134E4A] font-semibold"
+                        : "text-[#52525B] hover:text-[#18181B] hover:bg-black/[0.03]"
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
             </nav>
-          )}
-
-          {/* Administrator Notice for Admins */}
-          {user && isAdmin && (
-            <div className="hidden md:flex items-center space-x-3 text-xs font-mono text-slate-300">
-              <span className="text-amber-400">●</span>
-              <span>Administrator Portal Active — Manage platform in Command Center</span>
-            </div>
           )}
         </div>
 
-        {/* Right Navigation Controls */}
-        <div className="flex items-center space-x-4">
-          {loading ? (
-            <div className="w-8 h-8 rounded-full bg-slate-800 animate-pulse" />
-          ) : user ? (
-            /* Logged In Controls */
-            <div className="flex items-center space-x-3">
-              {isAdmin && (
-                <Link
-                  href="/console"
-                  className="px-3.5 py-1.5 rounded bg-amber-600 hover:bg-amber-500 text-white font-mono text-xs font-bold transition-colors shadow-sm"
-                >
-                  Open Command Center →
-                </Link>
-              )}
+        {/* Right Controls */}
+        <div className="flex items-center gap-3">
+          {!loading && !user && (
+            <Link
+              href="/login"
+              className="px-4 py-1.5 rounded-lg bg-[#134E4A] hover:bg-[#0F3F3C] text-[#FAF9F6] text-[13px] font-medium tracking-tight editorial-transition shadow-sm"
+            >
+              Get Started
+            </Link>
+          )}
 
-              <div className="relative" ref={menuRef}>
-                <button
-                  type="button"
-                  onClick={() => setMenuOpen(!menuOpen)}
-                  aria-expanded={menuOpen}
-                  aria-label="User Account Menu"
-                  className="flex items-center space-x-2 p-1 rounded-full border border-slate-700 hover:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all"
-                >
-                  <div className={`w-8 h-8 rounded-full ${isAdmin ? "bg-slate-700 text-amber-300" : "bg-amber-600 text-white"} font-bold text-xs flex items-center justify-center font-mono`}>
+          {!loading && user && (
+            <div className="relative" ref={menuRef}>
+              <button
+                type="button"
+                onClick={() => setMenuOpen((o) => !o)}
+                className="flex items-center gap-2.5 pl-1.5 pr-2.5 py-1 rounded-full border border-[#E5E2DC] bg-white/80 hover:bg-white editorial-transition"
+                aria-label="Account menu"
+              >
+                {user.avatarUrl ? (
+                  <img
+                    src={user.avatarUrl}
+                    alt={user.fullName}
+                    className="w-6 h-6 rounded-full object-cover border border-[#E5E2DC]"
+                  />
+                ) : (
+                  <span className="w-6 h-6 rounded-full bg-[#134E4A] text-[#FAF9F6] text-[11px] font-mono font-semibold flex items-center justify-center">
                     {initials}
-                  </div>
-                </button>
-
-                {menuOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white text-slate-900 rounded-lg shadow-xl border border-slate-200 py-2 z-50 text-xs">
-                    {/* Account Header Details */}
-                    <div className="px-4 py-2 border-b border-slate-100 space-y-1">
-                      <div className="flex items-center justify-between">
-                        <p className="font-bold text-slate-900 truncate">{user.fullName}</p>
-                        <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold">
-                          {user.role}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-500 font-mono truncate">{user.email}</p>
-                      {user.role === "business" && user.organisation && (
-                        <p className="text-[11px] text-slate-600 font-medium">
-                          Org: {user.organisation}
-                        </p>
-                      )}
-                      {quota && !isAdmin && (
-                        <div className="pt-1 text-[11px] text-amber-900 font-medium">
-                          Monthly Quota: {quota.used} / {quota.limit} used
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Menu Items */}
-                    <div className="py-1 font-mono text-xs">
-                      {isAdmin ? (
-                        <>
-                          <Link
-                            href="/console"
-                            onClick={() => setMenuOpen(false)}
-                            className="block px-4 py-2 hover:bg-slate-50 text-amber-900 font-bold transition-colors"
-                          >
-                            Admin Command Center
-                          </Link>
-                          <Link
-                            href="/console/users"
-                            onClick={() => setMenuOpen(false)}
-                            className="block px-4 py-2 hover:bg-slate-50 text-slate-700 transition-colors"
-                          >
-                            Manage Users
-                          </Link>
-                          <Link
-                            href="/console/integrations"
-                            onClick={() => setMenuOpen(false)}
-                            className="block px-4 py-2 hover:bg-slate-50 text-slate-700 transition-colors"
-                          >
-                            AI Models &amp; RAG Keys
-                          </Link>
-                        </>
-                      ) : (
-                        <>
-                          <Link
-                            href="/dashboard"
-                            onClick={() => setMenuOpen(false)}
-                            className="block px-4 py-2 hover:bg-slate-50 text-slate-700 transition-colors"
-                          >
-                            My Dashboard
-                          </Link>
-                          <Link
-                            href="/settings"
-                            onClick={() => setMenuOpen(false)}
-                            className="block px-4 py-2 hover:bg-slate-50 text-slate-700 transition-colors"
-                          >
-                            Account Settings
-                          </Link>
-                        </>
-                      )}
-                      <Link
-                        href="/privacy"
-                        onClick={() => setMenuOpen(false)}
-                        className="block px-4 py-2 hover:bg-slate-50 text-slate-700 transition-colors"
-                      >
-                        Privacy &amp; Data Promise
-                      </Link>
-                      <Link
-                        href="/how-verification-works"
-                        onClick={() => setMenuOpen(false)}
-                        className="block px-4 py-2 hover:bg-slate-50 text-slate-700 transition-colors"
-                      >
-                        How Verification Works
-                      </Link>
-                    </div>
-
-                    {/* Sign Out */}
-                    <div className="border-t border-slate-100 pt-1">
-                      <button
-                        type="button"
-                        onClick={handleSignOut}
-                        className="w-full text-left px-4 py-2 text-rose-700 hover:bg-rose-50 font-semibold font-mono text-xs transition-colors"
-                      >
-                        Sign out
-                      </button>
-                    </div>
-                  </div>
+                  </span>
                 )}
-              </div>
+                <span className="hidden sm:inline text-xs font-medium text-[#18181B] max-w-[120px] truncate">
+                  {user.fullName}
+                </span>
+                <svg
+                  className="w-3.5 h-3.5 text-[#71717A]"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {menuOpen && (
+                <div className="absolute right-0 mt-2 w-56 glass-vellum rounded-xl py-1.5 z-50">
+                  <div className="px-3.5 py-2 border-b border-[#E5E2DC]">
+                    <p className="text-xs font-semibold text-[#18181B] truncate">{user.fullName}</p>
+                    <p className="text-[11px] text-[#71717A] truncate">{user.email}</p>
+                    <span className="inline-block mt-1 text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#134E4A]/10 text-[#134E4A]">
+                      {user.region || "BD"} · {user.subscriptionTier || "Standard"}
+                    </span>
+                  </div>
+                  <Link
+                    href="/settings/profile"
+                    onClick={() => setMenuOpen(false)}
+                    className="block px-3.5 py-2 text-xs text-[#52525B] hover:text-[#18181B] hover:bg-black/[0.03]"
+                  >
+                    Profile &amp; Avatar
+                  </Link>
+                  <Link
+                    href="/settings/subscription"
+                    onClick={() => setMenuOpen(false)}
+                    className="block px-3.5 py-2 text-xs text-[#52525B] hover:text-[#18181B] hover:bg-black/[0.03]"
+                  >
+                    Subscription
+                  </Link>
+                  <Link
+                    href="/settings"
+                    onClick={() => setMenuOpen(false)}
+                    className="block px-3.5 py-2 text-xs text-[#52525B] hover:text-[#18181B] hover:bg-black/[0.03]"
+                  >
+                    All Settings
+                  </Link>
+                  <div className="border-t border-[#E5E2DC] mt-1 pt-1">
+                    <button
+                      type="button"
+                      onClick={handleSignOut}
+                      className="w-full text-left px-3.5 py-2 text-xs text-[#991B1B] hover:bg-[#FEF2F2] font-medium"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-          ) : (
-            /* Logged Out / Unauthenticated Navigation */
-            <nav className="flex items-center space-x-4 text-xs font-medium">
-              <Link
-                href="/how-verification-works"
-                className="text-slate-300 hover:text-white transition-colors"
-              >
-                How it works
-              </Link>
-              <Link
-                href="/privacy"
-                className="text-slate-300 hover:text-white transition-colors"
-              >
-                Privacy
-              </Link>
-              <Link
-                href="/login"
-                className="px-3 py-1.5 rounded border border-slate-600 hover:border-slate-400 text-slate-200 transition-colors"
-              >
-                Sign in
-              </Link>
-              <Link
-                href="/register"
-                className="px-3.5 py-1.5 rounded bg-amber-600 hover:bg-amber-500 text-white font-semibold transition-colors"
-              >
-                Create account
-              </Link>
-            </nav>
+          )}
+
+          {/* Mobile Nav Toggle */}
+          {user && !isAdmin && (
+            <button
+              type="button"
+              onClick={() => setMobileOpen((o) => !o)}
+              className="md:hidden p-1.5 rounded-lg text-[#52525B] hover:text-[#18181B] hover:bg-black/[0.04]"
+              aria-label="Toggle navigation"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d={mobileOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+              </svg>
+            </button>
           )}
         </div>
       </div>
+
+      {/* Mobile Dropdown */}
+      {mobileOpen && user && !isAdmin && (
+        <div className="md:hidden max-w-7xl mx-auto mt-2 glass-vellum rounded-xl p-2 space-y-1">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={() => setMobileOpen(false)}
+              className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+                isActive(item.href)
+                  ? "bg-[#134E4A]/10 text-[#134E4A] font-semibold"
+                  : "text-[#52525B] hover:text-[#18181B]"
+              }`}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      )}
     </header>
   );
 }

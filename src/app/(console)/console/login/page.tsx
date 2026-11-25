@@ -6,24 +6,20 @@ import { useRouter } from "next/navigation";
 export default function ConsoleLoginPage() {
   const router = useRouter();
 
-  // Login credentials state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [totpCode, setTotpCode] = useState("");
   const [recoveryCode, setRecoveryCode] = useState("");
   const [useRecovery, setUseRecovery] = useState(false);
 
-  // Workflow states
   const [step, setStep] = useState<"credentials" | "totp" | "enroll" | "recovery_display" | "change_password">("credentials");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  // Enrollment data
   const [enrollData, setEnrollData] = useState<{ secret: string; uri: string; qrCodeDataUrl: string } | null>(null);
   const [enrollCode, setEnrollCode] = useState("");
   const [savedRecoveryCodes, setSavedRecoveryCodes] = useState<string[]>([]);
 
-  // Password change state
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -49,7 +45,6 @@ export default function ConsoleLoginPage() {
         return;
       }
 
-      // Check if user needs enrollment or password change
       if (data.user?.mustEnrollTotp) {
         await startTotpEnrollment();
         return;
@@ -174,21 +169,21 @@ export default function ConsoleLoginPage() {
   }
 
   return (
-    <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-lg p-8 shadow-2xl space-y-6">
-      <div>
-        <div className="font-mono text-xs uppercase tracking-wider text-slate-500 mb-1">
-          Authentication Gate
-        </div>
-        <h1 className="text-xl font-mono font-bold text-white tracking-tight">
+    <div className="w-full max-w-md vellum-card rounded-2xl p-8 sm:p-10 space-y-6">
+      <div className="space-y-2 border-b border-[#E5E2DC] pb-5">
+        <span className="text-[11px] font-mono uppercase tracking-widest text-[#B45309]">
+          Executive Gate
+        </span>
+        <h1 className="text-3xl font-serif font-medium text-[#18181B]">
           Admin Console Sign In
         </h1>
-        <p className="text-xs text-slate-400 mt-1">
-          Restricted administrative access. All actions are cryptographically verified and audited.
+        <p className="text-xs text-[#52525B]">
+          Restricted administrative access with multi-factor verification.
         </p>
       </div>
 
       {error && (
-        <div className="p-3 rounded bg-rose-950/60 border border-rose-800/60 text-rose-300 text-xs font-mono">
+        <div className="p-3.5 rounded-lg bg-[#FEF2F2] border border-[#FECACA] text-[#991B1B] text-xs font-medium">
           {error}
         </div>
       )}
@@ -196,21 +191,21 @@ export default function ConsoleLoginPage() {
       {/* Step 1: Initial Email & Password */}
       {step === "credentials" && (
         <form onSubmit={handleCredentialsSubmit} className="space-y-4">
-          <div>
-            <label className="block text-[11px] font-mono uppercase text-slate-400 mb-1">
-              Admin Email
+          <div className="space-y-1.5">
+            <label className="block text-xs font-medium text-[#18181B]">
+              Administrator Email
             </label>
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded text-slate-200 text-sm font-mono focus:outline-none focus:border-slate-500"
+              className="w-full px-3.5 py-2.5 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-sm text-[#18181B] focus:outline-none focus:border-[#134E4A] focus:bg-white editorial-transition"
               placeholder="admin@juris.local"
             />
           </div>
-          <div>
-            <label className="block text-[11px] font-mono uppercase text-slate-400 mb-1">
+          <div className="space-y-1.5">
+            <label className="block text-xs font-medium text-[#18181B]">
               Password
             </label>
             <input
@@ -218,13 +213,13 @@ export default function ConsoleLoginPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded text-slate-200 text-sm font-mono focus:outline-none focus:border-slate-500"
+              className="w-full px-3.5 py-2.5 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-sm text-[#18181B] focus:outline-none focus:border-[#134E4A] focus:bg-white editorial-transition"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 bg-slate-100 hover:bg-white text-slate-950 font-mono font-bold text-xs uppercase rounded transition-colors"
+            className="w-full py-2.5 rounded-lg bg-[#134E4A] hover:bg-[#0F3F3C] text-[#FAF9F6] text-sm font-medium editorial-transition shadow-sm"
           >
             {loading ? "Authenticating..." : "Continue"}
           </button>
@@ -235,8 +230,8 @@ export default function ConsoleLoginPage() {
       {step === "totp" && (
         <form onSubmit={handleTotpSubmit} className="space-y-4">
           {!useRecovery ? (
-            <div>
-              <label className="block text-[11px] font-mono uppercase text-slate-400 mb-1">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-[#18181B]">
                 6-Digit Authenticator Code
               </label>
               <input
@@ -245,17 +240,17 @@ export default function ConsoleLoginPage() {
                 maxLength={6}
                 value={totpCode}
                 onChange={(e) => setTotpCode(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded text-slate-200 text-center tracking-widest font-mono text-lg focus:outline-none focus:border-slate-500"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-[#18181B] text-center tracking-widest font-mono text-lg focus:outline-none focus:border-[#134E4A]"
                 placeholder="000000"
                 autoFocus
               />
-              <p className="text-[11px] text-slate-500 mt-1">
+              <p className="text-[11px] text-[#71717A]">
                 Enter the active 6-digit code from your authenticator app.
               </p>
             </div>
           ) : (
-            <div>
-              <label className="block text-[11px] font-mono uppercase text-slate-400 mb-1">
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-[#18181B]">
                 Emergency Recovery Code
               </label>
               <input
@@ -263,31 +258,28 @@ export default function ConsoleLoginPage() {
                 required
                 value={recoveryCode}
                 onChange={(e) => setRecoveryCode(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded text-slate-200 font-mono text-sm uppercase tracking-wider text-center focus:outline-none focus:border-slate-500"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-[#18181B] font-mono text-sm uppercase tracking-wider text-center focus:outline-none focus:border-[#134E4A]"
                 placeholder="XXXXX-XXXXX"
                 autoFocus
               />
-              <p className="text-[11px] text-slate-500 mt-1">
-                A one-time recovery code will be burned upon successful sign in.
-              </p>
             </div>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 bg-slate-100 hover:bg-white text-slate-950 font-mono font-bold text-xs uppercase rounded transition-colors"
+            className="w-full py-2.5 rounded-lg bg-[#134E4A] hover:bg-[#0F3F3C] text-[#FAF9F6] text-sm font-medium editorial-transition"
           >
             {loading ? "Verifying..." : "Verify & Sign In"}
           </button>
 
-          <div className="flex items-center justify-between text-[11px] text-slate-400 font-mono">
+          <div className="flex items-center justify-between text-xs text-[#52525B]">
             <button
               type="button"
               onClick={() => setUseRecovery(!useRecovery)}
-              className="hover:text-slate-200 underline"
+              className="hover:text-[#134E4A] underline"
             >
-              {useRecovery ? "Use Authenticator App" : "Use Emergency Recovery Code"}
+              {useRecovery ? "Use Authenticator App" : "Use Recovery Code"}
             </button>
             <button
               type="button"
@@ -296,7 +288,7 @@ export default function ConsoleLoginPage() {
                 setTotpCode("");
                 setRecoveryCode("");
               }}
-              className="hover:text-slate-200"
+              className="hover:text-[#18181B]"
             >
               Back
             </button>
@@ -307,24 +299,24 @@ export default function ConsoleLoginPage() {
       {/* Step 3: Mandatory TOTP Enrollment */}
       {step === "enroll" && enrollData && (
         <form onSubmit={handleConfirmEnrollment} className="space-y-4">
-          <div className="p-3 bg-slate-950 border border-slate-800 rounded text-xs space-y-3">
-            <p className="text-slate-300 font-medium">
-              Two-factor authentication is required for all administrative accounts.
+          <div className="p-4 bg-[#FAF9F6] border border-[#E5E2DC] rounded-xl text-xs space-y-3">
+            <p className="text-[#18181B] font-medium">
+              Two-factor authentication is required for administrative access.
             </p>
-            <div className="flex justify-center p-2 bg-white rounded">
+            <div className="flex justify-center p-2 bg-white rounded-lg border border-[#E5E2DC]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={enrollData.qrCodeDataUrl} alt="TOTP QR Code" className="w-44 h-44" />
+              <img src={enrollData.qrCodeDataUrl} alt="TOTP QR Code" className="w-40 h-40" />
             </div>
             <div>
-              <div className="text-[10px] text-slate-500 font-mono uppercase">Manual Secret Key:</div>
-              <div className="font-mono text-xs font-bold text-amber-300 select-all break-all">
+              <div className="text-[10px] text-[#71717A] font-mono uppercase">Manual Secret Key:</div>
+              <div className="font-mono text-xs font-semibold text-[#134E4A] select-all break-all">
                 {enrollData.secret}
               </div>
             </div>
           </div>
 
-          <div>
-            <label className="block text-[11px] font-mono uppercase text-slate-400 mb-1">
+          <div className="space-y-1.5">
+            <label className="block text-xs font-medium text-[#18181B]">
               Confirm 6-Digit Code
             </label>
             <input
@@ -333,7 +325,7 @@ export default function ConsoleLoginPage() {
               maxLength={6}
               value={enrollCode}
               onChange={(e) => setEnrollCode(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded text-slate-200 text-center font-mono text-base tracking-widest focus:outline-none focus:border-slate-500"
+              className="w-full px-3.5 py-2.5 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-center font-mono text-base tracking-widest"
               placeholder="000000"
             />
           </div>
@@ -341,7 +333,7 @@ export default function ConsoleLoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 bg-slate-100 hover:bg-white text-slate-950 font-mono font-bold text-xs uppercase rounded transition-colors"
+            className="w-full py-2.5 rounded-lg bg-[#134E4A] hover:bg-[#0F3F3C] text-[#FAF9F6] text-sm font-medium"
           >
             {loading ? "Activating..." : "Activate Two-Factor"}
           </button>
@@ -351,18 +343,18 @@ export default function ConsoleLoginPage() {
       {/* Step 4: Recovery Codes Display */}
       {step === "recovery_display" && (
         <div className="space-y-4">
-          <div className="p-4 bg-emerald-950/40 border border-emerald-800/40 rounded space-y-2">
-            <h2 className="text-xs font-mono font-bold uppercase text-emerald-300">
+          <div className="p-4 bg-[#F0FDF4] border border-[#BBF7D0] rounded-xl space-y-1.5">
+            <h2 className="text-xs font-mono font-bold uppercase text-[#166534]">
               Save Emergency Recovery Codes
             </h2>
-            <p className="text-[11px] text-emerald-200/80">
-              These codes provide access if your 2FA device is lost. Each code can only be used once. Store them in a secure password manager.
+            <p className="text-[11px] text-[#166534]/80">
+              Each code can be used once if your authenticator device is lost.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 p-3 bg-slate-950 border border-slate-800 rounded font-mono text-xs text-center text-slate-300">
+          <div className="grid grid-cols-2 gap-2 p-3 bg-[#FAF9F6] border border-[#E5E2DC] rounded-xl font-mono text-xs text-center text-[#18181B]">
             {savedRecoveryCodes.map((c, i) => (
-              <div key={i} className="p-1 bg-slate-900 border border-slate-800 rounded select-all">
+              <div key={i} className="p-1.5 bg-white border border-[#E5E2DC] rounded select-all">
                 {c}
               </div>
             ))}
@@ -370,10 +362,8 @@ export default function ConsoleLoginPage() {
 
           <button
             type="button"
-            onClick={() => {
-              router.replace("/console");
-            }}
-            className="w-full py-2 bg-slate-100 hover:bg-white text-slate-950 font-mono font-bold text-xs uppercase rounded transition-colors"
+            onClick={() => router.replace("/console")}
+            className="w-full py-2.5 rounded-lg bg-[#134E4A] hover:bg-[#0F3F3C] text-[#FAF9F6] text-sm font-medium"
           >
             I Have Saved These Codes — Enter Console
           </button>
@@ -383,11 +373,11 @@ export default function ConsoleLoginPage() {
       {/* Step 5: Forced Password Change */}
       {step === "change_password" && (
         <form onSubmit={handlePasswordChangeSubmit} className="space-y-4">
-          <div className="p-3 bg-amber-950/40 border border-amber-800/40 rounded text-xs text-amber-300">
-            Initial setup requires changing the default/temporary administrator password.
+          <div className="p-3 bg-[#FFFBEB] border border-[#FDE68A] rounded-lg text-xs text-[#92400E]">
+            Initial setup requires updating the temporary administrator password.
           </div>
-          <div>
-            <label className="block text-[11px] font-mono uppercase text-slate-400 mb-1">
+          <div className="space-y-1.5">
+            <label className="block text-xs font-medium text-[#18181B]">
               New Password (min 10 chars, letter + digit)
             </label>
             <input
@@ -395,11 +385,11 @@ export default function ConsoleLoginPage() {
               required
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded text-slate-200 font-mono text-sm focus:outline-none focus:border-slate-500"
+              className="w-full px-3.5 py-2.5 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-sm"
             />
           </div>
-          <div>
-            <label className="block text-[11px] font-mono uppercase text-slate-400 mb-1">
+          <div className="space-y-1.5">
+            <label className="block text-xs font-medium text-[#18181B]">
               Confirm New Password
             </label>
             <input
@@ -407,13 +397,13 @@ export default function ConsoleLoginPage() {
               required
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded text-slate-200 font-mono text-sm focus:outline-none focus:border-slate-500"
+              className="w-full px-3.5 py-2.5 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-sm"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 bg-slate-100 hover:bg-white text-slate-950 font-mono font-bold text-xs uppercase rounded transition-colors"
+            className="w-full py-2.5 rounded-lg bg-[#134E4A] hover:bg-[#0F3F3C] text-[#FAF9F6] text-sm font-medium"
           >
             {loading ? "Updating..." : "Update Password & Enter Console"}
           </button>

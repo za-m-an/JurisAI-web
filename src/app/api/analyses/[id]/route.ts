@@ -27,6 +27,8 @@ export async function GET(
       doc_mime: string;
       doc_sha256: string;
       jurisdictions: string[];
+      reference_code: string | null;
+      brief_summary: string | null;
       result: any;
       memo_markdown: string | null;
       error: string | null;
@@ -34,7 +36,7 @@ export async function GET(
       created_at: string;
       finished_at: string | null;
     }>(
-      `SELECT id, user_id, status, doc_name, doc_size, doc_mime, doc_sha256, jurisdictions, result, memo_markdown, error, rag_timings, created_at, finished_at
+      `SELECT id, user_id, status, doc_name, doc_size, doc_mime, doc_sha256, jurisdictions, reference_code, brief_summary, result, memo_markdown, error, rag_timings, created_at, finished_at
        FROM analyses WHERE id = $1 LIMIT 1`,
       [analysisId]
     );
@@ -50,6 +52,8 @@ export async function GET(
     return NextResponse.json({
       analysis: {
         id: row.id,
+        referenceCode: row.reference_code || `JRS-${row.id.slice(0, 8).toUpperCase()}`,
+        briefSummary: row.brief_summary || row.result?.executive_summary || null,
         status: row.status,
         docName: row.doc_name,
         docSize: row.doc_size,

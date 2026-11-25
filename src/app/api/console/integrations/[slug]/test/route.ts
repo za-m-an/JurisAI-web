@@ -51,11 +51,13 @@ export async function POST(
       apiKey = process.env.ANTHROPIC_API_KEY.trim();
     } else if (slug === "deepseek" && process.env.DEEPSEEK_API_KEY) {
       apiKey = process.env.DEEPSEEK_API_KEY.trim();
+    } else if (slug === "gemini" && process.env.GEMINI_API_KEY) {
+      apiKey = process.env.GEMINI_API_KEY.trim();
     } else if (slug === "aws" && process.env.AWS_API_KEY) {
       apiKey = process.env.AWS_API_KEY.trim();
     }
 
-    const aiSlugs = ["anthropic", "openai", "deepseek", "openrouter", "aws"];
+    const aiSlugs = ["anthropic", "openai", "deepseek", "openrouter", "gemini", "aws"];
     if (aiSlugs.includes(slug) && !apiKey) {
       const latencyMs = 0;
       const statusText = "No API key configured (enter & hot-swap key)";
@@ -72,9 +74,12 @@ export async function POST(
       });
     }
 
-    const targetUrl = `${row.base_url.replace(/\/+$/, "")}${
+    let targetUrl = `${row.base_url.replace(/\/+$/, "")}${
       row.health_path.startsWith("/") ? row.health_path : `/${row.health_path}`
     }`;
+    if (slug === "gemini" && apiKey) {
+      targetUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}`;
+    }
 
     const t0 = Date.now();
     let statusText = "ok";

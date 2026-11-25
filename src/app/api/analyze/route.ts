@@ -135,11 +135,12 @@ export async function POST(req: NextRequest) {
     }
 
     // 6. Insert analyses row with status='processing' (metadata only; never file bytes or extracted text)
+    const referenceCode = `JRS-${new Date().getFullYear()}-${crypto.randomBytes(3).toString("hex").toUpperCase()}`;
     const inserted = await query<{ id: string }>(
-      `INSERT INTO analyses (user_id, status, doc_name, doc_size, doc_mime, doc_sha256, jurisdictions)
-       VALUES ($1, 'processing', $2, $3, $4, $5, $6)
+      `INSERT INTO analyses (user_id, status, doc_name, doc_size, doc_mime, doc_sha256, jurisdictions, reference_code)
+       VALUES ($1, 'processing', $2, $3, $4, $5, $6, $7)
        RETURNING id`,
-      [user.id, docName, docSize, docMime, docSha256, jurisdictions]
+      [user.id, docName, docSize, docMime, docSha256, jurisdictions, referenceCode]
     );
     const analysisId = inserted.rows[0].id;
 
@@ -169,21 +170,29 @@ export async function POST(req: NextRequest) {
       );
       const totalTokens = inputTokens + outputTokens;
 
+      const execSum = (ragResult as any).executive_summary || ragResult.summary;
+      const briefSummary =
+        (execSum ||
+          (ragResult.memo_markdown || "").replace(/[#*`]/g, "").slice(0, 320).trim()) +
+        (execSum ? "" : "...");
+
       await query(
         `UPDATE analyses
          SET status = 'done',
              result = $2::jsonb,
              memo_markdown = $3,
-             rag_timings = $4::jsonb,
-             input_tokens = $5,
-             output_tokens = $6,
-             total_tokens = $7,
+             brief_summary = $4,
+             rag_timings = $5::jsonb,
+             input_tokens = $6,
+             output_tokens = $7,
+             total_tokens = $8,
              finished_at = NOW()
          WHERE id = $1`,
         [
           analysisId,
           JSON.stringify(ragResult),
           ragResult.memo_markdown,
+          briefSummary,
           JSON.stringify(ragResult.timings_ms || {}),
           inputTokens,
           outputTokens,

@@ -19,6 +19,8 @@ export type AuditAction =
   | "admin_user_updated"
   | "admin_integration_updated"
   | "admin_settings_updated"
+  | "console_create_law_firm"
+  | "console_delete_law_firm"
   | "rate_limited";
 
 export interface AuditEntryInput {

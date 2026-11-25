@@ -56,17 +56,19 @@ export async function POST(req: NextRequest) {
       full_name: string;
       role: "business" | "common";
       organisation: string | null;
+      region: string;
       token_version: number;
     }>(
-      `INSERT INTO users (email, password_hash, full_name, role, organisation, is_active, token_version, last_login_at)
-       VALUES ($1, $2, $3, $4, $5, TRUE, 0, NOW())
-       RETURNING id, email, full_name, role, organisation, token_version`,
+      `INSERT INTO users (email, password_hash, full_name, role, organisation, region, tos_accepted_at, is_active, token_version, last_login_at)
+       VALUES ($1, $2, $3, $4, $5, $6, NOW(), TRUE, 0, NOW())
+       RETURNING id, email, full_name, role, organisation, region, token_version`,
       [
         parsed.email,
         pwHash,
         parsed.fullName,
         parsed.accountType,
         parsed.organisation || null,
+        parsed.region || "BD",
       ]
     );
 

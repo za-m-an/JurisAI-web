@@ -2,512 +2,458 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import { Badge, Button } from "@/components/ui/primitives";
+
+interface Citation {
+  source?: string;
+  citation?: string;
+  status?: string;
+  holding?: string;
+}
+
+interface RiskFinding {
+  severity?: string;
+  issue?: string;
+  title?: string;
+  clause_reference?: string;
+  why_non_obvious?: string;
+  mitigation?: string;
+  mitigation_clause?: string;
+  citations?: Citation[];
+}
+
+interface AnalysisRecord {
+  id: string;
+  referenceCode: string;
+  docName: string;
+  status: "processing" | "done" | "failed";
+  jurisdictions: string[];
+  briefSummary: string | null;
+  memoMarkdown: string | null;
+  createdAt: string;
+  result: {
+    executive_summary?: string;
+    summary?: string;
+    document_facts?: Record<string, string>;
+    risks?: RiskFinding[];
+  } | null;
+}
+
+interface UserContext {
+  fullName: string;
+  organisation: string | null;
+  region: "BD" | "US" | "EU";
+}
+
+function getLetterheadConfig(governingLaw: string, userRegion: string) {
+  const law = governingLaw || userRegion || "BD";
+  if (law === "US") {
+    return {
+      chamberTitle: "JURIS AI — FEDERAL & COMMERCIAL LEGAL COUNSEL",
+      subtitle: "UNITED STATES STATUTORY & COMMERCIAL PRACTICE",
+      authorityNote: "Prepared under U.S. Federal Codes (9 U.S.C., 15 U.S.C., 18 U.S.C.) & Applicable Commercial Law",
+      accentColor: "#1E3A8A",
+      sealText: "US · FEDERAL & COMMERCIAL",
+    };
+  }
+  if (law === "EU") {
+    return {
+      chamberTitle: "JURIS AI — EUROPEAN REGULATORY & CIVIL LAW PRACTICE",
+      subtitle: "EUROPEAN UNION STATUTORY & COMPLIANCE COUNSEL",
+      authorityNote: "Prepared under Regulation (EU) 2016/679 (GDPR), TFEU & European Union Civil Frameworks",
+      accentColor: "#134E4A",
+      sealText: "EU · REGULATORY & CIVIL",
+    };
+  }
+  return {
+    chamberTitle: "JURIS AI — CHAMBERS OF STATUTORY & COMMERCIAL COUNSEL",
+    subtitle: "DHAKA · PEOPLE'S REPUBLIC OF BANGLADESH",
+    authorityNote: "Prepared under the Laws of Bangladesh (Contract Act 1872, Penal Code 1860, Arbitration Act 2001 & Statutory Codes)",
+    accentColor: "#134E4A",
+    sealText: "BD · STATUTORY COUNSEL",
+  };
+}
 
 export default function AnalysisReportPage() {
   const params = useParams();
   const router = useRouter();
-  const id = String(params?.id || "");
-  const [analysis, setAnalysis] = useState<any>(null);
-  const [activeTabByRisk, setActiveTabByRisk] = useState<Record<number, "BD" | "US" | "EU">>({});
-  const [recheckMessage, setRecheckMessage] = useState<string | null>(null);
+  const analysisId = typeof params?.id === "string" ? params.id : "";
+
+  const [analysis, setAnalysis] = useState<AnalysisRecord | null>(null);
+  const [user, setUser] = useState<UserContext | null>(null);
+  const [suggestedFirms, setSuggestedFirms] = useState<any[]>([]);
+  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isDemoMode, setIsDemoMode] = useState(false);
-  const [displayMode, setDisplayMode] = useState<"plain" | "technical">("technical");
-  const [selectedCitation, setSelectedCitation] = useState<any | null>(null);
-  const [copiedRiskIdx, setCopiedRiskIdx] = useState<number | null>(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    fetch("/api/auth/me")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        if (d?.user?.role === "common") {
-          setDisplayMode("plain");
+    let active = true;
+    async function load() {
+      try {
+        const [meRes, anRes] = await Promise.all([
+          fetch("/api/auth/me"),
+          fetch(`/api/analyses/${analysisId}`),
+        ]);
+        if (!meRes.ok) {
+          router.replace("/login");
+          return;
         }
-      })
-      .catch(() => {});
-  }, []);
+        const meData = await meRes.json();
+        if (active) setUser(meData.user);
 
-  useEffect(() => {
-    fetch("/api/health")
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        if (d?.rag?.mock) setIsDemoMode(true);
-      })
-      .catch(() => {});
-  }, []);
+        if (!anRes.ok) {
+          if (active) setError("Analysis report could not be located.");
+          return;
+        }
+        const anData = await anRes.json();
+        if (active) setAnalysis(anData.analysis);
 
-  useEffect(() => {
-    if (!id) return;
-    fetch(`/api/analyses/${id}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => setAnalysis(data?.analysis || null))
-      .finally(() => setLoading(false));
-  }, [id]);
-
-  async function handleRecheckCitation(citString: string) {
-    setRecheckMessage(`Querying statutory corpus for "${citString}"...`);
-    try {
-      const res = await fetch(`/api/citation?c=${encodeURIComponent(citString)}`);
-      const data = await res.json();
-      setRecheckMessage(
-        `Citation "${data.citation_string}": status=${data.status} · ${data.reason || ""}`
-      );
-    } catch {
-      setRecheckMessage("Citation verification query failed.");
+        const reg = anData.analysis?.jurisdictions?.[0] || meData.user?.region || "BD";
+        const lfRes = await fetch(`/api/law-firms?region=${reg}&analysisId=${analysisId}`);
+        if (lfRes.ok && active) {
+          const lfData = await lfRes.json();
+          setSuggestedFirms((lfData.lawFirms || []).slice(0, 2));
+        }
+      } catch {
+        if (active) setError("Failed to load legal analysis report.");
+      } finally {
+        if (active) setLoading(false);
+      }
     }
+    if (analysisId) load();
+    return () => {
+      active = false;
+    };
+  }, [analysisId, router]);
+
+  function copyClause(text: string, idx: number) {
+    navigator.clipboard.writeText(text);
+    setCopiedIdx(idx);
+    setTimeout(() => setCopiedIdx(null), 2000);
   }
 
-  function handleCopyClause(text: string, idx: number) {
-    if (navigator?.clipboard?.writeText) {
-      navigator.clipboard.writeText(text);
-      setCopiedRiskIdx(idx);
-      setTimeout(() => setCopiedRiskIdx(null), 2000);
-    }
+  function handleExpandInCopilot() {
+    router.push(`/chat?analysisId=${analysisId}`);
   }
 
-  function handleDownloadMemo() {
-    if (!analysis?.memoMarkdown) return;
-    const blob = new Blob([analysis.memoMarkdown], { type: "text/markdown;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${(analysis.docName || "legal-memo").replace(/[^a-zA-Z0-9_-]/g, "_")}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  async function handleDelete() {
-    if (!confirm("Are you sure you want to delete this analysis report?")) return;
-    const res = await fetch(`/api/analyses/${id}`, { method: "DELETE" });
-    if (res.ok) {
-      router.push("/dashboard");
-    }
+  function handlePrintLetterheadPdf() {
+    window.print();
   }
 
   if (loading) {
     return (
-      <div className="max-w-6xl mx-auto py-12 text-center space-y-3">
-        <div className="font-serif text-xl font-bold text-ink">Retrieving Analysis Report...</div>
-        <p className="text-xs text-ink-muted">Loading verified citations and formal memorandum.</p>
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="text-xs font-mono uppercase tracking-wider text-[#71717A]">
+          Preparing Legal Memorandum...
+        </div>
       </div>
     );
   }
 
-  if (!analysis) {
+  if (error || !analysis) {
     return (
-      <div className="max-w-md mx-auto my-12 p-6 bg-white border border-rose-200 rounded-lg text-center space-y-3">
-        <div className="font-serif text-lg font-bold text-rose-800">Analysis Not Found</div>
-        <p className="text-xs text-ink-muted">The requested legal report does not exist or access was denied.</p>
-        <Button variant="outline" size="sm" onClick={() => router.push("/dashboard")}>
-          Return to Dashboard
-        </Button>
+      <div className="max-w-2xl mx-auto vellum-card rounded-2xl p-8 text-center space-y-4">
+        <h1 className="font-serif text-2xl text-[#18181B]">Report Unavailable</h1>
+        <p className="text-sm text-[#52525B]">{error}</p>
+        <button
+          type="button"
+          onClick={() => router.push("/analyze")}
+          className="px-4 py-2 rounded-lg bg-[#134E4A] text-[#FAF9F6] text-xs font-medium"
+        >
+          Return to Document Analyzer
+        </button>
       </div>
     );
   }
 
-  const res = analysis.result || {};
-  const risks = res.risks || [];
-  const ver = res.verification || { total: 0, verified: 0, found_in_corpus: 0, unverified: 0 };
+  const primaryLaw = analysis.jurisdictions?.[0] || user?.region || "BD";
+  const letterhead = getLetterheadConfig(primaryLaw, user?.region || "BD");
+  const risks = analysis.result?.risks || [];
+  const execSummary =
+    analysis.briefSummary ||
+    analysis.result?.executive_summary ||
+    analysis.result?.summary ||
+    "Comprehensive statutory and contractual evaluation completed.";
+
+  const cleanMemo = (analysis.memoMarkdown || "")
+    .replace(/\*?This (analysis|response|information) is for informational purposes only.*?legal advice\.?\*?/gi, "")
+    .replace(/\*?Not formal legal advice\.?\*?/gi, "")
+    .trim();
 
   return (
-    <div className="max-w-7xl mx-auto py-6 space-y-6 print-container">
-      {/* Demo Mode Notice */}
-      {(isDemoMode || Boolean(analysis?.result?.model_info?.mock)) && (
-        <div className="p-3 rounded-md bg-amber-50 border border-amber-200 text-amber-900 text-xs font-medium flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-          <span>Demo mode: simulated AI output. Connected to local mock analysis service.</span>
-        </div>
-      )}
-
-      {/* Mandatory File-Discarded Privacy Notice */}
-      <div className="p-3.5 rounded-md bg-[#E8F5EE] border border-[#A3D9BD] text-[#1B6E42] text-xs font-medium flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <span className="font-bold uppercase tracking-wider text-[10px]">Zero Storage Guarantee</span>
-          <span className="hidden sm:inline text-[#A3D9BD]">·</span>
-          <span>Your document was parsed in volatile RAM and permanently purged. Only this analysis output is saved.</span>
-        </div>
-        <span className="font-mono text-[11px] text-[#1B6E42]/80">
-          SHA-256: {(analysis.docSha256 || "").slice(0, 16)}…
-        </span>
-      </div>
-
-      {/* Document Header & Primary Action Toolbar */}
-      <div className="bg-white border border-hairline rounded-lg p-5 sm:p-6 shadow-subtle flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-ink">{analysis.docName}</h1>
-            <Badge variant="neutral" className="uppercase font-mono text-[10px]">
-              {res.document_type || "Commercial Contract"}
-            </Badge>
-          </div>
-          <div className="text-xs text-ink-muted mt-1.5 flex flex-wrap items-center gap-3">
-            <span>Governing Law: <strong className="text-ink">{res.governing_law || "Unspecified"}</strong></span>
-            <span>·</span>
-            <span>Target Jurisdictions: <strong className="text-ink">{(analysis.jurisdictions || []).join(", ")}</strong></span>
-            <span>·</span>
-            <span>Analysed: <strong className="text-ink">{new Date(analysis.createdAt).toLocaleDateString()}</strong></span>
-          </div>
+    <div className="max-w-5xl mx-auto space-y-6 pb-12">
+      {/* Top Action Bar (Hidden in Print / PDF) */}
+      <div className="no-print glass-vellum rounded-xl p-4 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-mono uppercase tracking-wider px-2.5 py-1 rounded bg-white border border-[#E5E2DC] text-[#18181B] font-semibold">
+            {analysis.referenceCode}
+          </span>
+          <span className="text-xs text-[#52525B]">
+            Governing Law: <strong className="text-[#18181B]">{primaryLaw}</strong>
+          </span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 no-print">
-          {/* Mode Toggle: Plain Language vs Technical Legal */}
-          <div className="inline-flex items-center bg-paper-warm border border-hairline p-0.5 rounded-md text-xs font-semibold">
-            <button
-              type="button"
-              onClick={() => setDisplayMode("plain")}
-              className={`px-2.5 py-1 rounded transition-colors ${
-                displayMode === "plain" ? "bg-white text-ink shadow-subtle" : "text-ink-muted hover:text-ink"
-              }`}
-            >
-              Plain Language
-            </button>
-            <button
-              type="button"
-              onClick={() => setDisplayMode("technical")}
-              className={`px-2.5 py-1 rounded transition-colors ${
-                displayMode === "technical" ? "bg-white text-ink shadow-subtle" : "text-ink-muted hover:text-ink"
-              }`}
-            >
-              Technical Legal
-            </button>
-          </div>
-
-          <Button variant="secondary" size="sm" onClick={handleDownloadMemo}>
-            Download Memo (.md)
-          </Button>
-
-          <Button variant="outline" size="sm" onClick={() => window.print()}>
-            Print / PDF
-          </Button>
-
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => router.push(`/chat?analysisId=${analysis.id}`)}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            type="button"
+            onClick={handlePrintLetterheadPdf}
+            className="px-4 py-2 rounded-lg border border-[#E5E2DC] bg-white hover:bg-[#FAF9F6] text-xs font-medium text-[#18181B] editorial-transition flex items-center gap-1.5"
           >
-            Ask Follow-up
-          </Button>
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Export Formal Letterhead PDF
+          </button>
 
-          <Button variant="danger" size="sm" onClick={handleDelete}>
-            Delete
-          </Button>
+          <button
+            type="button"
+            onClick={handleExpandInCopilot}
+            className="px-5 py-2 rounded-lg bg-[#134E4A] hover:bg-[#0F3F3C] text-[#FAF9F6] text-xs font-medium editorial-transition flex items-center gap-1.5 shadow-sm"
+          >
+            <span>Expand</span>
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+          </button>
         </div>
       </div>
 
-      {/* Main Grid: Sticky Side Rail (Left) + Editorial Content (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Sticky Left Rail */}
-        <div className="lg:col-span-4 space-y-4 lg:sticky lg:top-20">
-          {/* Verification Summary Card */}
-          <div className="bg-white border border-hairline rounded-lg p-4 shadow-subtle space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
-                Statutory Citations
-              </span>
-              <span className="text-xs font-mono font-bold text-ink">{ver.total} Checked</span>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between p-2 rounded bg-[#E8F5EE] border border-[#A3D9BD] text-xs">
-                <span className="font-semibold text-[#1B6E42]">Verified (Full Text)</span>
-                <span className="font-mono font-bold text-[#1B6E42]">{ver.verified}</span>
-              </div>
-              <div className="flex items-center justify-between p-2 rounded bg-[#FFF8E6] border border-[#F0D597] text-xs">
-                <span className="font-semibold text-[#8A5B00]">In Corpus (Summary / Meta)</span>
-                <span className="font-mono font-bold text-[#8A5B00]">{ver.found_in_corpus}</span>
-              </div>
-              <div className="flex items-center justify-between p-2 rounded bg-[#FDE8E8] border border-[#F8B4B4] text-xs">
-                <span className="font-semibold text-[#A61C1C]">Unverified (Purged)</span>
-                <span className="font-mono font-bold text-[#A61C1C]">{ver.unverified}</span>
-              </div>
-            </div>
-
-            <p className="text-[10px] text-ink-subtle leading-relaxed">
-              * Citations with &ldquo;Unverified&rdquo; status are strictly purged from the formal advisory memorandum to prevent hallucinated citations.
-            </p>
-          </div>
-
-          {/* Quick Risk Navigation Rail */}
-          <div className="bg-white border border-hairline rounded-lg p-4 shadow-subtle space-y-3">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
-              Identified Risks ({risks.length})
-            </div>
-            <div className="space-y-1.5 max-h-72 overflow-y-auto">
-              {risks.map((r: any, idx: number) => (
-                <a
-                  key={idx}
-                  href={`#risk-${idx}`}
-                  className="block p-2 rounded hover:bg-paper-warm transition-colors text-xs text-ink truncate border border-transparent hover:border-hairline"
+      {/* Formal Institutional Letterhead Document Container */}
+      <article className="print-container vellum-card rounded-2xl bg-white p-8 sm:p-12 space-y-8">
+        {/* Institutional Letterhead Header (Visible on Screen & Print) */}
+        <header
+          className="border-b-2 pb-6 space-y-3"
+          style={{ borderColor: letterhead.accentColor }}
+        >
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2.5">
+                <span
+                  className="w-8 h-8 rounded-md text-white flex items-center justify-center font-serif font-bold text-base"
+                  style={{ backgroundColor: letterhead.accentColor }}
                 >
-                  <div className="flex items-center gap-1.5">
-                    <span
-                      className={`w-2 h-2 rounded-full shrink-0 ${
-                        r.severity === "high"
-                          ? "bg-rose-600"
-                          : r.severity === "medium"
-                          ? "bg-amber-500"
-                          : "bg-blue-500"
-                      }`}
-                    />
-                    <span className="font-medium truncate">
-                      {idx + 1}. {r.title}
-                    </span>
-                  </div>
-                </a>
-              ))}
+                  J
+                </span>
+                <div>
+                  <h2 className="font-serif text-lg sm:text-xl font-bold tracking-tight text-[#18181B]">
+                    {letterhead.chamberTitle}
+                  </h2>
+                  <p className="text-[11px] font-mono uppercase tracking-widest text-[#B45309]">
+                    {letterhead.subtitle}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="sm:text-right space-y-1">
+              <span
+                className="inline-block text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded border text-[#18181B]"
+                style={{ borderColor: letterhead.accentColor }}
+              >
+                {letterhead.sealText}
+              </span>
+              <p className="text-[11px] font-mono text-[#71717A]">
+                REF: {analysis.referenceCode}
+              </p>
+              <p className="text-[11px] font-mono text-[#71717A]">
+                DATE: {new Date(analysis.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" })}
+              </p>
             </div>
           </div>
-        </div>
 
-        {/* Right Content Area: Executive Summary, Risks, Memo */}
-        <div className="lg:col-span-8 space-y-6">
-          {/* Re-check Status Banner */}
-          {recheckMessage && (
-            <div className="p-3 rounded-md bg-paper-warm border border-hairline text-xs font-mono text-ink no-print">
-              {recheckMessage}
-            </div>
-          )}
+          <p className="text-[11px] text-[#52525B] pt-1">
+            {letterhead.authorityNote}
+          </p>
+        </header>
 
-          {/* Executive Summary */}
-          <div className="bg-white border border-hairline rounded-lg p-6 shadow-subtle space-y-3">
-            <h2 className="font-serif text-lg font-bold text-ink">Executive Summary</h2>
-            <p className="text-xs sm:text-sm text-ink-muted leading-relaxed whitespace-pre-line">
-              {res.summary}
+        {/* Client & Matter Metadata Block */}
+        <section className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-[#FAF9F6] border border-[#E5E2DC] text-xs">
+          <div className="space-y-1">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#71717A]">
+              Prepared For
+            </span>
+            <p className="font-semibold text-[#18181B]">{user?.fullName || "Client"}</p>
+            {user?.organisation && <p className="text-[#52525B]">{user.organisation}</p>}
+          </div>
+          <div className="space-y-1">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#71717A]">
+              Subject Instrument
+            </span>
+            <p className="font-semibold text-[#18181B] break-words">{analysis.docName}</p>
+            <p className="text-[#52525B]">
+              Governing Jurisdiction: {analysis.jurisdictions.join(", ")} · User Region: {user?.region || "BD"}
             </p>
           </div>
+        </section>
 
-          {/* Non-Obvious Risks List */}
-          <div className="space-y-6">
-            <div className="flex items-center justify-between border-b border-hairline pb-2">
-              <h2 className="font-serif text-xl font-bold text-ink">
-                Non-Obvious Legal & Regulatory Risks
-              </h2>
-              <span className="text-xs text-ink-muted">{risks.length} evaluated</span>
-            </div>
+        {/* Executive Legal Summary */}
+        <section className="space-y-2.5">
+          <h1 className="font-serif text-2xl font-medium text-[#18181B]">
+            Executive Legal Opinion
+          </h1>
+          <p className="text-sm text-[#18181B] leading-relaxed">
+            {execSummary}
+          </p>
+        </section>
 
-            {risks.map((risk: any, idx: number) => {
-              const activeJ = activeTabByRisk[idx] || "BD";
+        {/* Statutory Risk Findings */}
+        <section className="space-y-4">
+          <div className="border-b border-[#E5E2DC] pb-2 flex items-center justify-between">
+            <h2 className="font-serif text-xl font-medium text-[#18181B]">
+              Statutory Risk &amp; Enforceability Findings
+            </h2>
+            <span className="text-xs font-mono text-[#71717A]">
+              {risks.length} Issues Identified
+            </span>
+          </div>
+
+          <div className="space-y-4">
+            {risks.map((risk, idx) => {
+              const sev = (risk.severity || "medium").toLowerCase();
+              const badgeStyle =
+                sev === "high"
+                  ? "bg-[#FEF2F2] text-[#991B1B] border-[#FECACA]"
+                  : sev === "medium"
+                  ? "bg-[#FFFBEB] text-[#92400E] border-[#FDE68A]"
+                  : "bg-[#F0FDF4] text-[#166534] border-[#BBF7D0]";
+              const mitigationText = risk.mitigation_clause || risk.mitigation;
+
               return (
                 <div
                   key={idx}
-                  id={`risk-${idx}`}
-                  className="bg-white border border-hairline rounded-lg p-6 shadow-subtle space-y-4"
+                  className="p-5 rounded-xl border border-[#E5E2DC] bg-[#FAF9F6]/50 space-y-3 break-inside-avoid"
                 >
-                  {/* Risk Title & Severity */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-hairline pb-3">
-                    <h3 className="font-serif text-base sm:text-lg font-bold text-ink">
-                      {idx + 1}. {risk.title}
-                    </h3>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-mono text-ink-muted">
-                        Clauses: {(risk.clause_refs || []).join(", ")}
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="space-y-0.5">
+                      <span className="text-[11px] font-mono uppercase tracking-wider text-[#B45309]">
+                        Finding 0{idx + 1} {risk.clause_reference ? `· ${risk.clause_reference}` : ""}
                       </span>
-                      <Badge
-                        variant={risk.severity === "high" ? "high" : risk.severity === "medium" ? "medium" : "low"}
-                      >
-                        {risk.severity}
-                      </Badge>
+                      <h3 className="font-serif text-lg font-medium text-[#18181B]">
+                        {risk.issue || risk.title || `Contractual Risk Vector ${idx + 1}`}
+                      </h3>
                     </div>
+                    <span className={`text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded border font-semibold ${badgeStyle}`}>
+                      {sev} risk
+                    </span>
                   </div>
 
-                  {/* Why Non-Obvious */}
-                  <div>
-                    <h4 className="text-[11px] font-bold uppercase tracking-wider text-ink-muted mb-1">
-                      {displayMode === "plain"
-                        ? "Practical Business Exposure"
-                        : "Cross-Clause Interaction & Statutory Conflict"}
-                    </h4>
-                    <p className="text-xs sm:text-sm text-ink leading-relaxed">
+                  {risk.why_non_obvious && (
+                    <p className="text-sm text-[#52525B] leading-relaxed">
                       {risk.why_non_obvious}
                     </p>
-                  </div>
+                  )}
 
-                  {/* Per-Jurisdiction Notes (Tabs: BD / US / EU) */}
-                  <div className="border border-hairline rounded-md bg-paper-warm/50 p-4 space-y-2">
-                    <div className="flex items-center gap-1 border-b border-hairline pb-2">
-                      {(["BD", "US", "EU"] as const).map((j) => (
-                        <button
-                          key={j}
-                          type="button"
-                          onClick={() => setActiveTabByRisk((prev) => ({ ...prev, [idx]: j }))}
-                          className={`px-3 py-1 text-xs font-semibold rounded transition-all ${
-                            activeJ === j
-                              ? "bg-white text-ink border border-hairline shadow-subtle"
-                              : "text-ink-muted hover:text-ink"
-                          }`}
-                        >
-                          {j} Framework
-                        </button>
-                      ))}
-                    </div>
-                    <p className="text-xs text-ink-muted leading-relaxed pt-1">
-                      {risk.jurisdiction_notes?.[activeJ] || "No statutory observation recorded for this jurisdiction."}
-                    </p>
-                  </div>
-
-                  {/* Cited Authorities & Badges */}
-                  <div className="space-y-2">
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
-                      Statutory Authorities & Verification
-                    </div>
-                    <div className="space-y-2">
-                      {(risk.citations || []).map((cit: any, cIdx: number) => (
-                        <div
+                  {risk.citations && risk.citations.length > 0 && (
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {risk.citations.map((cit, cIdx) => (
+                        <span
                           key={cIdx}
-                          className="p-3 rounded-md border border-hairline bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs"
+                          className="text-[11px] font-mono px-2.5 py-1 rounded bg-white border border-[#E5E2DC] text-[#134E4A]"
                         >
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-semibold text-ink">{cit.citation_string}</span>
-                              <Badge
-                                variant={
-                                  cit.status === "verified"
-                                    ? "verified"
-                                    : cit.status === "found_in_corpus"
-                                    ? "corpus"
-                                    : "unverified"
-                                }
-                              >
-                                {cit.status === "verified"
-                                  ? "Verified"
-                                  : cit.status === "found_in_corpus"
-                                  ? "In corpus, confirm source"
-                                  : "Unverified, purged"}
-                              </Badge>
-                            </div>
-                            {cit.quote && (
-                              <p className="text-[11px] italic text-ink-muted">&ldquo;{cit.quote}&rdquo;</p>
-                            )}
-                            <p className="text-[11px] text-ink-subtle">{cit.reason}</p>
-                          </div>
-
-                          <div className="flex items-center gap-2 self-start sm:self-center no-print">
-                            <button
-                              type="button"
-                              onClick={() => setSelectedCitation(cit)}
-                              className="text-[11px] font-semibold text-accent hover:underline"
-                            >
-                              Details
-                            </button>
-                            <span className="text-hairline">|</span>
-                            <button
-                              type="button"
-                              onClick={() => handleRecheckCitation(cit.citation_string)}
-                              className="text-[11px] font-semibold text-ink-muted hover:text-ink hover:underline"
-                            >
-                              Re-check
-                            </button>
-                          </div>
-                        </div>
+                          {cit.source || cit.citation || "Statutory Authority"}
+                        </span>
                       ))}
                     </div>
-                  </div>
+                  )}
 
-                  {/* Mitigation Clause */}
-                  <div className="p-4 rounded-md bg-paper-warm border border-hairline space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-accent">
-                        {displayMode === "plain"
-                          ? "Recommended Action / Contract Revision"
-                          : "Recommended Replacement / Mitigation Clause"}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleCopyClause(risk.mitigation_clause_text || "", idx)}
-                        className="text-xs font-semibold text-ink-muted hover:text-ink underline no-print"
-                      >
-                        {copiedRiskIdx === idx ? "Copied!" : "Copy Clause"}
-                      </button>
+                  {mitigationText && (
+                    <div className="mt-2 p-3.5 rounded-lg bg-white border border-[#E5E2DC] space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-[#166534] font-semibold">
+                          Recommended Replacement Clause
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => copyClause(mitigationText, idx)}
+                          className="no-print text-[11px] font-medium text-[#134E4A] hover:underline"
+                        >
+                          {copiedIdx === idx ? "Copied" : "Copy Clause"}
+                        </button>
+                      </div>
+                      <p className="text-xs text-[#18181B] font-mono leading-relaxed">
+                        {mitigationText}
+                      </p>
                     </div>
-                    <p className="font-mono text-xs text-ink leading-relaxed whitespace-pre-line bg-white p-3 rounded border border-hairline">
-                      {risk.mitigation_clause_text}
-                    </p>
-                  </div>
+                  )}
                 </div>
               );
             })}
           </div>
+        </section>
 
-          {/* Formal Legal Memorandum */}
-          <div className="bg-white border border-hairline rounded-lg p-6 sm:p-8 shadow-subtle space-y-4">
-            <div className="border-b border-hairline pb-4">
-              <h2 className="font-serif text-2xl font-bold text-ink">Formal Legal Memorandum</h2>
-              <p className="text-xs text-ink-muted mt-1">
-                Authoritative multi-jurisdictional memorandum referencing only verified and corpus-listed provisions.
-              </p>
+        {/* Full Memorandum */}
+        {cleanMemo && (
+          <section className="space-y-3 pt-2 border-t border-[#E5E2DC]">
+            <h2 className="font-serif text-xl font-medium text-[#18181B]">
+              Detailed Legal Memorandum
+            </h2>
+            <div className="text-sm text-[#18181B] leading-relaxed whitespace-pre-wrap">
+              {cleanMemo}
             </div>
+          </section>
+        )}
 
-            <div className="prose prose-sm max-w-none text-ink font-serif leading-relaxed">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {analysis.memoMarkdown || res.memo_markdown || ""}
-              </ReactMarkdown>
-            </div>
+        {/* Institutional Attestation Footer */}
+        <footer className="pt-8 mt-8 border-t border-[#E5E2DC] flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 text-xs text-[#52525B]">
+          <div className="space-y-1">
+            <p className="font-serif font-semibold text-[#18181B]">
+              Issued by Juris AI Statutory Advisory Chambers
+            </p>
+            <p>
+              Reference ID: <span className="font-mono">{analysis.referenceCode}</span>
+            </p>
           </div>
-        </div>
-      </div>
+          <div className="sm:text-right">
+            <div className="w-48 border-b border-[#18181B]/40 mb-1.5" />
+            <p className="text-[11px] font-mono uppercase tracking-wider text-[#71717A]">
+              Authenticated Legal Memorandum
+            </p>
+          </div>
+        </footer>
+      </article>
 
-      {/* Slide-over / Modal for Citation Details */}
-      {selectedCitation && (
-        <div className="fixed inset-0 bg-ink/40 z-50 flex items-center justify-center p-4 backdrop-blur-xs no-print">
-          <div className="bg-white border border-hairline rounded-lg max-w-lg w-full p-6 shadow-xl space-y-4">
-            <div className="flex items-center justify-between border-b border-hairline pb-3">
-              <h3 className="font-serif text-base font-bold text-ink">Citation Verification Record</h3>
-              <button
-                type="button"
-                onClick={() => setSelectedCitation(null)}
-                className="text-ink-muted hover:text-ink text-sm font-bold"
-              >
-                ✕
-              </button>
+      {/* AI-Suggested Counsel Panel (Screen Only) */}
+      {suggestedFirms.length > 0 && (
+        <section className="no-print vellum-card rounded-2xl p-6 sm:p-8 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E5E2DC] pb-4">
+            <div>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#B45309]">
+                AI Counsel Matching
+              </span>
+              <h2 className="font-serif text-xl font-medium text-[#18181B]">
+                Recommended Lawyers &amp; Firms for This Matter
+              </h2>
             </div>
+            <button
+              type="button"
+              onClick={() => router.push("/lawyers")}
+              className="text-xs font-medium text-[#134E4A] hover:underline"
+            >
+              View Full Directory &rarr;
+            </button>
+          </div>
 
-            <div className="space-y-3 text-xs">
-              <div>
-                <span className="font-semibold text-ink-muted uppercase text-[10px] block">Authority</span>
-                <span className="font-mono font-bold text-ink text-sm">{selectedCitation.citation_string}</span>
-              </div>
-
-              <div>
-                <span className="font-semibold text-ink-muted uppercase text-[10px] block">Verification Status</span>
-                <Badge
-                  variant={
-                    selectedCitation.status === "verified"
-                      ? "verified"
-                      : selectedCitation.status === "found_in_corpus"
-                      ? "corpus"
-                      : "unverified"
-                  }
-                  className="mt-1"
-                >
-                  {selectedCitation.status}
-                </Badge>
-              </div>
-
-              {selectedCitation.quote && (
-                <div>
-                  <span className="font-semibold text-ink-muted uppercase text-[10px] block">Extracted Quote</span>
-                  <p className="italic text-ink bg-paper-warm p-2.5 rounded border border-hairline mt-1">
-                    &ldquo;{selectedCitation.quote}&rdquo;
-                  </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {suggestedFirms.map((f) => (
+              <div key={f.id} className="p-4 rounded-xl border border-[#E5E2DC] bg-[#FAF9F6] space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <h3 className="font-serif text-base font-medium text-[#18181B]">{f.name}</h3>
+                    <p className="text-xs text-[#134E4A]">{f.leadCounsel}</p>
+                  </div>
+                  <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-white border border-[#E5E2DC] text-[#134E4A]">
+                    {f.aiRating}/100
+                  </span>
                 </div>
-              )}
-
-              <div>
-                <span className="font-semibold text-ink-muted uppercase text-[10px] block">Verification Rationale</span>
-                <p className="text-ink mt-1 leading-relaxed">{selectedCitation.reason || "Matched against corpus index."}</p>
+                <p className="text-[11px] text-[#52525B]">
+                  {f.experienceYears} yrs experience · {(f.specialties || []).join(" · ")}
+                </p>
+                <p className="text-[11px] text-[#71717A]">
+                  {f.contact?.phone} · {f.contact?.email}
+                </p>
               </div>
-            </div>
-
-            <div className="pt-3 border-t border-hairline flex justify-end">
-              <Button variant="outline" size="sm" onClick={() => setSelectedCitation(null)}>
-                Close
-              </Button>
-            </div>
+            ))}
           </div>
-        </div>
+        </section>
       )}
     </div>
   );

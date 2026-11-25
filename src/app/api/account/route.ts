@@ -33,6 +33,22 @@ export async function PATCH(req: NextRequest) {
       updates.push(`organisation = $${idx++}`);
       params.push(parsed.organisation);
     }
+    if (parsed.region !== undefined) {
+      updates.push(`region = $${idx++}`);
+      params.push(parsed.region);
+    }
+    if (parsed.language !== undefined) {
+      updates.push(`language = $${idx++}`);
+      params.push(parsed.language);
+    }
+    if (parsed.avatarUrl !== undefined) {
+      updates.push(`avatar_url = $${idx++}`);
+      params.push(parsed.avatarUrl);
+    }
+    if (parsed.subscriptionTier !== undefined) {
+      updates.push(`subscription_tier = $${idx++}`);
+      params.push(parsed.subscriptionTier);
+    }
 
     if (updates.length > 0) {
       params.push(user.id);
@@ -56,7 +72,11 @@ export async function PATCH(req: NextRequest) {
       full_name: string;
       role: string;
       organisation: string | null;
-    }>("SELECT id, email, full_name, role, organisation FROM users WHERE id = $1", [user.id]);
+      region: string;
+      language: string;
+      avatar_url: string | null;
+      subscription_tier: string;
+    }>("SELECT id, email, full_name, role, organisation, region, language, avatar_url, subscription_tier FROM users WHERE id = $1", [user.id]);
 
     const u = updated.rows[0];
     return NextResponse.json({
@@ -67,6 +87,10 @@ export async function PATCH(req: NextRequest) {
         fullName: u.full_name,
         role: u.role,
         organisation: u.organisation,
+        region: u.region,
+        language: u.language,
+        avatarUrl: u.avatar_url,
+        subscriptionTier: u.subscription_tier,
       },
     }, { status: 200 });
   } catch (err) {

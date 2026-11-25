@@ -9,6 +9,8 @@ export const RegisterSchema = z
     password: z.string().min(10, "Password must be at least 10 characters").max(200),
     accountType: z.enum(["business", "common"]),
     organisation: z.string().trim().max(160).optional().nullable(),
+    region: JurisdictionEnum.optional().default("BD"),
+    tosAccepted: z.boolean().optional().default(true),
   })
   .refine((d) => d.accountType !== "business" || Boolean(d.organisation && d.organisation.trim().length > 0), {
     message: "Organisation name is required for business accounts",
@@ -37,6 +39,10 @@ export const ChangePasswordSchema = z.object({
 export const UpdateProfileSchema = z.object({
   fullName: z.string().trim().min(2, "Full name must be at least 2 characters").max(120).optional(),
   organisation: z.string().trim().max(160).nullable().optional(),
+  region: JurisdictionEnum.optional(),
+  language: z.enum(["en", "bn"]).optional(),
+  avatarUrl: z.string().max(1_500_000).nullable().optional(),
+  subscriptionTier: z.enum(["standard", "professional", "enterprise"]).optional(),
 });
 
 export const DeleteAccountSchema = z.object({
@@ -84,9 +90,9 @@ export const AdminSettingsPutSchema = z.object({
   max_upload_mb: z.number().min(1).max(4).optional(),
   mask_pii: z.boolean().optional(),
   default_jurisdictions: z.array(JurisdictionEnum).min(1).max(3).optional(),
-  "ai.provider_main": z.enum(["anthropic", "openai", "deepseek", "openrouter", "aws", "custom"]).optional(),
+  "ai.provider_main": z.enum(["anthropic", "openai", "deepseek", "openrouter", "gemini", "aws", "custom"]).optional(),
   "ai.model_main": z.string().trim().min(1).max(120).optional(),
-  "ai.provider_rag": z.enum(["openai", "deepseek", "anthropic", "openrouter", "aws", "custom"]).optional(),
+  "ai.provider_rag": z.enum(["openai", "deepseek", "anthropic", "openrouter", "gemini", "aws", "custom"]).optional(),
   "ai.model_rag": z.string().trim().min(1).max(120).optional(),
   "ai.token_optimization_enabled": z.boolean().optional(),
 });
