@@ -91,7 +91,7 @@ export default function ConsoleLawFirmsPage() {
 
   if (loading) {
     return (
-      <div className="py-16 text-center text-xs font-mono uppercase tracking-wider text-[#71717A]">
+      <div className="py-16 text-center text-xs font-mono uppercase tracking-wider text-[#5b6472]">
         Loading Law Firms...
       </div>
     );
@@ -99,14 +99,14 @@ export default function ConsoleLawFirmsPage() {
 
   return (
     <div className="space-y-8 pb-10">
-      <div className="border-b border-[#E5E2DC] pb-5">
-        <span className="text-[11px] font-mono uppercase tracking-widest text-[#B45309]">
+      <div className="border-b border-[#E0E2E4] pb-5">
+        <span className="text-[11px] font-mono uppercase tracking-widest text-[#ff4716]">
           Regional Representation
         </span>
-        <h1 className="text-3xl font-serif font-medium text-[#18181B]">
+        <h1 className="text-3xl font-serif font-light text-[#121719]">
           Law Firms &amp; Counsel Directory
         </h1>
-        <p className="text-sm text-[#52525B]">
+        <p className="text-sm text-[#5b6472]">
           Directly add law firms, contact details, and practice fields for automated client matching.
         </p>
       </div>
@@ -118,8 +118,8 @@ export default function ConsoleLawFirmsPage() {
       )}
 
       {/* Add Law Firm Form */}
-      <form onSubmit={handleCreate} className="vellum-card rounded-2xl p-6 space-y-4">
-        <h2 className="font-serif text-xl font-medium text-[#18181B]">Add New Law Firm</h2>
+      <form onSubmit={handleCreate} className="vellum-card rounded p-6 space-y-4">
+        <h2 className="font-serif text-xl font-medium text-[#121719]">Add New Law Firm</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <input
             type="text"
@@ -127,7 +127,7 @@ export default function ConsoleLawFirmsPage() {
             placeholder="Firm Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="px-3.5 py-2 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-xs"
+            className="px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs"
           />
           <input
             type="text"
@@ -135,12 +135,12 @@ export default function ConsoleLawFirmsPage() {
             placeholder="Lead Barrister / Counsel"
             value={leadCounsel}
             onChange={(e) => setLeadCounsel(e.target.value)}
-            className="px-3.5 py-2 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-xs"
+            className="px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs"
           />
           <select
             value={region}
             onChange={(e) => setRegion(e.target.value as "BD" | "US" | "EU")}
-            className="px-3.5 py-2 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-xs"
+            className="px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs"
           >
             <option value="BD">Bangladesh (BD)</option>
             <option value="US">United States (US)</option>
@@ -152,7 +152,7 @@ export default function ConsoleLawFirmsPage() {
             placeholder="City (e.g., Motijheel, Dhaka)"
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            className="px-3.5 py-2 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-xs"
+            className="px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs"
           />
           <input
             type="text"
@@ -160,7 +160,7 @@ export default function ConsoleLawFirmsPage() {
             placeholder="Specialties (comma-separated)"
             value={specialties}
             onChange={(e) => setSpecialties(e.target.value)}
-            className="px-3.5 py-2 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-xs"
+            className="px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs"
           />
           <input
             type="number"
@@ -170,7 +170,7 @@ export default function ConsoleLawFirmsPage() {
             placeholder="Years of Experience"
             value={experienceYears}
             onChange={(e) => setExperienceYears(Number(e.target.value))}
-            className="px-3.5 py-2 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-xs"
+            className="px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs"
           />
           <input
             type="text"
@@ -178,7 +178,7 @@ export default function ConsoleLawFirmsPage() {
             placeholder="Phone Number"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="px-3.5 py-2 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-xs"
+            className="px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs"
           />
           <input
             type="email"
@@ -186,7 +186,7 @@ export default function ConsoleLawFirmsPage() {
             placeholder="Chambers Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="px-3.5 py-2 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-xs"
+            className="px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs"
           />
           <input
             type="text"
@@ -194,7 +194,7 @@ export default function ConsoleLawFirmsPage() {
             placeholder="Office Address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className="px-3.5 py-2 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-xs"
+            className="px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs"
           />
         </div>
         <input
@@ -202,12 +202,12 @@ export default function ConsoleLawFirmsPage() {
           placeholder="Recent Firm News / Recognition (optional)"
           value={recentNews}
           onChange={(e) => setRecentNews(e.target.value)}
-          className="w-full px-3.5 py-2 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-xs"
+          className="w-full px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs"
         />
         <div className="flex justify-end">
           <button
             type="submit"
-            className="px-5 py-2 rounded-lg bg-[#134E4A] hover:bg-[#0F3F3C] text-[#FAF9F6] text-xs font-medium"
+            className="px-5 py-2 rounded-lg bg-[#121719] hover:bg-[#222729] text-[#F3F3F3] text-xs font-medium"
           >
             Add Law Firm
           </button>
@@ -217,18 +217,18 @@ export default function ConsoleLawFirmsPage() {
       {/* Existing Directory */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {firms.map((f) => (
-          <div key={f.id} className="vellum-card rounded-xl p-5 space-y-2">
+          <div key={f.id} className="vellum-card rounded p-5 space-y-2">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <h3 className="font-serif text-lg font-medium text-[#18181B]">{f.name}</h3>
-                <p className="text-xs text-[#134E4A]">{f.leadCounsel}</p>
+                <h3 className="font-serif text-lg font-medium text-[#121719]">{f.name}</h3>
+                <p className="text-xs text-[#121719]">{f.leadCounsel}</p>
               </div>
-              <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#FAF9F6] border border-[#E5E2DC]">
+              <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#F3F3F3] border border-[#E0E2E4]">
                 {f.region} · {f.experienceYears} yrs
               </span>
             </div>
-            <p className="text-xs text-[#52525B]">{f.specialties.join(" · ")}</p>
-            <p className="text-[11px] text-[#71717A]">{f.phone} · {f.email}</p>
+            <p className="text-xs text-[#5b6472]">{f.specialties.join(" · ")}</p>
+            <p className="text-[11px] text-[#5b6472]">{f.phone} · {f.email}</p>
             <div className="pt-2 flex justify-end">
               <button
                 type="button"

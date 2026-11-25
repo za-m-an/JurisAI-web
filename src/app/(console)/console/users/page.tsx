@@ -61,7 +61,7 @@ export default function ConsoleUsersPage() {
 
   if (loading) {
     return (
-      <div className="py-16 text-center text-xs font-mono uppercase tracking-wider text-[#71717A]">
+      <div className="py-16 text-center text-xs font-mono uppercase tracking-wider text-[#5b6472]">
         Loading Users...
       </div>
     );
@@ -69,14 +69,14 @@ export default function ConsoleUsersPage() {
 
   return (
     <div className="space-y-6 pb-10">
-      <div className="border-b border-[#E5E2DC] pb-5">
-        <span className="text-[11px] font-mono uppercase tracking-widest text-[#B45309]">
+      <div className="border-b border-[#E0E2E4] pb-5">
+        <span className="text-[11px] font-mono uppercase tracking-widest text-[#ff4716]">
           Access Control
         </span>
-        <h1 className="text-3xl font-serif font-medium text-[#18181B]">
+        <h1 className="text-3xl font-serif font-light text-[#121719]">
           Users &amp; Role Management
         </h1>
-        <p className="text-sm text-[#52525B]">
+        <p className="text-sm text-[#5b6472]">
           Manage account roles and access status across all registered users.
         </p>
       </div>
@@ -87,11 +87,11 @@ export default function ConsoleUsersPage() {
         </div>
       )}
 
-      <div className="vellum-card rounded-2xl overflow-hidden">
+      <div className="vellum-card rounded overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-[#E5E2DC] bg-[#FAF9F6] text-[10px] font-mono uppercase tracking-wider text-[#71717A]">
+              <tr className="border-b border-[#E0E2E4] bg-[#F3F3F3] text-[10px] font-mono uppercase tracking-wider text-[#5b6472]">
                 <th className="py-3.5 px-5">Name &amp; Email</th>
                 <th className="py-3.5 px-4">Organisation</th>
                 <th className="py-3.5 px-4">Role</th>
@@ -99,21 +99,21 @@ export default function ConsoleUsersPage() {
                 <th className="py-3.5 px-5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E5E2DC]">
+            <tbody className="divide-y divide-[#E0E2E4]">
               {users.map((u) => (
-                <tr key={u.id} className="hover:bg-[#FAF9F6]/60">
+                <tr key={u.id} className="hover:bg-[#F3F3F3]/60">
                   <td className="py-3.5 px-5">
-                    <div className="font-medium text-[#18181B]">{u.fullName}</div>
-                    <div className="text-[11px] text-[#71717A]">{u.email}</div>
+                    <div className="font-medium text-[#121719]">{u.fullName}</div>
+                    <div className="text-[11px] text-[#5b6472]">{u.email}</div>
                   </td>
-                  <td className="py-3.5 px-4 text-[#52525B]">
+                  <td className="py-3.5 px-4 text-[#5b6472]">
                     {u.organisation || "—"}
                   </td>
                   <td className="py-3.5 px-4">
                     <select
                       value={u.role}
                       onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                      className="px-2.5 py-1.5 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-xs font-medium text-[#18181B]"
+                      className="px-2.5 py-1.5 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs font-medium text-[#121719]"
                     >
                       <option value="common">Common</option>
                       <option value="business">Business</option>
@@ -136,7 +136,7 @@ export default function ConsoleUsersPage() {
                     <button
                       type="button"
                       onClick={() => handleToggleActive(u.id, !u.isActive)}
-                      className="text-xs font-medium text-[#134E4A] hover:underline"
+                      className="text-xs font-medium text-[#121719] hover:underline"
                     >
                       {u.isActive ? "Suspend" : "Activate"}
                     </button>

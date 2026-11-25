@@ -92,15 +92,15 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-[75vh] flex items-center justify-center py-8">
-      <div className="w-full max-w-lg vellum-card rounded-2xl p-8 sm:p-10 space-y-6">
-        <div className="space-y-2 border-b border-[#E5E2DC] pb-5">
-          <span className="text-[11px] font-mono uppercase tracking-widest text-[#B45309]">
+      <div className="w-full max-w-lg vellum-card rounded p-8 sm:p-10 space-y-6">
+        <div className="space-y-2 border-b border-[#E0E2E4] pb-5">
+          <span className="text-[11px] font-mono uppercase tracking-widest text-[#ff4716]">
             New Account Registration
           </span>
-          <h1 className="text-3xl font-serif font-medium text-[#18181B]">
+          <h1 className="text-3xl font-serif font-light text-[#121719]">
             Create your workspace
           </h1>
-          <p className="text-sm text-[#52525B]">
+          <p className="text-sm text-[#5b6472]">
             Configure your primary jurisdiction and begin reviewing legal agreements.
           </p>
         </div>
@@ -114,7 +114,7 @@ export default function RegisterPage() {
         <form onSubmit={handlePreSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label htmlFor="fullName" className="block text-xs font-medium text-[#18181B]">
+              <label htmlFor="fullName" className="block text-xs font-medium text-[#121719]">
                 Full Name
               </label>
               <input
@@ -124,19 +124,19 @@ export default function RegisterPage() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="Tariqul Hasan"
-                className="w-full px-3.5 py-2.5 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-sm text-[#18181B] focus:outline-none focus:border-[#134E4A] focus:bg-white editorial-transition"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-sm text-[#121719] focus:outline-none focus:border-[#121719] focus:bg-white editorial-transition"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="region" className="block text-xs font-medium text-[#18181B]">
+              <label htmlFor="region" className="block text-xs font-medium text-[#121719]">
                 Primary Region / Law
               </label>
               <select
                 id="region"
                 value={region}
                 onChange={(e) => setRegion(e.target.value as "BD" | "US" | "EU")}
-                className="w-full px-3.5 py-2.5 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-sm text-[#18181B] focus:outline-none focus:border-[#134E4A] focus:bg-white editorial-transition"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-sm text-[#121719] focus:outline-none focus:border-[#121719] focus:bg-white editorial-transition"
               >
                 <option value="BD">Bangladesh (BD)</option>
                 <option value="US">United States (US)</option>
@@ -146,7 +146,7 @@ export default function RegisterPage() {
           </div>
 
           <div className="space-y-1.5">
-            <label htmlFor="email" className="block text-xs font-medium text-[#18181B]">
+            <label htmlFor="email" className="block text-xs font-medium text-[#121719]">
               Email Address
             </label>
             <input
@@ -156,12 +156,12 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="name@company.com"
-              className="w-full px-3.5 py-2.5 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-sm text-[#18181B] focus:outline-none focus:border-[#134E4A] focus:bg-white editorial-transition"
+              className="w-full px-3.5 py-2.5 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-sm text-[#121719] focus:outline-none focus:border-[#121719] focus:bg-white editorial-transition"
             />
           </div>
 
           <div className="space-y-1.5">
-            <label htmlFor="password" className="block text-xs font-medium text-[#18181B]">
+            <label htmlFor="password" className="block text-xs font-medium text-[#121719]">
               Password
             </label>
             <input
@@ -171,12 +171,12 @@ export default function RegisterPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Minimum 10 characters, with letter & digit"
-              className="w-full px-3.5 py-2.5 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-sm text-[#18181B] focus:outline-none focus:border-[#134E4A] focus:bg-white editorial-transition"
+              className="w-full px-3.5 py-2.5 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-sm text-[#121719] focus:outline-none focus:border-[#121719] focus:bg-white editorial-transition"
             />
           </div>
 
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-[#18181B]">
+            <label className="block text-xs font-medium text-[#121719]">
               Account Tier
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -185,8 +185,8 @@ export default function RegisterPage() {
                 onClick={() => setAccountType("common")}
                 className={`p-3 rounded-lg border text-left editorial-transition ${
                   accountType === "common"
-                    ? "border-[#134E4A] bg-[#134E4A]/5 text-[#134E4A]"
-                    : "border-[#E5E2DC] bg-[#FAF9F6] text-[#52525B]"
+                    ? "border-[#121719] bg-[#121719]/5 text-[#121719]"
+                    : "border-[#E0E2E4] bg-[#F3F3F3] text-[#5b6472]"
                 }`}
               >
                 <div className="text-xs font-semibold">Individual</div>
@@ -197,8 +197,8 @@ export default function RegisterPage() {
                 onClick={() => setAccountType("business")}
                 className={`p-3 rounded-lg border text-left editorial-transition ${
                   accountType === "business"
-                    ? "border-[#134E4A] bg-[#134E4A]/5 text-[#134E4A]"
-                    : "border-[#E5E2DC] bg-[#FAF9F6] text-[#52525B]"
+                    ? "border-[#121719] bg-[#121719]/5 text-[#121719]"
+                    : "border-[#E0E2E4] bg-[#F3F3F3] text-[#5b6472]"
                 }`}
               >
                 <div className="text-xs font-semibold">Business / Enterprise</div>
@@ -209,7 +209,7 @@ export default function RegisterPage() {
 
           {accountType === "business" && (
             <div className="space-y-1.5">
-              <label htmlFor="organisation" className="block text-xs font-medium text-[#18181B]">
+              <label htmlFor="organisation" className="block text-xs font-medium text-[#121719]">
                 Organisation Name
               </label>
               <input
@@ -219,7 +219,7 @@ export default function RegisterPage() {
                 value={organisation}
                 onChange={(e) => setOrganisation(e.target.value)}
                 placeholder="Bengal Industrial Distributors Ltd."
-                className="w-full px-3.5 py-2.5 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-sm text-[#18181B] focus:outline-none focus:border-[#134E4A] focus:bg-white editorial-transition"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-sm text-[#121719] focus:outline-none focus:border-[#121719] focus:bg-white editorial-transition"
               />
             </div>
           )}
@@ -227,16 +227,16 @@ export default function RegisterPage() {
           <button
             type="button"
             onClick={() => handlePreSubmit()}
-            className="w-full py-2.5 px-4 rounded-lg bg-[#134E4A] hover:bg-[#0F3F3C] text-[#FAF9F6] text-sm font-medium editorial-transition shadow-sm"
+            className="w-full py-2.5 px-4 rounded-lg bg-[#121719] hover:bg-[#222729] text-[#F3F3F3] text-sm font-medium editorial-transition shadow-sm"
           >
             Register
           </button>
         </form>
 
-        <div className="pt-4 border-t border-[#E5E2DC] text-center">
+        <div className="pt-4 border-t border-[#E0E2E4] text-center">
           <Link
             href="/login"
-            className="text-xs font-medium text-[#52525B] hover:text-[#134E4A] editorial-transition"
+            className="text-xs font-medium text-[#5b6472] hover:text-[#121719] editorial-transition"
           >
             Already have an account? Return to Sign In
           </Link>
@@ -246,50 +246,50 @@ export default function RegisterPage() {
       {/* Terms of Service Acceptance Modal (Frosted Vellum Glass) */}
       {showTosModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/35 backdrop-blur-sm">
-          <div className="w-full max-w-lg glass-vellum rounded-2xl p-6 sm:p-8 space-y-5">
-            <div className="border-b border-[#E5E2DC] pb-4">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#B45309]">
+          <div className="w-full max-w-lg glass-vellum rounded p-6 sm:p-8 space-y-5">
+            <div className="border-b border-[#E0E2E4] pb-4">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#ff4716]">
                 Mandatory Agreement
               </span>
-              <h2 className="text-2xl font-serif font-medium text-[#18181B] mt-1">
+              <h2 className="text-2xl font-serif font-light text-[#121719] mt-1">
                 Terms of Service &amp; Data Handling
               </h2>
             </div>
 
-            <div className="max-h-60 overflow-y-auto pr-2 space-y-3 text-xs text-[#52525B] leading-relaxed">
+            <div className="max-h-60 overflow-y-auto pr-2 space-y-3 text-xs text-[#5b6472] leading-relaxed">
               <p>
-                <strong className="text-[#18181B]">1. Document &amp; Case Confidentiality:</strong>{" "}
+                <strong className="text-[#121719]">1. Document &amp; Case Confidentiality:</strong>{" "}
                 Uploaded contracts and legal documents are processed transiently solely to generate
                 your legal memorandum and risk evaluation. Original document files are never retained
                 permanently on our storage servers.
               </p>
               <p>
-                <strong className="text-[#18181B]">2. Stored Account Records:</strong>{" "}
+                <strong className="text-[#121719]">2. Stored Account Records:</strong>{" "}
                 We store your account profile (name, email, region, organisation, and avatar),
                 subscription tier, generated legal analysis reference IDs, brief executive summaries,
                 and your Copilot consultation history so you can revisit ongoing cases at any time.
               </p>
               <p>
-                <strong className="text-[#18181B]">3. Statutory Advisory &amp; Representation:</strong>{" "}
+                <strong className="text-[#121719]">3. Statutory Advisory &amp; Representation:</strong>{" "}
                 Juris AI provides structured legal counsel grounded in statutory law and judicial
                 precedents for your selected jurisdiction. Where formal court representation is
                 required, you may engage verified regional law firms directly through our directory.
               </p>
               <p>
-                <strong className="text-[#18181B]">4. User Sovereignty:</strong>{" "}
+                <strong className="text-[#121719]">4. User Sovereignty:</strong>{" "}
                 You may update your profile, switch regions, or permanently erase your account and
                 all associated case records at any time from your Settings portal.
               </p>
             </div>
 
-            <label className="flex items-start gap-3 p-3.5 rounded-xl border border-[#E5E2DC] bg-white/80 cursor-pointer">
+            <label className="flex items-start gap-3 p-3.5 rounded border border-[#E0E2E4] bg-white/80 cursor-pointer">
               <input
                 type="checkbox"
                 checked={tosChecked}
                 onChange={(e) => setTosChecked(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-[#E5E2DC] text-[#134E4A] focus:ring-[#134E4A]"
+                className="mt-0.5 h-4 w-4 rounded border-[#E0E2E4] text-[#121719] focus:ring-[#121719]"
               />
-              <span className="text-xs text-[#18181B] leading-snug">
+              <span className="text-xs text-[#121719] leading-snug">
                 I have read and agree to the Juris AI Terms of Service and Data Handling Policy.
               </span>
             </label>
@@ -299,7 +299,7 @@ export default function RegisterPage() {
                 type="button"
                 onClick={() => setShowTosModal(false)}
                 disabled={submitting}
-                className="px-4 py-2 rounded-lg border border-[#E5E2DC] bg-white text-xs font-medium text-[#52525B] hover:text-[#18181B]"
+                className="px-4 py-2 rounded-lg border border-[#E0E2E4] bg-white text-xs font-medium text-[#5b6472] hover:text-[#121719]"
               >
                 Cancel
               </button>
@@ -307,7 +307,7 @@ export default function RegisterPage() {
                 type="button"
                 disabled={!tosChecked || submitting}
                 onClick={handleConfirmRegistration}
-                className="px-5 py-2 rounded-lg bg-[#134E4A] hover:bg-[#0F3F3C] disabled:opacity-50 text-[#FAF9F6] text-xs font-medium editorial-transition"
+                className="px-5 py-2 rounded-lg bg-[#121719] hover:bg-[#222729] disabled:opacity-50 text-[#F3F3F3] text-xs font-medium editorial-transition"
               >
                 {submitting ? "Creating Account..." : "Agree & Continue"}
               </button>

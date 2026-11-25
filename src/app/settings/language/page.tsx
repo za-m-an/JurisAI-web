@@ -43,7 +43,7 @@ export default function LanguageSettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center text-xs font-mono text-[#71717A]">
+      <div className="min-h-[60vh] flex items-center justify-center text-xs font-mono text-[#5b6472]">
         Loading Language Settings...
       </div>
     );
@@ -51,16 +51,16 @@ export default function LanguageSettingsPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-10">
-      <div className="border-b border-[#E5E2DC] pb-4">
-        <Link href="/settings" className="text-xs text-[#134E4A] hover:underline">
+      <div className="border-b border-[#E0E2E4] pb-4">
+        <Link href="/settings" className="text-xs text-[#121719] hover:underline">
           &larr; Back to Settings
         </Link>
-        <h1 className="text-3xl font-serif font-medium text-[#18181B] mt-1">
+        <h1 className="text-3xl font-serif font-light text-[#121719] mt-1">
           Language &amp; Localization
         </h1>
       </div>
 
-      <form onSubmit={handleSave} className="vellum-card rounded-2xl p-6 sm:p-8 space-y-6">
+      <form onSubmit={handleSave} className="vellum-card rounded p-6 sm:p-8 space-y-6">
         {message && (
           <div className="p-3 rounded-lg bg-[#F0FDF4] border border-[#BBF7D0] text-[#166534] text-xs font-medium">
             {message}
@@ -68,7 +68,7 @@ export default function LanguageSettingsPage() {
         )}
 
         <div className="space-y-3">
-          <label className="block text-xs font-medium text-[#18181B]">
+          <label className="block text-xs font-medium text-[#121719]">
             Application &amp; Counsel Language
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -80,14 +80,14 @@ export default function LanguageSettingsPage() {
                 key={lang.code}
                 type="button"
                 onClick={() => setLanguage(lang.code)}
-                className={`p-4 rounded-xl border text-left editorial-transition ${
+                className={`p-4 rounded border text-left editorial-transition ${
                   language === lang.code
-                    ? "border-[#134E4A] bg-[#134E4A]/5 ring-1 ring-[#134E4A]"
-                    : "border-[#E5E2DC] bg-[#FAF9F6]"
+                    ? "border-[#121719] bg-[#121719]/5 ring-1 ring-[#121719]"
+                    : "border-[#E0E2E4] bg-[#F3F3F3]"
                 }`}
               >
-                <div className="text-sm font-semibold text-[#18181B]">{lang.name}</div>
-                <div className="text-xs text-[#52525B] mt-0.5">{lang.sub}</div>
+                <div className="text-sm font-semibold text-[#121719]">{lang.name}</div>
+                <div className="text-xs text-[#5b6472] mt-0.5">{lang.sub}</div>
               </button>
             ))}
           </div>
@@ -97,7 +97,7 @@ export default function LanguageSettingsPage() {
           <button
             type="submit"
             disabled={saving}
-            className="px-5 py-2.5 rounded-lg bg-[#134E4A] hover:bg-[#0F3F3C] text-[#FAF9F6] text-xs font-medium editorial-transition"
+            className="px-5 py-2.5 rounded-lg bg-[#121719] hover:bg-[#222729] text-[#F3F3F3] text-xs font-medium editorial-transition"
           >
             {saving ? "Saving..." : "Save Language"}
           </button>

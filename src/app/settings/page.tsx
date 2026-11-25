@@ -32,7 +32,7 @@ export default function SettingsHubPage() {
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="text-xs font-mono uppercase tracking-wider text-[#71717A]">
+        <div className="text-xs font-mono uppercase tracking-wider text-[#5b6472]">
           Loading Settings...
         </div>
       </div>
@@ -72,14 +72,14 @@ export default function SettingsHubPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-10">
-      <div className="space-y-2 border-b border-[#E5E2DC] pb-6">
-        <span className="text-[11px] font-mono uppercase tracking-widest text-[#B45309]">
+      <div className="space-y-2 border-b border-[#E0E2E4] pb-6">
+        <span className="text-[11px] font-mono uppercase tracking-widest text-[#ff4716]">
           Preferences
         </span>
-        <h1 className="text-3xl sm:text-4xl font-serif font-medium text-[#18181B]">
+        <h1 className="text-3xl sm:text-4xl font-serif font-light text-[#121719]">
           Account Settings
         </h1>
-        <p className="text-sm text-[#52525B]">
+        <p className="text-sm text-[#5b6472]">
           Select a section below to manage your profile, language, subscription, or security.
         </p>
       </div>
@@ -89,21 +89,21 @@ export default function SettingsHubPage() {
           <Link
             key={sec.href}
             href={sec.href}
-            className="vellum-card rounded-2xl p-6 flex flex-col justify-between hover:border-[#134E4A]/50 editorial-transition group"
+            className="vellum-card rounded p-6 flex flex-col justify-between hover:border-[#121719]/50 editorial-transition group"
           >
             <div className="space-y-2">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#B45309]">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#ff4716]">
                 {sec.tag}
               </span>
-              <h2 className="font-serif text-xl font-medium text-[#18181B] group-hover:text-[#134E4A] editorial-transition">
+              <h2 className="font-serif text-xl font-medium text-[#121719] group-hover:text-[#121719] editorial-transition">
                 {sec.title}
               </h2>
-              <p className="text-xs text-[#52525B] leading-relaxed">{sec.desc}</p>
+              <p className="text-xs text-[#5b6472] leading-relaxed">{sec.desc}</p>
             </div>
 
-            <div className="mt-6 pt-4 border-t border-[#E5E2DC] flex items-center justify-between text-xs">
-              <span className="font-mono text-[11px] text-[#71717A]">{sec.current}</span>
-              <span className="font-medium text-[#134E4A]">Open &rarr;</span>
+            <div className="mt-6 pt-4 border-t border-[#E0E2E4] flex items-center justify-between text-xs">
+              <span className="font-mono text-[11px] text-[#5b6472]">{sec.current}</span>
+              <span className="font-medium text-[#121719]">Open &rarr;</span>
             </div>
           </Link>
         ))}

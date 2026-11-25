@@ -93,7 +93,7 @@ export default function HomeWorkspacePage() {
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="text-xs font-mono uppercase tracking-wider text-[#71717A]">
+        <div className="text-xs font-mono uppercase tracking-wider text-[#5b6472]">
           Loading workspace...
         </div>
       </div>
@@ -130,31 +130,31 @@ export default function HomeWorkspacePage() {
   return (
     <div className="space-y-10 pb-8">
       {/* SECTION 1: Monthly Usage & Subscription Tier */}
-      <section className="vellum-card rounded-2xl p-6 sm:p-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-[#E5E2DC]">
+      <section className="vellum-card rounded p-6 sm:p-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-[#E0E2E4]">
           <div className="space-y-1">
-            <span className="text-[11px] font-mono uppercase tracking-widest text-[#B45309]">
+            <span className="text-[11px] font-mono uppercase tracking-widest text-[#ff4716]">
               Monthly Allowance
             </span>
-            <h1 className="text-3xl font-serif font-medium text-[#18181B]">
+            <h1 className="text-3xl font-serif font-light text-[#121719]">
               Welcome back, {user?.fullName}
             </h1>
-            <p className="text-sm text-[#52525B]">
-              Active Jurisdiction: <strong className="text-[#18181B]">{user?.region || "BD"}</strong> ·
-              Tier: <span className="capitalize font-medium text-[#134E4A]">{user?.subscriptionTier || "Standard"}</span> ({user?.role})
+            <p className="text-sm text-[#5b6472]">
+              Active Jurisdiction: <strong className="text-[#121719]">{user?.region || "BD"}</strong> ·
+              Tier: <span className="capitalize font-medium text-[#121719]">{user?.subscriptionTier || "Standard"}</span> ({user?.role})
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <Link
               href="/analyze"
-              className="px-4 py-2.5 rounded-lg bg-[#134E4A] hover:bg-[#0F3F3C] text-[#FAF9F6] text-xs font-medium editorial-transition"
+              className="px-4 py-2.5 rounded-lg bg-[#121719] hover:bg-[#222729] text-[#F3F3F3] text-xs font-medium editorial-transition"
             >
               Analyze New Document
             </Link>
             <Link
               href="/settings/subscription"
-              className="px-4 py-2.5 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] hover:bg-white text-xs font-medium text-[#18181B] editorial-transition"
+              className="px-4 py-2.5 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] hover:bg-white text-xs font-medium text-[#121719] editorial-transition"
             >
               Manage Tier
             </Link>
@@ -164,32 +164,32 @@ export default function HomeWorkspacePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
           <div className="space-y-2.5">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-medium text-[#18181B]">Monthly Document Analyses</span>
-              <span className="font-mono text-[#52525B]">
+              <span className="font-medium text-[#121719]">Monthly Document Analyses</span>
+              <span className="font-mono text-[#5b6472]">
                 {analysesUsed} / {analysesLimit} used
               </span>
             </div>
-            <div className="w-full h-2 rounded-full bg-[#FAF9F6] border border-[#E5E2DC] overflow-hidden">
+            <div className="w-full h-2 rounded-full bg-[#F3F3F3] border border-[#E0E2E4] overflow-hidden">
               <div
-                className="h-full bg-[#134E4A] editorial-transition"
+                className="h-full bg-[#121719] editorial-transition"
                 style={{ width: `${usagePct}%` }}
               />
             </div>
-            <p className="text-[11px] text-[#71717A]">
+            <p className="text-[11px] text-[#5b6472]">
               {Math.max(0, analysesLimit - analysesUsed)} analyses remaining in this billing cycle.
             </p>
           </div>
 
           <div className="space-y-2.5">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-medium text-[#18181B]">Daily Copilot Consultations</span>
-              <span className="font-mono text-[#52525B]">
+              <span className="font-medium text-[#121719]">Daily Copilot Consultations</span>
+              <span className="font-mono text-[#5b6472]">
                 {quota?.chatsUsedToday ?? 0} / {quota?.chatsLimitPerDay ?? 30} today
               </span>
             </div>
-            <div className="w-full h-2 rounded-full bg-[#FAF9F6] border border-[#E5E2DC] overflow-hidden">
+            <div className="w-full h-2 rounded-full bg-[#F3F3F3] border border-[#E0E2E4] overflow-hidden">
               <div
-                className="h-full bg-[#B45309] editorial-transition"
+                className="h-full bg-[#ff4716] editorial-transition"
                 style={{
                   width: `${Math.min(
                     100,
@@ -198,7 +198,7 @@ export default function HomeWorkspacePage() {
                 }}
               />
             </div>
-            <p className="text-[11px] text-[#71717A]">
+            <p className="text-[11px] text-[#5b6472]">
               Resets daily for continuous case strategy and statutory inquiries.
             </p>
           </div>
@@ -209,10 +209,10 @@ export default function HomeWorkspacePage() {
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <span className="text-[11px] font-mono uppercase tracking-widest text-[#B45309]">
+            <span className="text-[11px] font-mono uppercase tracking-widest text-[#ff4716]">
               Case Archive
             </span>
-            <h2 className="text-2xl font-serif font-medium text-[#18181B]">
+            <h2 className="text-2xl font-serif font-light text-[#121719]">
               Recent Searches &amp; Queries
             </h2>
           </div>
@@ -222,7 +222,7 @@ export default function HomeWorkspacePage() {
               type="button"
               onClick={() => scrollSlides("left")}
               aria-label="Slide left"
-              className="p-2 rounded-lg border border-[#E5E2DC] bg-white hover:bg-[#FAF9F6] text-[#18181B] editorial-transition"
+              className="p-2 rounded-lg border border-[#E0E2E4] bg-white hover:bg-[#F3F3F3] text-[#121719] editorial-transition"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M15 19l-7-7 7-7" />
@@ -232,7 +232,7 @@ export default function HomeWorkspacePage() {
               type="button"
               onClick={() => scrollSlides("right")}
               aria-label="Slide right"
-              className="p-2 rounded-lg border border-[#E5E2DC] bg-white hover:bg-[#FAF9F6] text-[#18181B] editorial-transition"
+              className="p-2 rounded-lg border border-[#E0E2E4] bg-white hover:bg-[#F3F3F3] text-[#121719] editorial-transition"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 5l7 7-7 7" />
@@ -242,13 +242,13 @@ export default function HomeWorkspacePage() {
         </div>
 
         {recentItems.length === 0 ? (
-          <div className="vellum-card rounded-xl p-8 text-center space-y-2">
-            <p className="text-sm text-[#52525B]">
+          <div className="vellum-card rounded p-8 text-center space-y-2">
+            <p className="text-sm text-[#5b6472]">
               No recent analyses or Copilot queries yet.
             </p>
             <Link
               href="/analyze"
-              className="inline-block text-xs font-medium text-[#134E4A] hover:underline"
+              className="inline-block text-xs font-medium text-[#121719] hover:underline"
             >
               Upload your first legal document &rarr;
             </Link>
@@ -263,24 +263,24 @@ export default function HomeWorkspacePage() {
               <Link
                 key={`${item.type}-${item.id}`}
                 href={item.href}
-                className="min-w-[290px] max-w-[310px] snap-start vellum-card rounded-xl p-5 flex flex-col justify-between hover:border-[#134E4A]/40 editorial-transition shrink-0"
+                className="min-w-[290px] max-w-[310px] snap-start vellum-card rounded p-5 flex flex-col justify-between hover:border-[#121719]/40 editorial-transition shrink-0"
               >
                 <div className="space-y-2.5">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-[#FAF9F6] border border-[#E5E2DC] text-[#52525B]">
+                    <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-[#F3F3F3] border border-[#E0E2E4] text-[#5b6472]">
                       {item.ref}
                     </span>
-                    <span className="text-[11px] text-[#71717A]">
+                    <span className="text-[11px] text-[#5b6472]">
                       {new Date(item.date).toLocaleDateString()}
                     </span>
                   </div>
-                  <h3 className="font-serif text-base font-medium text-[#18181B] line-clamp-2">
+                  <h3 className="font-serif text-base font-medium text-[#121719] line-clamp-2">
                     {item.title}
                   </h3>
-                  <p className="text-xs text-[#52525B]">{item.subtitle}</p>
+                  <p className="text-xs text-[#5b6472]">{item.subtitle}</p>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-[#E5E2DC] flex items-center justify-between text-xs font-medium text-[#134E4A]">
+                <div className="mt-4 pt-3 border-t border-[#E0E2E4] flex items-center justify-between text-xs font-medium text-[#121719]">
                   <span>{item.type === "analysis" ? "Open Report" : "Resume Copilot"}</span>
                   <span>&rarr;</span>
                 </div>
@@ -291,19 +291,19 @@ export default function HomeWorkspacePage() {
       </section>
 
       {/* SECTION 3: Ongoing Case Legal Suggestions (Bottom) */}
-      <section className="vellum-card rounded-2xl p-6 sm:p-8 border-l-4 border-l-[#134E4A]">
+      <section className="vellum-card rounded p-6 sm:p-8 border-l-4 border-l-[#121719]">
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <span className="text-[11px] font-mono uppercase tracking-widest text-[#134E4A]">
+              <span className="text-[11px] font-mono uppercase tracking-widest text-[#121719]">
                 Ongoing Case Advisory
               </span>
-              <h2 className="text-2xl font-serif font-medium text-[#18181B]">
+              <h2 className="text-2xl font-serif font-light text-[#121719]">
                 Recommended Legal Strategy
               </h2>
             </div>
             {ongoingCase && (
-              <span className="text-xs font-mono text-[#71717A]">
+              <span className="text-xs font-mono text-[#5b6472]">
                 Case Ref: {ongoingCase.referenceCode}
               </span>
             )}
@@ -311,46 +311,46 @@ export default function HomeWorkspacePage() {
 
           {ongoingCase ? (
             <div className="space-y-5">
-              <div className="p-4 rounded-xl bg-[#FAF9F6] border border-[#E5E2DC] space-y-2">
+              <div className="p-4 rounded bg-[#F3F3F3] border border-[#E0E2E4] space-y-2">
                 <div className="flex items-center justify-between gap-2">
-                  <p className="text-sm font-semibold text-[#18181B]">
+                  <p className="text-sm font-semibold text-[#121719]">
                     Active Matter: {ongoingCase.docName}
                   </p>
                   <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#FEF2F2] text-[#991B1B] border border-[#FECACA]">
                     {ongoingCase.risksCount} Risk Vectors Detected
                   </span>
                 </div>
-                <p className="text-xs text-[#52525B] leading-relaxed">
+                <p className="text-xs text-[#5b6472] leading-relaxed">
                   {ongoingCase.briefSummary ||
                     "Your agreement contains clauses that conflict with mandatory statutory protections. Immediate review and redlining are advised prior to execution."}
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 rounded-xl border border-[#E5E2DC] bg-white space-y-1.5">
-                  <div className="text-[11px] font-mono uppercase text-[#B45309]">Step 01</div>
-                  <h3 className="text-sm font-semibold text-[#18181B]">
+                <div className="p-4 rounded border border-[#E0E2E4] bg-white space-y-1.5">
+                  <div className="text-[11px] font-mono uppercase text-[#ff4716]">Step 01</div>
+                  <h3 className="text-sm font-semibold text-[#121719]">
                     Draft Counter-Redlines
                   </h3>
-                  <p className="text-xs text-[#52525B]">
+                  <p className="text-xs text-[#5b6472]">
                     Replace unenforceable restraint or penalty clauses using the verified statutory alternatives in your report.
                   </p>
                 </div>
-                <div className="p-4 rounded-xl border border-[#E5E2DC] bg-white space-y-1.5">
-                  <div className="text-[11px] font-mono uppercase text-[#B45309]">Step 02</div>
-                  <h3 className="text-sm font-semibold text-[#18181B]">
+                <div className="p-4 rounded border border-[#E0E2E4] bg-white space-y-1.5">
+                  <div className="text-[11px] font-mono uppercase text-[#ff4716]">Step 02</div>
+                  <h3 className="text-sm font-semibold text-[#121719]">
                     Consult Copilot Strategy
                   </h3>
-                  <p className="text-xs text-[#52525B]">
+                  <p className="text-xs text-[#5b6472]">
                     Expand this matter into Copilot to evaluate negotiation leverage and dispute settlement pathways.
                   </p>
                 </div>
-                <div className="p-4 rounded-xl border border-[#E5E2DC] bg-white space-y-1.5">
-                  <div className="text-[11px] font-mono uppercase text-[#B45309]">Step 03</div>
-                  <h3 className="text-sm font-semibold text-[#18181B]">
+                <div className="p-4 rounded border border-[#E0E2E4] bg-white space-y-1.5">
+                  <div className="text-[11px] font-mono uppercase text-[#ff4716]">Step 03</div>
+                  <h3 className="text-sm font-semibold text-[#121719]">
                     Engage Regional Counsel
                   </h3>
-                  <p className="text-xs text-[#52525B]">
+                  <p className="text-xs text-[#5b6472]">
                     Export your institutional letterhead memorandum and engage a top-rated {user?.region || "BD"} law firm.
                   </p>
                 </div>
@@ -359,32 +359,32 @@ export default function HomeWorkspacePage() {
               <div className="flex flex-wrap items-center gap-3 pt-1">
                 <Link
                   href={`/chat?analysisId=${ongoingCase.id}`}
-                  className="px-4 py-2 rounded-lg bg-[#134E4A] hover:bg-[#0F3F3C] text-[#FAF9F6] text-xs font-medium editorial-transition"
+                  className="px-4 py-2 rounded-lg bg-[#121719] hover:bg-[#222729] text-[#F3F3F3] text-xs font-medium editorial-transition"
                 >
                   Expand Case in Copilot
                 </Link>
                 <Link
                   href={`/analyses/${ongoingCase.id}`}
-                  className="px-4 py-2 rounded-lg border border-[#E5E2DC] bg-white hover:bg-[#FAF9F6] text-xs font-medium text-[#18181B] editorial-transition"
+                  className="px-4 py-2 rounded-lg border border-[#E0E2E4] bg-white hover:bg-[#F3F3F3] text-xs font-medium text-[#121719] editorial-transition"
                 >
                   View Full Report
                 </Link>
                 <Link
                   href="/lawyers"
-                  className="px-4 py-2 rounded-lg border border-[#E5E2DC] bg-white hover:bg-[#FAF9F6] text-xs font-medium text-[#B45309] editorial-transition"
+                  className="px-4 py-2 rounded-lg border border-[#E0E2E4] bg-white hover:bg-[#F3F3F3] text-xs font-medium text-[#ff4716] editorial-transition"
                 >
                   Find Matched Law Firm &rarr;
                 </Link>
               </div>
             </div>
           ) : (
-            <div className="p-5 rounded-xl bg-[#FAF9F6] border border-[#E5E2DC] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <p className="text-sm text-[#52525B]">
+            <div className="p-5 rounded bg-[#F3F3F3] border border-[#E0E2E4] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <p className="text-sm text-[#5b6472]">
                 No ongoing legal matter on record. Upload a contract or ask Copilot a legal question to receive tailored case guidance here.
               </p>
               <Link
                 href="/analyze"
-                className="shrink-0 px-4 py-2 rounded-lg bg-[#134E4A] text-[#FAF9F6] text-xs font-medium"
+                className="shrink-0 px-4 py-2 rounded-lg bg-[#121719] text-[#F3F3F3] text-xs font-medium"
               >
                 Open Document Analyzer
               </Link>

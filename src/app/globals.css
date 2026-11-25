@@ -3,28 +3,46 @@
 @tailwind utilities;
 
 :root {
-  --color-canvas: #FAF9F6;
-  --color-surface: #FFFFFF;
-  --color-hairline: #E5E2DC;
-  --color-ink: #18181B;
-  --color-slate: #52525B;
-  --color-muted: #71717A;
-  --color-emerald: #134E4A;
-  --color-emerald-hover: #0F3F3C;
-  --color-brass: #B45309;
+  --sb-black: #121719;
+  --sb-charcoal: #222729;
+  --sb-slate: #414547;
+  --sb-light: #F3F3F3;
+  --sb-white: #FFFFFF;
+  --sb-muted: #5b6472;
+  --sb-silver: #acaeae;
+  --sb-hairline: #E0E2E4;
+  --sb-accent: #ff4716;
+  --sb-accent-hover: #e03a0e;
 }
 
 @layer base {
   body {
-    background-color: var(--color-canvas);
-    color: var(--color-ink);
+    background-color: var(--sb-light);
+    color: var(--sb-black);
     font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 1rem;
+    line-height: 1.45;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, .font-editorial {
-    font-family: var(--font-serif), Georgia, Cambria, "Times New Roman", serif;
+    font-family: var(--font-serif), Georgia, serif;
+    font-weight: 300;
+    letter-spacing: -0.035em;
+  }
+
+  h1 {
+    line-height: 1.04;
+  }
+
+  h2 {
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+  }
+
+  h3 {
+    line-height: 1.15;
     letter-spacing: -0.025em;
   }
 
@@ -33,40 +51,55 @@
   }
 
   *:focus-visible {
-    outline: 2px solid var(--color-emerald);
+    outline: 2px solid var(--sb-accent);
     outline-offset: 2px;
   }
 }
 
-/* Subtle 2% architectural hairline grid for hero / headers */
+/* Spellbook Alternating Section Modes */
+.u-mode-dark {
+  background-color: var(--sb-black);
+  color: var(--sb-white);
+}
+
+.u-mode-light {
+  background-color: var(--sb-light);
+  color: var(--sb-black);
+}
+
+/* Subtle architectural grid */
 .editorial-grid-bg {
   background-image:
-    linear-gradient(to right, rgba(24, 24, 27, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(24, 24, 27, 0.03) 1px, transparent 1px);
-  background-size: 32px 32px;
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
 
-/* Frosted Vellum Glass (Navbars, Floating Action Bars, Popovers, Modals ONLY) */
+/* Frosted Glass Sticky Navigation */
 .glass-vellum {
-  background: rgba(250, 249, 246, 0.76);
+  background: rgba(243, 243, 243, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(20, 20, 18, 0.08);
-  box-shadow:
-    0 12px 32px -12px rgba(20, 20, 18, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(18, 23, 25, 0.09);
+  box-shadow: 0 8px 24px -10px rgba(18, 23, 25, 0.08);
 }
 
-/* Solid Elevated Surface */
+/* Spellbook 0.25rem Crisp Card Geometry */
 .vellum-card {
-  background-color: var(--color-surface);
-  border: 1px solid var(--color-hairline);
-  box-shadow: 0 2px 12px -4px rgba(24, 24, 20, 0.05);
+  background-color: var(--sb-white);
+  border: 1px solid var(--sb-hairline);
+  border-radius: 0.25rem;
 }
 
-/* Weighted editorial transition */
+.sb-dark-card {
+  background-color: var(--sb-charcoal);
+  border: 1px solid var(--sb-slate);
+  border-radius: 0.25rem;
+}
+
+/* Weighted transition */
 .editorial-transition {
-  transition: all 300ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 260ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -85,7 +118,7 @@
   }
   body {
     background: #ffffff !important;
-    color: #18181B !important;
+    color: #121719 !important;
     font-size: 10.5pt !important;
     line-height: 1.55 !important;
   }
@@ -100,9 +133,6 @@
     padding: 0 !important;
     margin: 0 !important;
     max-width: 100% !important;
-  }
-  .print-only-letterhead {
-    display: block !important;
   }
   .page-break {
     page-break-before: always;

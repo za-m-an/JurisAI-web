@@ -121,7 +121,7 @@ export default function DocumentAnalyzerPage() {
   if (loadingAuth) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="text-xs font-mono uppercase tracking-wider text-[#71717A]">
+        <div className="text-xs font-mono uppercase tracking-wider text-[#5b6472]">
           Loading Document Analyzer...
         </div>
       </div>
@@ -130,26 +130,26 @@ export default function DocumentAnalyzerPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 pb-10">
-      <div className="space-y-2 border-b border-[#E5E2DC] pb-6">
-        <span className="text-[11px] font-mono uppercase tracking-widest text-[#B45309]">
+      <div className="space-y-2 border-b border-[#E0E2E4] pb-6">
+        <span className="text-[11px] font-mono uppercase tracking-widest text-[#ff4716]">
           Agentic Legal Review
         </span>
-        <h1 className="text-3xl sm:text-4xl font-serif font-medium text-[#18181B]">
+        <h1 className="text-3xl sm:text-4xl font-serif font-light text-[#121719]">
           Document Analyzer
         </h1>
-        <p className="text-sm text-[#52525B] max-w-2xl">
+        <p className="text-sm text-[#5b6472] max-w-2xl">
           Upload a legal agreement, select the governing law for your jurisdiction,
           and provide any additional case context for a comprehensive statutory review.
         </p>
       </div>
 
       {analyzing ? (
-        <div className="vellum-card rounded-2xl p-8 sm:p-10 space-y-6">
+        <div className="vellum-card rounded p-8 sm:p-10 space-y-6">
           <div className="space-y-1">
-            <span className="text-[11px] font-mono uppercase tracking-widest text-[#134E4A]">
+            <span className="text-[11px] font-mono uppercase tracking-widest text-[#121719]">
               Review In Progress
             </span>
-            <h2 className="text-2xl font-serif font-medium text-[#18181B]">
+            <h2 className="text-2xl font-serif font-light text-[#121719]">
               Examining Your Legal Document
             </h2>
           </div>
@@ -161,12 +161,12 @@ export default function DocumentAnalyzerPage() {
               return (
                 <div
                   key={step.title}
-                  className={`p-4 rounded-xl border editorial-transition flex items-start gap-4 ${
+                  className={`p-4 rounded border editorial-transition flex items-start gap-4 ${
                     isCurrent
-                      ? "border-[#134E4A] bg-[#134E4A]/5"
+                      ? "border-[#121719] bg-[#121719]/5"
                       : isDone
-                      ? "border-[#E5E2DC] bg-[#FAF9F6]"
-                      : "border-[#E5E2DC]/60 bg-white opacity-55"
+                      ? "border-[#E0E2E4] bg-[#F3F3F3]"
+                      : "border-[#E0E2E4]/60 bg-white opacity-55"
                   }`}
                 >
                   <div
@@ -174,15 +174,15 @@ export default function DocumentAnalyzerPage() {
                       isDone
                         ? "bg-[#166534] text-white"
                         : isCurrent
-                        ? "bg-[#134E4A] text-white animate-pulse"
-                        : "bg-[#FAF9F6] border border-[#E5E2DC] text-[#71717A]"
+                        ? "bg-[#121719] text-white animate-pulse"
+                        : "bg-[#F3F3F3] border border-[#E0E2E4] text-[#5b6472]"
                     }`}
                   >
                     {isDone ? "✓" : `0${idx + 1}`}
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-[#18181B]">{step.title}</h3>
-                    <p className="text-xs text-[#52525B] mt-0.5">{step.desc}</p>
+                    <h3 className="text-sm font-semibold text-[#121719]">{step.title}</h3>
+                    <p className="text-xs text-[#5b6472] mt-0.5">{step.desc}</p>
                   </div>
                 </div>
               );
@@ -190,7 +190,7 @@ export default function DocumentAnalyzerPage() {
           </div>
         </div>
       ) : (
-        <form onSubmit={handleSubmit} className="vellum-card rounded-2xl p-6 sm:p-8 space-y-6">
+        <form onSubmit={handleSubmit} className="vellum-card rounded p-6 sm:p-8 space-y-6">
           {error && (
             <div className="p-3.5 rounded-lg bg-[#FEF2F2] border border-[#FECACA] text-[#991B1B] text-xs font-medium">
               {error}
@@ -199,7 +199,7 @@ export default function DocumentAnalyzerPage() {
 
           {/* 1. Governing Law Selection */}
           <div className="space-y-2">
-            <label className="block text-xs font-medium text-[#18181B]">
+            <label className="block text-xs font-medium text-[#121719]">
               1. Select Governing Law
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -212,19 +212,19 @@ export default function DocumentAnalyzerPage() {
                   key={law.code}
                   type="button"
                   onClick={() => setGoverningLaw(law.code)}
-                  className={`p-3.5 rounded-xl border text-left editorial-transition ${
+                  className={`p-3.5 rounded border text-left editorial-transition ${
                     governingLaw === law.code
-                      ? "border-[#134E4A] bg-[#134E4A]/5 ring-1 ring-[#134E4A]"
-                      : "border-[#E5E2DC] bg-[#FAF9F6] hover:bg-white"
+                      ? "border-[#121719] bg-[#121719]/5 ring-1 ring-[#121719]"
+                      : "border-[#E0E2E4] bg-[#F3F3F3] hover:bg-white"
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-[#18181B]">{law.title}</span>
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white border border-[#E5E2DC] text-[#52525B]">
+                    <span className="text-xs font-semibold text-[#121719]">{law.title}</span>
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white border border-[#E0E2E4] text-[#5b6472]">
                       {law.code}
                     </span>
                   </div>
-                  <p className="text-[11px] text-[#71717A] mt-1 leading-snug">{law.sub}</p>
+                  <p className="text-[11px] text-[#5b6472] mt-1 leading-snug">{law.sub}</p>
                 </button>
               ))}
             </div>
@@ -233,15 +233,15 @@ export default function DocumentAnalyzerPage() {
           {/* 2. Document Upload or Paste */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <label className="block text-xs font-medium text-[#18181B]">
+              <label className="block text-xs font-medium text-[#121719]">
                 2. Upload Document or Paste Clauses
               </label>
-              <div className="inline-flex rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] p-0.5">
+              <div className="inline-flex rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] p-0.5">
                 <button
                   type="button"
                   onClick={() => setInputMode("file")}
                   className={`px-3 py-1 rounded-md text-xs font-medium editorial-transition ${
-                    inputMode === "file" ? "bg-white text-[#18181B] shadow-sm" : "text-[#71717A]"
+                    inputMode === "file" ? "bg-white text-[#121719] shadow-sm" : "text-[#5b6472]"
                   }`}
                 >
                   Upload File
@@ -250,7 +250,7 @@ export default function DocumentAnalyzerPage() {
                   type="button"
                   onClick={() => setInputMode("text")}
                   className={`px-3 py-1 rounded-md text-xs font-medium editorial-transition ${
-                    inputMode === "text" ? "bg-white text-[#18181B] shadow-sm" : "text-[#71717A]"
+                    inputMode === "text" ? "bg-white text-[#121719] shadow-sm" : "text-[#5b6472]"
                   }`}
                 >
                   Paste Text
@@ -266,10 +266,10 @@ export default function DocumentAnalyzerPage() {
                 }}
                 onDragLeave={() => setDragging(false)}
                 onDrop={handleFileDrop}
-                className={`border-2 border-dashed rounded-xl p-8 text-center editorial-transition ${
+                className={`border-2 border-dashed rounded p-8 text-center editorial-transition ${
                   dragging
-                    ? "border-[#134E4A] bg-[#134E4A]/5"
-                    : "border-[#E5E2DC] bg-[#FAF9F6] hover:border-[#134E4A]/40"
+                    ? "border-[#121719] bg-[#121719]/5"
+                    : "border-[#E0E2E4] bg-[#F3F3F3] hover:border-[#121719]/40"
                 }`}
               >
                 <input
@@ -280,24 +280,24 @@ export default function DocumentAnalyzerPage() {
                   className="hidden"
                 />
                 <label htmlFor="doc-upload" className="cursor-pointer space-y-2 block">
-                  <div className="mx-auto w-10 h-10 rounded-full bg-white border border-[#E5E2DC] flex items-center justify-center text-[#134E4A]">
+                  <div className="mx-auto w-10 h-10 rounded-full bg-white border border-[#E0E2E4] flex items-center justify-center text-[#121719]">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                     </svg>
                   </div>
                   {file ? (
                     <div className="space-y-0.5">
-                      <p className="text-sm font-semibold text-[#134E4A]">{file.name}</p>
-                      <p className="text-xs text-[#71717A]">
+                      <p className="text-sm font-semibold text-[#121719]">{file.name}</p>
+                      <p className="text-xs text-[#5b6472]">
                         {(file.size / 1024).toFixed(1)} KB · Click to change file
                       </p>
                     </div>
                   ) : (
                     <div className="space-y-0.5">
-                      <p className="text-sm font-medium text-[#18181B]">
+                      <p className="text-sm font-medium text-[#121719]">
                         Click to select or drag and drop your contract
                       </p>
-                      <p className="text-xs text-[#71717A]">
+                      <p className="text-xs text-[#5b6472]">
                         Supports text-based PDF, DOCX, and TXT files (up to 4 MB)
                       </p>
                     </div>
@@ -311,9 +311,9 @@ export default function DocumentAnalyzerPage() {
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                   placeholder="Paste the full agreement or disputed contract clauses here (minimum 200 characters)..."
-                  className="w-full px-4 py-3 rounded-xl border border-[#E5E2DC] bg-[#FAF9F6] text-sm text-[#18181B] placeholder:text-[#71717A] focus:outline-none focus:border-[#134E4A] focus:bg-white editorial-transition"
+                  className="w-full px-4 py-3 rounded border border-[#E0E2E4] bg-[#F3F3F3] text-sm text-[#121719] placeholder:text-[#5b6472] focus:outline-none focus:border-[#121719] focus:bg-white editorial-transition"
                 />
-                <div className="text-right text-[11px] font-mono text-[#71717A]">
+                <div className="text-right text-[11px] font-mono text-[#5b6472]">
                   {text.length} / 150,000 characters
                 </div>
               </div>
@@ -322,8 +322,8 @@ export default function DocumentAnalyzerPage() {
 
           {/* 3. Extra Context Prompt Box */}
           <div className="space-y-2">
-            <label htmlFor="extraContext" className="block text-xs font-medium text-[#18181B]">
-              3. Extra Case Context &amp; Instructions <span className="text-[#71717A] font-normal">(Optional)</span>
+            <label htmlFor="extraContext" className="block text-xs font-medium text-[#121719]">
+              3. Extra Case Context &amp; Instructions <span className="text-[#5b6472] font-normal">(Optional)</span>
             </label>
             <textarea
               id="extraContext"
@@ -331,14 +331,14 @@ export default function DocumentAnalyzerPage() {
               value={extraContext}
               onChange={(e) => setExtraContext(e.target.value)}
               placeholder="Describe your position (e.g., 'We are the distributor negotiating termination penalties and non-compete limits') or highlight specific clauses of concern..."
-              className="w-full px-4 py-3 rounded-xl border border-[#E5E2DC] bg-[#FAF9F6] text-sm text-[#18181B] placeholder:text-[#71717A] focus:outline-none focus:border-[#134E4A] focus:bg-white editorial-transition"
+              className="w-full px-4 py-3 rounded border border-[#E0E2E4] bg-[#F3F3F3] text-sm text-[#121719] placeholder:text-[#5b6472] focus:outline-none focus:border-[#121719] focus:bg-white editorial-transition"
             />
           </div>
 
           <div className="pt-2 flex items-center justify-end">
             <button
               type="submit"
-              className="px-6 py-3 rounded-xl bg-[#134E4A] hover:bg-[#0F3F3C] text-[#FAF9F6] text-sm font-medium editorial-transition shadow-sm"
+              className="px-6 py-3 rounded bg-[#121719] hover:bg-[#222729] text-[#F3F3F3] text-sm font-medium editorial-transition shadow-sm"
             >
               Begin Legal Analysis
             </button>

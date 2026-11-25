@@ -60,7 +60,7 @@ function getLetterheadConfig(governingLaw: string, userRegion: string) {
       chamberTitle: "JURIS AI — EUROPEAN REGULATORY & CIVIL LAW PRACTICE",
       subtitle: "EUROPEAN UNION STATUTORY & COMPLIANCE COUNSEL",
       authorityNote: "Prepared under Regulation (EU) 2016/679 (GDPR), TFEU & European Union Civil Frameworks",
-      accentColor: "#134E4A",
+      accentColor: "#121719",
       sealText: "EU · REGULATORY & CIVIL",
     };
   }
@@ -68,7 +68,7 @@ function getLetterheadConfig(governingLaw: string, userRegion: string) {
     chamberTitle: "JURIS AI — CHAMBERS OF STATUTORY & COMMERCIAL COUNSEL",
     subtitle: "DHAKA · PEOPLE'S REPUBLIC OF BANGLADESH",
     authorityNote: "Prepared under the Laws of Bangladesh (Contract Act 1872, Penal Code 1860, Arbitration Act 2001 & Statutory Codes)",
-    accentColor: "#134E4A",
+    accentColor: "#121719",
     sealText: "BD · STATUTORY COUNSEL",
   };
 }
@@ -142,7 +142,7 @@ export default function AnalysisReportPage() {
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="text-xs font-mono uppercase tracking-wider text-[#71717A]">
+        <div className="text-xs font-mono uppercase tracking-wider text-[#5b6472]">
           Preparing Legal Memorandum...
         </div>
       </div>
@@ -151,13 +151,13 @@ export default function AnalysisReportPage() {
 
   if (error || !analysis) {
     return (
-      <div className="max-w-2xl mx-auto vellum-card rounded-2xl p-8 text-center space-y-4">
-        <h1 className="font-serif text-2xl text-[#18181B]">Report Unavailable</h1>
-        <p className="text-sm text-[#52525B]">{error}</p>
+      <div className="max-w-2xl mx-auto vellum-card rounded p-8 text-center space-y-4">
+        <h1 className="font-serif text-2xl text-[#121719]">Report Unavailable</h1>
+        <p className="text-sm text-[#5b6472]">{error}</p>
         <button
           type="button"
           onClick={() => router.push("/analyze")}
-          className="px-4 py-2 rounded-lg bg-[#134E4A] text-[#FAF9F6] text-xs font-medium"
+          className="px-4 py-2 rounded-lg bg-[#121719] text-[#F3F3F3] text-xs font-medium"
         >
           Return to Document Analyzer
         </button>
@@ -182,13 +182,13 @@ export default function AnalysisReportPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-12">
       {/* Top Action Bar (Hidden in Print / PDF) */}
-      <div className="no-print glass-vellum rounded-xl p-4 flex flex-wrap items-center justify-between gap-4">
+      <div className="no-print glass-vellum rounded p-4 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <span className="text-xs font-mono uppercase tracking-wider px-2.5 py-1 rounded bg-white border border-[#E5E2DC] text-[#18181B] font-semibold">
+          <span className="text-xs font-mono uppercase tracking-wider px-2.5 py-1 rounded bg-white border border-[#E0E2E4] text-[#121719] font-semibold">
             {analysis.referenceCode}
           </span>
-          <span className="text-xs text-[#52525B]">
-            Governing Law: <strong className="text-[#18181B]">{primaryLaw}</strong>
+          <span className="text-xs text-[#5b6472]">
+            Governing Law: <strong className="text-[#121719]">{primaryLaw}</strong>
           </span>
         </div>
 
@@ -196,7 +196,7 @@ export default function AnalysisReportPage() {
           <button
             type="button"
             onClick={handlePrintLetterheadPdf}
-            className="px-4 py-2 rounded-lg border border-[#E5E2DC] bg-white hover:bg-[#FAF9F6] text-xs font-medium text-[#18181B] editorial-transition flex items-center gap-1.5"
+            className="px-4 py-2 rounded-lg border border-[#E0E2E4] bg-white hover:bg-[#F3F3F3] text-xs font-medium text-[#121719] editorial-transition flex items-center gap-1.5"
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -207,7 +207,7 @@ export default function AnalysisReportPage() {
           <button
             type="button"
             onClick={handleExpandInCopilot}
-            className="px-5 py-2 rounded-lg bg-[#134E4A] hover:bg-[#0F3F3C] text-[#FAF9F6] text-xs font-medium editorial-transition flex items-center gap-1.5 shadow-sm"
+            className="px-5 py-2 rounded-lg bg-[#121719] hover:bg-[#222729] text-[#F3F3F3] text-xs font-medium editorial-transition flex items-center gap-1.5 shadow-sm"
           >
             <span>Expand</span>
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -218,7 +218,7 @@ export default function AnalysisReportPage() {
       </div>
 
       {/* Formal Institutional Letterhead Document Container */}
-      <article className="print-container vellum-card rounded-2xl bg-white p-8 sm:p-12 space-y-8">
+      <article className="print-container vellum-card rounded bg-white p-8 sm:p-12 space-y-8">
         {/* Institutional Letterhead Header (Visible on Screen & Print) */}
         <header
           className="border-b-2 pb-6 space-y-3"
@@ -234,10 +234,10 @@ export default function AnalysisReportPage() {
                   J
                 </span>
                 <div>
-                  <h2 className="font-serif text-lg sm:text-xl font-bold tracking-tight text-[#18181B]">
+                  <h2 className="font-serif text-lg sm:text-xl font-bold tracking-tight text-[#121719]">
                     {letterhead.chamberTitle}
                   </h2>
-                  <p className="text-[11px] font-mono uppercase tracking-widest text-[#B45309]">
+                  <p className="text-[11px] font-mono uppercase tracking-widest text-[#ff4716]">
                     {letterhead.subtitle}
                   </p>
                 </div>
@@ -246,40 +246,40 @@ export default function AnalysisReportPage() {
 
             <div className="sm:text-right space-y-1">
               <span
-                className="inline-block text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded border text-[#18181B]"
+                className="inline-block text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded border text-[#121719]"
                 style={{ borderColor: letterhead.accentColor }}
               >
                 {letterhead.sealText}
               </span>
-              <p className="text-[11px] font-mono text-[#71717A]">
+              <p className="text-[11px] font-mono text-[#5b6472]">
                 REF: {analysis.referenceCode}
               </p>
-              <p className="text-[11px] font-mono text-[#71717A]">
+              <p className="text-[11px] font-mono text-[#5b6472]">
                 DATE: {new Date(analysis.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" })}
               </p>
             </div>
           </div>
 
-          <p className="text-[11px] text-[#52525B] pt-1">
+          <p className="text-[11px] text-[#5b6472] pt-1">
             {letterhead.authorityNote}
           </p>
         </header>
 
         {/* Client & Matter Metadata Block */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-[#FAF9F6] border border-[#E5E2DC] text-xs">
+        <section className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded bg-[#F3F3F3] border border-[#E0E2E4] text-xs">
           <div className="space-y-1">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-[#71717A]">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#5b6472]">
               Prepared For
             </span>
-            <p className="font-semibold text-[#18181B]">{user?.fullName || "Client"}</p>
-            {user?.organisation && <p className="text-[#52525B]">{user.organisation}</p>}
+            <p className="font-semibold text-[#121719]">{user?.fullName || "Client"}</p>
+            {user?.organisation && <p className="text-[#5b6472]">{user.organisation}</p>}
           </div>
           <div className="space-y-1">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-[#71717A]">
+            <span className="text-[10px] font-mono uppercase tracking-wider text-[#5b6472]">
               Subject Instrument
             </span>
-            <p className="font-semibold text-[#18181B] break-words">{analysis.docName}</p>
-            <p className="text-[#52525B]">
+            <p className="font-semibold text-[#121719] break-words">{analysis.docName}</p>
+            <p className="text-[#5b6472]">
               Governing Jurisdiction: {analysis.jurisdictions.join(", ")} · User Region: {user?.region || "BD"}
             </p>
           </div>
@@ -287,21 +287,21 @@ export default function AnalysisReportPage() {
 
         {/* Executive Legal Summary */}
         <section className="space-y-2.5">
-          <h1 className="font-serif text-2xl font-medium text-[#18181B]">
+          <h1 className="font-serif text-2xl font-medium text-[#121719]">
             Executive Legal Opinion
           </h1>
-          <p className="text-sm text-[#18181B] leading-relaxed">
+          <p className="text-sm text-[#121719] leading-relaxed">
             {execSummary}
           </p>
         </section>
 
         {/* Statutory Risk Findings */}
         <section className="space-y-4">
-          <div className="border-b border-[#E5E2DC] pb-2 flex items-center justify-between">
-            <h2 className="font-serif text-xl font-medium text-[#18181B]">
+          <div className="border-b border-[#E0E2E4] pb-2 flex items-center justify-between">
+            <h2 className="font-serif text-xl font-medium text-[#121719]">
               Statutory Risk &amp; Enforceability Findings
             </h2>
-            <span className="text-xs font-mono text-[#71717A]">
+            <span className="text-xs font-mono text-[#5b6472]">
               {risks.length} Issues Identified
             </span>
           </div>
@@ -320,14 +320,14 @@ export default function AnalysisReportPage() {
               return (
                 <div
                   key={idx}
-                  className="p-5 rounded-xl border border-[#E5E2DC] bg-[#FAF9F6]/50 space-y-3 break-inside-avoid"
+                  className="p-5 rounded border border-[#E0E2E4] bg-[#F3F3F3]/50 space-y-3 break-inside-avoid"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="space-y-0.5">
-                      <span className="text-[11px] font-mono uppercase tracking-wider text-[#B45309]">
+                      <span className="text-[11px] font-mono uppercase tracking-wider text-[#ff4716]">
                         Finding 0{idx + 1} {risk.clause_reference ? `· ${risk.clause_reference}` : ""}
                       </span>
-                      <h3 className="font-serif text-lg font-medium text-[#18181B]">
+                      <h3 className="font-serif text-lg font-medium text-[#121719]">
                         {risk.issue || risk.title || `Contractual Risk Vector ${idx + 1}`}
                       </h3>
                     </div>
@@ -337,7 +337,7 @@ export default function AnalysisReportPage() {
                   </div>
 
                   {risk.why_non_obvious && (
-                    <p className="text-sm text-[#52525B] leading-relaxed">
+                    <p className="text-sm text-[#5b6472] leading-relaxed">
                       {risk.why_non_obvious}
                     </p>
                   )}
@@ -347,7 +347,7 @@ export default function AnalysisReportPage() {
                       {risk.citations.map((cit, cIdx) => (
                         <span
                           key={cIdx}
-                          className="text-[11px] font-mono px-2.5 py-1 rounded bg-white border border-[#E5E2DC] text-[#134E4A]"
+                          className="text-[11px] font-mono px-2.5 py-1 rounded bg-white border border-[#E0E2E4] text-[#121719]"
                         >
                           {cit.source || cit.citation || "Statutory Authority"}
                         </span>
@@ -356,7 +356,7 @@ export default function AnalysisReportPage() {
                   )}
 
                   {mitigationText && (
-                    <div className="mt-2 p-3.5 rounded-lg bg-white border border-[#E5E2DC] space-y-2">
+                    <div className="mt-2 p-3.5 rounded-lg bg-white border border-[#E0E2E4] space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] font-mono uppercase tracking-wider text-[#166534] font-semibold">
                           Recommended Replacement Clause
@@ -364,12 +364,12 @@ export default function AnalysisReportPage() {
                         <button
                           type="button"
                           onClick={() => copyClause(mitigationText, idx)}
-                          className="no-print text-[11px] font-medium text-[#134E4A] hover:underline"
+                          className="no-print text-[11px] font-medium text-[#121719] hover:underline"
                         >
                           {copiedIdx === idx ? "Copied" : "Copy Clause"}
                         </button>
                       </div>
-                      <p className="text-xs text-[#18181B] font-mono leading-relaxed">
+                      <p className="text-xs text-[#121719] font-mono leading-relaxed">
                         {mitigationText}
                       </p>
                     </div>
@@ -382,20 +382,20 @@ export default function AnalysisReportPage() {
 
         {/* Full Memorandum */}
         {cleanMemo && (
-          <section className="space-y-3 pt-2 border-t border-[#E5E2DC]">
-            <h2 className="font-serif text-xl font-medium text-[#18181B]">
+          <section className="space-y-3 pt-2 border-t border-[#E0E2E4]">
+            <h2 className="font-serif text-xl font-medium text-[#121719]">
               Detailed Legal Memorandum
             </h2>
-            <div className="text-sm text-[#18181B] leading-relaxed whitespace-pre-wrap">
+            <div className="text-sm text-[#121719] leading-relaxed whitespace-pre-wrap">
               {cleanMemo}
             </div>
           </section>
         )}
 
         {/* Institutional Attestation Footer */}
-        <footer className="pt-8 mt-8 border-t border-[#E5E2DC] flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 text-xs text-[#52525B]">
+        <footer className="pt-8 mt-8 border-t border-[#E0E2E4] flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 text-xs text-[#5b6472]">
           <div className="space-y-1">
-            <p className="font-serif font-semibold text-[#18181B]">
+            <p className="font-serif font-normal text-[#121719]">
               Issued by Juris AI Statutory Advisory Chambers
             </p>
             <p>
@@ -403,8 +403,8 @@ export default function AnalysisReportPage() {
             </p>
           </div>
           <div className="sm:text-right">
-            <div className="w-48 border-b border-[#18181B]/40 mb-1.5" />
-            <p className="text-[11px] font-mono uppercase tracking-wider text-[#71717A]">
+            <div className="w-48 border-b border-[#121719]/40 mb-1.5" />
+            <p className="text-[11px] font-mono uppercase tracking-wider text-[#5b6472]">
               Authenticated Legal Memorandum
             </p>
           </div>
@@ -413,20 +413,20 @@ export default function AnalysisReportPage() {
 
       {/* AI-Suggested Counsel Panel (Screen Only) */}
       {suggestedFirms.length > 0 && (
-        <section className="no-print vellum-card rounded-2xl p-6 sm:p-8 space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E5E2DC] pb-4">
+        <section className="no-print vellum-card rounded p-6 sm:p-8 space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E0E2E4] pb-4">
             <div>
-              <span className="text-[10px] font-mono uppercase tracking-widest text-[#B45309]">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#ff4716]">
                 AI Counsel Matching
               </span>
-              <h2 className="font-serif text-xl font-medium text-[#18181B]">
+              <h2 className="font-serif text-xl font-medium text-[#121719]">
                 Recommended Lawyers &amp; Firms for This Matter
               </h2>
             </div>
             <button
               type="button"
               onClick={() => router.push("/lawyers")}
-              className="text-xs font-medium text-[#134E4A] hover:underline"
+              className="text-xs font-medium text-[#121719] hover:underline"
             >
               View Full Directory &rarr;
             </button>
@@ -434,20 +434,20 @@ export default function AnalysisReportPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {suggestedFirms.map((f) => (
-              <div key={f.id} className="p-4 rounded-xl border border-[#E5E2DC] bg-[#FAF9F6] space-y-2">
+              <div key={f.id} className="p-4 rounded border border-[#E0E2E4] bg-[#F3F3F3] space-y-2">
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <h3 className="font-serif text-base font-medium text-[#18181B]">{f.name}</h3>
-                    <p className="text-xs text-[#134E4A]">{f.leadCounsel}</p>
+                    <h3 className="font-serif text-base font-medium text-[#121719]">{f.name}</h3>
+                    <p className="text-xs text-[#121719]">{f.leadCounsel}</p>
                   </div>
-                  <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-white border border-[#E5E2DC] text-[#134E4A]">
+                  <span className="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-white border border-[#E0E2E4] text-[#121719]">
                     {f.aiRating}/100
                   </span>
                 </div>
-                <p className="text-[11px] text-[#52525B]">
+                <p className="text-[11px] text-[#5b6472]">
                   {f.experienceYears} yrs experience · {(f.specialties || []).join(" · ")}
                 </p>
-                <p className="text-[11px] text-[#71717A]">
+                <p className="text-[11px] text-[#5b6472]">
                   {f.contact?.phone} · {f.contact?.email}
                 </p>
               </div>

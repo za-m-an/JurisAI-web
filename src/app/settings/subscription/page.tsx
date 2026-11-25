@@ -82,7 +82,7 @@ export default function SubscriptionSettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center text-xs font-mono text-[#71717A]">
+      <div className="min-h-[60vh] flex items-center justify-center text-xs font-mono text-[#5b6472]">
         Loading Subscription...
       </div>
     );
@@ -90,11 +90,11 @@ export default function SubscriptionSettingsPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-10">
-      <div className="border-b border-[#E5E2DC] pb-4">
-        <Link href="/settings" className="text-xs text-[#134E4A] hover:underline">
+      <div className="border-b border-[#E0E2E4] pb-4">
+        <Link href="/settings" className="text-xs text-[#121719] hover:underline">
           &larr; Back to Settings
         </Link>
-        <h1 className="text-3xl font-serif font-medium text-[#18181B] mt-1">
+        <h1 className="text-3xl font-serif font-light text-[#121719] mt-1">
           Subscription &amp; Tier Management
         </h1>
       </div>
@@ -111,25 +111,25 @@ export default function SubscriptionSettingsPage() {
           return (
             <div
               key={t.id}
-              className={`vellum-card rounded-2xl p-6 flex flex-col justify-between ${
-                active ? "border-[#134E4A] ring-1 ring-[#134E4A]" : ""
+              className={`vellum-card rounded p-6 flex flex-col justify-between ${
+                active ? "border-[#121719] ring-1 ring-[#121719]" : ""
               }`}
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h2 className="font-serif text-xl font-medium text-[#18181B]">{t.name}</h2>
+                  <h2 className="font-serif text-xl font-medium text-[#121719]">{t.name}</h2>
                   {active && (
-                    <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#134E4A]/10 text-[#134E4A] font-semibold">
+                    <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#121719]/10 text-[#121719] font-semibold">
                       Active
                     </span>
                   )}
                 </div>
-                <div className="text-2xl font-serif font-semibold text-[#18181B]">{t.price}</div>
-                <p className="text-xs text-[#B45309] font-medium">{t.allowance}</p>
-                <ul className="space-y-2 pt-2 border-t border-[#E5E2DC] text-xs text-[#52525B]">
+                <div className="text-2xl font-serif font-normal text-[#121719]">{t.price}</div>
+                <p className="text-xs text-[#ff4716] font-medium">{t.allowance}</p>
+                <ul className="space-y-2 pt-2 border-t border-[#E0E2E4] text-xs text-[#5b6472]">
                   {t.features.map((f) => (
                     <li key={f} className="flex items-start gap-2">
-                      <span className="text-[#134E4A]">✓</span>
+                      <span className="text-[#121719]">✓</span>
                       <span>{f}</span>
                     </li>
                   ))}
@@ -142,8 +142,8 @@ export default function SubscriptionSettingsPage() {
                 onClick={() => handleSelectTier(t.id)}
                 className={`mt-6 w-full py-2.5 rounded-lg text-xs font-medium editorial-transition ${
                   active
-                    ? "bg-[#FAF9F6] border border-[#E5E2DC] text-[#71717A] cursor-default"
-                    : "bg-[#134E4A] hover:bg-[#0F3F3C] text-[#FAF9F6]"
+                    ? "bg-[#F3F3F3] border border-[#E0E2E4] text-[#5b6472] cursor-default"
+                    : "bg-[#121719] hover:bg-[#222729] text-[#F3F3F3]"
                 }`}
               >
                 {active ? "Current Plan" : `Switch to ${t.name}`}

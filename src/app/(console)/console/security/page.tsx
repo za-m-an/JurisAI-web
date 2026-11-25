@@ -36,11 +36,11 @@ export default function ConsoleSecurityPage() {
 
   return (
     <div className="max-w-2xl space-y-6 pb-10">
-      <div className="border-b border-[#E5E2DC] pb-5">
-        <span className="text-[11px] font-mono uppercase tracking-widest text-[#B45309]">
+      <div className="border-b border-[#E0E2E4] pb-5">
+        <span className="text-[11px] font-mono uppercase tracking-widest text-[#ff4716]">
           Account Protection
         </span>
-        <h1 className="text-3xl font-serif font-medium text-[#18181B]">
+        <h1 className="text-3xl font-serif font-light text-[#121719]">
           Administrator Security
         </h1>
       </div>
@@ -56,12 +56,12 @@ export default function ConsoleSecurityPage() {
         </div>
       )}
 
-      <div className="vellum-card rounded-2xl p-6 flex items-center justify-between">
+      <div className="vellum-card rounded p-6 flex items-center justify-between">
         <div>
-          <h2 className="font-serif text-lg font-medium text-[#18181B]">
+          <h2 className="font-serif text-lg font-medium text-[#121719]">
             Two-Factor Authentication
           </h2>
-          <p className="text-xs text-[#52525B]">
+          <p className="text-xs text-[#5b6472]">
             {info?.totpEnabled ? "Active and protecting this console account." : "Not enrolled yet."}
           </p>
         </div>
@@ -70,15 +70,15 @@ export default function ConsoleSecurityPage() {
         </span>
       </div>
 
-      <form onSubmit={handlePasswordUpdate} className="vellum-card rounded-2xl p-6 space-y-4">
-        <h2 className="font-serif text-lg font-medium text-[#18181B]">Change Password</h2>
+      <form onSubmit={handlePasswordUpdate} className="vellum-card rounded p-6 space-y-4">
+        <h2 className="font-serif text-lg font-medium text-[#121719]">Change Password</h2>
         <input
           type="password"
           required
           placeholder="Current Password"
           value={currentPassword}
           onChange={(e) => setCurrentPassword(e.target.value)}
-          className="w-full px-3.5 py-2.5 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-sm"
+          className="w-full px-3.5 py-2.5 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-sm"
         />
         <input
           type="password"
@@ -86,11 +86,11 @@ export default function ConsoleSecurityPage() {
           placeholder="New Password (min 10 chars, letter & digit)"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
-          className="w-full px-3.5 py-2.5 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-sm"
+          className="w-full px-3.5 py-2.5 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-sm"
         />
         <button
           type="submit"
-          className="px-5 py-2.5 rounded-lg bg-[#134E4A] hover:bg-[#0F3F3C] text-[#FAF9F6] text-xs font-medium"
+          className="px-5 py-2.5 rounded-lg bg-[#121719] hover:bg-[#222729] text-[#F3F3F3] text-xs font-medium"
         >
           Update Password
         </button>

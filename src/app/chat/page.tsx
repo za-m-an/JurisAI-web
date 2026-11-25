@@ -243,7 +243,7 @@ function CopilotContent() {
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="text-xs font-mono uppercase tracking-wider text-[#71717A]">
+        <div className="text-xs font-mono uppercase tracking-wider text-[#5b6472]">
           Preparing Legal Copilot...
         </div>
       </div>
@@ -253,16 +253,16 @@ function CopilotContent() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-11rem)] min-h-[540px]">
       {/* Sidebar: Past Consultations */}
-      <aside className="lg:col-span-3 vellum-card rounded-2xl p-4 flex flex-col justify-between overflow-hidden">
+      <aside className="lg:col-span-3 vellum-card rounded p-4 flex flex-col justify-between overflow-hidden">
         <div className="space-y-4 overflow-hidden flex flex-col">
-          <div className="flex items-center justify-between pb-3 border-b border-[#E5E2DC]">
-            <h2 className="font-serif text-lg font-medium text-[#18181B]">
+          <div className="flex items-center justify-between pb-3 border-b border-[#E0E2E4]">
+            <h2 className="font-serif text-lg font-medium text-[#121719]">
               Consultations
             </h2>
             <button
               type="button"
               onClick={handleNewConsultation}
-              className="px-2.5 py-1 rounded-md bg-[#134E4A] text-[#FAF9F6] text-[11px] font-medium hover:bg-[#0F3F3C] editorial-transition"
+              className="px-2.5 py-1 rounded-md bg-[#121719] text-[#F3F3F3] text-[11px] font-medium hover:bg-[#222729] editorial-transition"
             >
               + New
             </button>
@@ -270,7 +270,7 @@ function CopilotContent() {
 
           <div className="flex-1 overflow-y-auto space-y-1.5 pr-1">
             {conversations.length === 0 ? (
-              <p className="text-xs text-[#71717A] py-4 text-center">
+              <p className="text-xs text-[#5b6472] py-4 text-center">
                 No prior consultations yet.
               </p>
             ) : (
@@ -281,12 +281,12 @@ function CopilotContent() {
                   onClick={() => handleSelectConversation(c.id)}
                   className={`w-full text-left px-3 py-2.5 rounded-lg text-xs editorial-transition border ${
                     activeConvId === c.id
-                      ? "bg-[#134E4A]/10 border-[#134E4A]/30 text-[#134E4A] font-semibold"
-                      : "bg-transparent border-transparent text-[#52525B] hover:bg-[#FAF9F6] hover:text-[#18181B]"
+                      ? "bg-[#121719]/10 border-[#121719]/30 text-[#121719] font-semibold"
+                      : "bg-transparent border-transparent text-[#5b6472] hover:bg-[#F3F3F3] hover:text-[#121719]"
                   }`}
                 >
                   <div className="truncate">{c.title}</div>
-                  <div className="text-[10px] text-[#71717A] mt-0.5">
+                  <div className="text-[10px] text-[#5b6472] mt-0.5">
                     {new Date(c.updatedAt).toLocaleDateString()}
                   </div>
                 </button>
@@ -295,14 +295,14 @@ function CopilotContent() {
           </div>
         </div>
 
-        <div className="pt-3 border-t border-[#E5E2DC] space-y-1.5">
-          <label className="block text-[10px] font-mono uppercase tracking-wider text-[#71717A]">
+        <div className="pt-3 border-t border-[#E0E2E4] space-y-1.5">
+          <label className="block text-[10px] font-mono uppercase tracking-wider text-[#5b6472]">
             Governing Law Scope
           </label>
           <select
             value={jurisdiction}
             onChange={(e) => setJurisdiction(e.target.value as "BD" | "US" | "EU")}
-            className="w-full px-3 py-2 rounded-lg border border-[#E5E2DC] bg-[#FAF9F6] text-xs font-medium text-[#18181B]"
+            className="w-full px-3 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs font-medium text-[#121719]"
           >
             <option value="BD">Bangladesh (BD)</option>
             <option value="US">United States (US)</option>
@@ -312,20 +312,20 @@ function CopilotContent() {
       </aside>
 
       {/* Main Copilot Chat Area — Strictly Chat Only, Zero File Uploads */}
-      <section className="lg:col-span-9 vellum-card rounded-2xl flex flex-col overflow-hidden">
+      <section className="lg:col-span-9 vellum-card rounded flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#E5E2DC] bg-[#FAF9F6]/60 flex flex-wrap items-center justify-between gap-3">
+        <div className="px-6 py-4 border-b border-[#E0E2E4] bg-[#F3F3F3]/60 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <span className="text-[10px] font-mono uppercase tracking-widest text-[#B45309]">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#ff4716]">
               Legal Advisory Assistant
             </span>
-            <h1 className="font-serif text-xl font-medium text-[#18181B]">
+            <h1 className="font-serif text-xl font-medium text-[#121719]">
               Juris AI Copilot
             </h1>
           </div>
 
           {linkedAnalysis && (
-            <div className="px-3 py-1.5 rounded-lg bg-[#134E4A]/10 border border-[#134E4A]/20 text-xs text-[#134E4A] flex items-center gap-2">
+            <div className="px-3 py-1.5 rounded-lg bg-[#121719]/10 border border-[#121719]/20 text-xs text-[#121719] flex items-center gap-2">
               <span className="font-mono text-[10px] font-semibold">
                 {linkedAnalysis.referenceCode}
               </span>
@@ -340,13 +340,13 @@ function CopilotContent() {
         <div className="flex-1 overflow-y-auto p-6 space-y-5">
           {messages.length === 0 && (
             <div className="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-[#134E4A]/10 text-[#134E4A] flex items-center justify-center font-serif font-bold text-lg">
+              <div className="w-10 h-10 rounded bg-[#121719]/10 text-[#121719] flex items-center justify-center font-serif font-bold text-lg">
                 J
               </div>
-              <h2 className="font-serif text-xl font-medium text-[#18181B]">
+              <h2 className="font-serif text-xl font-medium text-[#121719]">
                 Ask for Legal Counsel
               </h2>
-              <p className="text-xs text-[#52525B] leading-relaxed">
+              <p className="text-xs text-[#5b6472] leading-relaxed">
                 Discuss statutory rights, dispute strategies, enforceability questions,
                 or expand an analyzed contract report to determine your best next decision.
               </p>
@@ -359,10 +359,10 @@ function CopilotContent() {
               className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[82%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed whitespace-pre-wrap ${
+                className={`max-w-[82%] rounded px-5 py-3.5 text-sm leading-relaxed whitespace-pre-wrap ${
                   m.role === "user"
-                    ? "bg-[#134E4A] text-[#FAF9F6]"
-                    : "bg-[#FAF9F6] border border-[#E5E2DC] text-[#18181B]"
+                    ? "bg-[#121719] text-[#F3F3F3]"
+                    : "bg-[#F3F3F3] border border-[#E0E2E4] text-[#121719]"
                 }`}
               >
                 {m.content}
@@ -372,7 +372,7 @@ function CopilotContent() {
 
           {sending && (
             <div className="flex justify-start">
-              <div className="rounded-2xl px-5 py-3.5 bg-[#FAF9F6] border border-[#E5E2DC] text-xs font-mono text-[#71717A]">
+              <div className="rounded px-5 py-3.5 bg-[#F3F3F3] border border-[#E0E2E4] text-xs font-mono text-[#5b6472]">
                 Formulating legal counsel...
               </div>
             </div>
@@ -383,7 +383,7 @@ function CopilotContent() {
         {/* Pure Text Input Bar (No File Upload) */}
         <form
           onSubmit={handleSend}
-          className="p-4 border-t border-[#E5E2DC] bg-white flex items-end gap-3"
+          className="p-4 border-t border-[#E0E2E4] bg-white flex items-end gap-3"
         >
           <textarea
             rows={2}
@@ -396,12 +396,12 @@ function CopilotContent() {
               }
             }}
             placeholder="Ask about statutory remedies, contract enforceability, or strategic next steps..."
-            className="flex-1 resize-none px-4 py-2.5 rounded-xl border border-[#E5E2DC] bg-[#FAF9F6] text-sm text-[#18181B] placeholder:text-[#71717A] focus:outline-none focus:border-[#134E4A] focus:bg-white editorial-transition"
+            className="flex-1 resize-none px-4 py-2.5 rounded border border-[#E0E2E4] bg-[#F3F3F3] text-sm text-[#121719] placeholder:text-[#5b6472] focus:outline-none focus:border-[#121719] focus:bg-white editorial-transition"
           />
           <button
             type="submit"
             disabled={!input.trim() || sending}
-            className="px-5 py-3 rounded-xl bg-[#134E4A] hover:bg-[#0F3F3C] disabled:opacity-50 text-[#FAF9F6] text-xs font-medium editorial-transition shrink-0"
+            className="px-5 py-3 rounded bg-[#121719] hover:bg-[#222729] disabled:opacity-50 text-[#F3F3F3] text-xs font-medium editorial-transition shrink-0"
           >
             Send
           </button>
@@ -416,7 +416,7 @@ export default function CopilotPage() {
     <Suspense
       fallback={
         <div className="min-h-[60vh] flex items-center justify-center">
-          <div className="text-xs font-mono uppercase tracking-wider text-[#71717A]">
+          <div className="text-xs font-mono uppercase tracking-wider text-[#5b6472]">
             Preparing Legal Copilot...
           </div>
         </div>

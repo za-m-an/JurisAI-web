@@ -63,7 +63,7 @@ export default function LawFirmsPage() {
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="text-xs font-mono uppercase tracking-wider text-[#71717A]">
+        <div className="text-xs font-mono uppercase tracking-wider text-[#5b6472]">
           Matching Regional Law Firms...
         </div>
       </div>
@@ -72,22 +72,22 @@ export default function LawFirmsPage() {
 
   return (
     <div className="space-y-8 pb-10">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#E5E2DC] pb-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#E0E2E4] pb-6">
         <div className="space-y-2">
-          <span className="text-[11px] font-mono uppercase tracking-widest text-[#B45309]">
+          <span className="text-[11px] font-mono uppercase tracking-widest text-[#ff4716]">
             Institutional Representation
           </span>
-          <h1 className="text-3xl sm:text-4xl font-serif font-medium text-[#18181B]">
+          <h1 className="text-3xl sm:text-4xl font-serif font-light text-[#121719]">
             Recommended Law Firms &amp; Barristers
           </h1>
-          <p className="text-sm text-[#52525B] max-w-2xl">
+          <p className="text-sm text-[#5b6472] max-w-2xl">
             Curated chambers rated automatically by experience, practice field, and
             suitability for your analyzed case.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs text-[#71717A]">Region:</span>
+          <span className="text-xs text-[#5b6472]">Region:</span>
           {(["BD", "US", "EU"] as const).map((r) => (
             <button
               key={r}
@@ -95,8 +95,8 @@ export default function LawFirmsPage() {
               onClick={() => setRegion(r)}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium editorial-transition border ${
                 region === r
-                  ? "bg-[#134E4A] text-[#FAF9F6] border-[#134E4A]"
-                  : "bg-white text-[#52525B] border-[#E5E2DC] hover:text-[#18181B]"
+                  ? "bg-[#121719] text-[#F3F3F3] border-[#121719]"
+                  : "bg-white text-[#5b6472] border-[#E0E2E4] hover:text-[#121719]"
               }`}
             >
               {r}
@@ -106,12 +106,12 @@ export default function LawFirmsPage() {
       </div>
 
       {matchedCaseTitle && (
-        <div className="p-4 rounded-xl bg-[#134E4A]/5 border border-[#134E4A]/20 flex flex-wrap items-center justify-between gap-2">
-          <p className="text-xs text-[#134E4A]">
+        <div className="p-4 rounded bg-[#121719]/5 border border-[#121719]/20 flex flex-wrap items-center justify-between gap-2">
+          <p className="text-xs text-[#121719]">
             <strong>AI Ranking Active:</strong> Rankings calibrated for{" "}
             <span className="font-semibold">{matchedCaseTitle}</span>.
           </p>
-          <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-white border border-[#134E4A]/20 text-[#134E4A]">
+          <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-white border border-[#121719]/20 text-[#121719]">
             Experience &amp; Field Matched
           </span>
         </div>
@@ -119,21 +119,21 @@ export default function LawFirmsPage() {
 
       <div className="grid grid-cols-1 gap-6">
         {firms.map((firm) => (
-          <article key={firm.id} className="vellum-card rounded-2xl p-6 sm:p-8 space-y-5">
-            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-[#E5E2DC] pb-5">
+          <article key={firm.id} className="vellum-card rounded p-6 sm:p-8 space-y-5">
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-[#E0E2E4] pb-5">
               <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center gap-2.5">
-                  <h2 className="font-serif text-2xl font-medium text-[#18181B]">{firm.name}</h2>
-                  <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-[#FAF9F6] border border-[#E5E2DC] text-[#52525B]">
+                  <h2 className="font-serif text-2xl font-medium text-[#121719]">{firm.name}</h2>
+                  <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-[#F3F3F3] border border-[#E0E2E4] text-[#5b6472]">
                     {firm.city} · {firm.experienceYears} yrs experience
                   </span>
                 </div>
-                <p className="text-sm font-medium text-[#134E4A]">{firm.leadCounsel}</p>
+                <p className="text-sm font-medium text-[#121719]">{firm.leadCounsel}</p>
                 <div className="flex flex-wrap gap-1.5 pt-1">
                   {firm.specialties.map((s) => (
                     <span
                       key={s}
-                      className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#FAF9F6] border border-[#E5E2DC] text-[#52525B]"
+                      className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#F3F3F3] border border-[#E0E2E4] text-[#5b6472]"
                     >
                       {s}
                     </span>
@@ -141,57 +141,57 @@ export default function LawFirmsPage() {
                 </div>
               </div>
 
-              <div className="shrink-0 p-3.5 rounded-xl bg-[#FAF9F6] border border-[#E5E2DC] text-center min-w-[120px]">
-                <div className="text-[10px] font-mono uppercase tracking-wider text-[#71717A]">
+              <div className="shrink-0 p-3.5 rounded bg-[#F3F3F3] border border-[#E0E2E4] text-center min-w-[120px]">
+                <div className="text-[10px] font-mono uppercase tracking-wider text-[#5b6472]">
                   AI Case Rating
                 </div>
-                <div className="text-2xl font-serif font-bold text-[#134E4A] mt-0.5">
+                <div className="text-2xl font-serif font-bold text-[#121719] mt-0.5">
                   {firm.aiRating}
-                  <span className="text-xs font-normal text-[#71717A]">/100</span>
+                  <span className="text-xs font-normal text-[#5b6472]">/100</span>
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-xs">
               <div className="space-y-2">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-[#B45309] font-semibold">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-[#ff4716] font-semibold">
                   Recent Firm News
                 </span>
-                <p className="text-[#52525B] leading-relaxed">
+                <p className="text-[#5b6472] leading-relaxed">
                   {firm.recentNews || "Active commercial & statutory representation."}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-[#B45309] font-semibold">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-[#ff4716] font-semibold">
                   Notable Precedents &amp; Cases
                 </span>
-                <ul className="space-y-2 text-[#52525B]">
+                <ul className="space-y-2 text-[#5b6472]">
                   {firm.notableCases.map((c, i) => (
                     <li key={i} className="flex items-start gap-2">
-                      <span className="text-[#134E4A] font-bold mt-0.5">·</span>
+                      <span className="text-[#121719] font-bold mt-0.5">·</span>
                       <span>{c}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div className="space-y-2 p-4 rounded-xl bg-[#FAF9F6] border border-[#E5E2DC]">
-                <span className="text-[10px] font-mono uppercase tracking-wider text-[#134E4A] font-semibold">
+              <div className="space-y-2 p-4 rounded bg-[#F3F3F3] border border-[#E0E2E4]">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-[#121719] font-semibold">
                   Chambers Contact Details
                 </span>
-                <div className="space-y-1.5 text-[#18181B] pt-1">
+                <div className="space-y-1.5 text-[#121719] pt-1">
                   <p>
-                    <strong className="text-[#71717A] font-normal">Tel:</strong> {firm.contact.phone}
+                    <strong className="text-[#5b6472] font-normal">Tel:</strong> {firm.contact.phone}
                   </p>
                   <p>
-                    <strong className="text-[#71717A] font-normal">Email:</strong>{" "}
-                    <a href={`mailto:${firm.contact.email}`} className="text-[#134E4A] hover:underline">
+                    <strong className="text-[#5b6472] font-normal">Email:</strong>{" "}
+                    <a href={`mailto:${firm.contact.email}`} className="text-[#121719] hover:underline">
                       {firm.contact.email}
                     </a>
                   </p>
                   <p>
-                    <strong className="text-[#71717A] font-normal">Address:</strong> {firm.contact.address}
+                    <strong className="text-[#5b6472] font-normal">Address:</strong> {firm.contact.address}
                   </p>
                 </div>
               </div>

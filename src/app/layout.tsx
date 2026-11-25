@@ -1,10 +1,11 @@
 import React from "react";
-import { Newsreader, Inter, JetBrains_Mono } from "next/font/google";
+import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import Navigation from "@/components/navigation";
 import "./globals.css";
 
-const newsreader = Newsreader({
+const fraunces = Fraunces({
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
   variable: "--font-serif",
   display: "swap",
   adjustFontFallback: false,
@@ -36,25 +37,26 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${newsreader.variable} ${inter.variable} ${jetbrainsMono.variable}`}
+      className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="min-h-screen flex flex-col bg-[#FAF9F6] text-[#18181B] font-sans antialiased selection:bg-[#134E4A]/15 selection:text-[#134E4A]">
+      <body className="min-h-screen flex flex-col bg-[#F3F3F3] text-[#121719] font-sans antialiased selection:bg-[#ff4716]/15 selection:text-[#121719]">
         <Navigation />
 
-        <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="flex-1 w-full max-w-[90rem] mx-auto px-[4vw] sm:px-[6vw] py-8">
           {children}
         </main>
 
-        <footer className="border-t border-[#E5E2DC] bg-[#FAF9F6] text-[#71717A] text-xs py-6 no-print">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2.5">
-              <span className="font-serif font-semibold text-[#18181B] text-sm tracking-tight">
+        <footer className="u-mode-dark border-t border-[#222729] text-[#acaeae] text-xs py-10 no-print">
+          <div className="max-w-[90rem] mx-auto px-[4vw] sm:px-[6vw] flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-3">
+              <span className="w-2 h-2 rounded-full bg-[#ff4716]" />
+              <span className="font-serif font-normal text-white text-base tracking-tight">
                 Juris AI
               </span>
-              <span className="text-[#E5E2DC]">|</span>
-              <span>Statutory Counsel &amp; Legal Advisory</span>
+              <span className="text-[#414547]">|</span>
+              <span className="text-[#acaeae]">Statutory Counsel &amp; Legal Advisory</span>
             </div>
-            <div className="font-mono text-[11px] uppercase tracking-wider text-[#71717A]">
+            <div className="font-mono text-[11px] uppercase tracking-wider text-[#acaeae]">
               Bangladesh · United States · European Union
             </div>
           </div>

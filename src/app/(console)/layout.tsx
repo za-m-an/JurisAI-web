@@ -35,18 +35,18 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
 
   if (isLoginPage) {
     return (
-      <div className="min-h-screen bg-[#FAF9F6] text-[#18181B] flex flex-col font-sans editorial-grid-bg">
+      <div className="min-h-screen bg-[#F3F3F3] text-[#121719] flex flex-col font-sans editorial-grid-bg">
         <header className="pt-3 px-4 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto glass-vellum rounded-xl px-5 h-14 flex items-center justify-between">
+          <div className="max-w-7xl mx-auto glass-vellum rounded px-5 h-14 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <span className="w-7 h-7 rounded-md bg-[#134E4A] text-[#FAF9F6] flex items-center justify-center font-serif font-bold text-sm">
+              <span className="w-7 h-7 rounded-md bg-[#121719] text-[#F3F3F3] flex items-center justify-center font-serif font-bold text-sm">
                 J
               </span>
-              <span className="font-serif font-semibold text-base text-[#18181B]">
+              <span className="font-serif font-normal text-base text-[#121719]">
                 Juris AI · Executive Console
               </span>
             </div>
-            <span className="text-[11px] font-mono uppercase tracking-wider text-[#B45309]">
+            <span className="text-[11px] font-mono uppercase tracking-wider text-[#ff4716]">
               Authorized Personnel Only
             </span>
           </div>
@@ -58,7 +58,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAF9F6] text-[#71717A] font-mono text-xs flex items-center justify-center">
+      <div className="min-h-screen bg-[#F3F3F3] text-[#5b6472] font-mono text-xs flex items-center justify-center">
         Verifying administrative session...
       </div>
     );
@@ -75,15 +75,15 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
   ];
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] text-[#18181B] font-sans flex flex-col">
+    <div className="min-h-screen bg-[#F3F3F3] text-[#121719] font-sans flex flex-col">
       <header className="sticky top-0 z-40 pt-3 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto glass-vellum rounded-xl px-5 h-14 flex flex-wrap items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto glass-vellum rounded px-5 h-14 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-6">
             <Link href="/console" className="flex items-center gap-2.5">
-              <span className="w-7 h-7 rounded-md bg-[#134E4A] text-[#FAF9F6] flex items-center justify-center font-serif font-bold text-sm">
+              <span className="w-7 h-7 rounded-md bg-[#121719] text-[#F3F3F3] flex items-center justify-center font-serif font-bold text-sm">
                 J
               </span>
-              <span className="font-serif font-semibold text-base text-[#18181B]">
+              <span className="font-serif font-normal text-base text-[#121719]">
                 Juris AI Console
               </span>
             </Link>
@@ -97,8 +97,8 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
                     href={item.href}
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium editorial-transition ${
                       active
-                        ? "bg-[#134E4A]/10 text-[#134E4A] font-semibold"
-                        : "text-[#52525B] hover:text-[#18181B] hover:bg-black/[0.03]"
+                        ? "bg-[#121719]/10 text-[#121719] font-semibold"
+                        : "text-[#5b6472] hover:text-[#121719] hover:bg-black/[0.03]"
                     }`}
                   >
                     {item.label}

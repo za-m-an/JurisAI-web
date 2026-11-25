@@ -99,23 +99,21 @@ export default function Navigation() {
     pathname === href || pathname.startsWith(`${href}/`) || (href === "/analyze" && pathname.startsWith("/analyses"));
 
   return (
-    <header className="sticky top-0 z-40 no-print pt-3 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto glass-vellum rounded-xl px-5 h-14 flex items-center justify-between editorial-transition">
-        {/* Brand Wordmark (links to /dashboard when signed in, / when signed out) */}
+    <header className="sticky top-0 z-40 no-print pt-3 px-[4vw] sm:px-[6vw]">
+      <div className="max-w-[90rem] mx-auto glass-vellum rounded px-5 h-14 flex items-center justify-between editorial-transition">
         <div className="flex items-center gap-8">
           <Link
             href={user && !isAdmin ? "/dashboard" : "/"}
             className="flex items-center gap-2.5 group"
           >
-            <span className="w-7 h-7 rounded-md bg-[#134E4A] text-[#FAF9F6] flex items-center justify-center font-serif font-bold text-sm tracking-tight group-hover:bg-[#0F3F3C] editorial-transition">
+            <span className="w-6 h-6 rounded-sm bg-[#121719] text-white flex items-center justify-center font-serif font-medium text-sm group-hover:bg-[#ff4716] editorial-transition">
               J
             </span>
-            <span className="text-lg font-serif font-semibold tracking-tight text-[#18181B]">
+            <span className="text-lg font-serif font-normal tracking-tight text-[#121719]">
               Juris AI
             </span>
           </Link>
 
-          {/* Authenticated Navigation — Plain, No Dashboard / Home label */}
           {user && !isAdmin && (
             <nav className="hidden md:flex items-center gap-1">
               {navItems.map((item) => {
@@ -124,10 +122,10 @@ export default function Navigation() {
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`px-3 py-1.5 rounded-lg text-[13px] font-medium editorial-transition ${
+                    className={`px-3 py-1.5 rounded text-[13px] font-medium editorial-transition ${
                       active
-                        ? "bg-[#134E4A]/10 text-[#134E4A] font-semibold"
-                        : "text-[#52525B] hover:text-[#18181B] hover:bg-black/[0.03]"
+                        ? "bg-[#121719] text-white"
+                        : "text-[#5b6472] hover:text-[#121719] hover:bg-black/[0.04]"
                     }`}
                   >
                     {item.label}
@@ -138,12 +136,11 @@ export default function Navigation() {
           )}
         </div>
 
-        {/* Right Controls */}
         <div className="flex items-center gap-3">
           {!loading && !user && (
             <Link
               href="/login"
-              className="px-4 py-1.5 rounded-lg bg-[#134E4A] hover:bg-[#0F3F3C] text-[#FAF9F6] text-[13px] font-medium tracking-tight editorial-transition shadow-sm"
+              className="px-5 py-2 rounded bg-[#121719] hover:bg-[#222729] text-white text-[13px] font-medium tracking-tight editorial-transition"
             >
               Get Started
             </Link>
@@ -154,68 +151,61 @@ export default function Navigation() {
               <button
                 type="button"
                 onClick={() => setMenuOpen((o) => !o)}
-                className="flex items-center gap-2.5 pl-1.5 pr-2.5 py-1 rounded-full border border-[#E5E2DC] bg-white/80 hover:bg-white editorial-transition"
+                className="flex items-center gap-2.5 pl-1.5 pr-2.5 py-1 rounded border border-[#E0E2E4] bg-white hover:border-[#121719]/30 editorial-transition"
                 aria-label="Account menu"
               >
                 {user.avatarUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={user.avatarUrl}
                     alt={user.fullName}
-                    className="w-6 h-6 rounded-full object-cover border border-[#E5E2DC]"
+                    className="w-6 h-6 rounded-sm object-cover"
                   />
                 ) : (
-                  <span className="w-6 h-6 rounded-full bg-[#134E4A] text-[#FAF9F6] text-[11px] font-mono font-semibold flex items-center justify-center">
+                  <span className="w-6 h-6 rounded-sm bg-[#121719] text-white text-[11px] font-mono font-semibold flex items-center justify-center">
                     {initials}
                   </span>
                 )}
-                <span className="hidden sm:inline text-xs font-medium text-[#18181B] max-w-[120px] truncate">
+                <span className="hidden sm:inline text-xs font-medium text-[#121719] max-w-[120px] truncate">
                   {user.fullName}
                 </span>
-                <svg
-                  className="w-3.5 h-3.5 text-[#71717A]"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M19 9l-7 7-7-7" />
-                </svg>
               </button>
 
               {menuOpen && (
-                <div className="absolute right-0 mt-2 w-56 glass-vellum rounded-xl py-1.5 z-50">
-                  <div className="px-3.5 py-2 border-b border-[#E5E2DC]">
-                    <p className="text-xs font-semibold text-[#18181B] truncate">{user.fullName}</p>
-                    <p className="text-[11px] text-[#71717A] truncate">{user.email}</p>
-                    <span className="inline-block mt-1 text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#134E4A]/10 text-[#134E4A]">
+                <div className="absolute right-0 mt-2 w-56 glass-vellum rounded py-1.5 z-50">
+                  <div className="px-3.5 py-2 border-b border-[#E0E2E4]">
+                    <p className="text-xs font-semibold text-[#121719] truncate">{user.fullName}</p>
+                    <p className="text-[11px] text-[#5b6472] truncate">{user.email}</p>
+                    <span className="inline-block mt-1 text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#121719]/5 text-[#121719]">
                       {user.region || "BD"} · {user.subscriptionTier || "Standard"}
                     </span>
                   </div>
                   <Link
                     href="/settings/profile"
                     onClick={() => setMenuOpen(false)}
-                    className="block px-3.5 py-2 text-xs text-[#52525B] hover:text-[#18181B] hover:bg-black/[0.03]"
+                    className="block px-3.5 py-2 text-xs text-[#5b6472] hover:text-[#121719] hover:bg-black/[0.03]"
                   >
                     Profile &amp; Avatar
                   </Link>
                   <Link
                     href="/settings/subscription"
                     onClick={() => setMenuOpen(false)}
-                    className="block px-3.5 py-2 text-xs text-[#52525B] hover:text-[#18181B] hover:bg-black/[0.03]"
+                    className="block px-3.5 py-2 text-xs text-[#5b6472] hover:text-[#121719] hover:bg-black/[0.03]"
                   >
                     Subscription
                   </Link>
                   <Link
                     href="/settings"
                     onClick={() => setMenuOpen(false)}
-                    className="block px-3.5 py-2 text-xs text-[#52525B] hover:text-[#18181B] hover:bg-black/[0.03]"
+                    className="block px-3.5 py-2 text-xs text-[#5b6472] hover:text-[#121719] hover:bg-black/[0.03]"
                   >
                     All Settings
                   </Link>
-                  <div className="border-t border-[#E5E2DC] mt-1 pt-1">
+                  <div className="border-t border-[#E0E2E4] mt-1 pt-1">
                     <button
                       type="button"
                       onClick={handleSignOut}
-                      className="w-full text-left px-3.5 py-2 text-xs text-[#991B1B] hover:bg-[#FEF2F2] font-medium"
+                      className="w-full text-left px-3.5 py-2 text-xs text-[#ff4716] hover:bg-[#ff4716]/5 font-medium"
                     >
                       Sign Out
                     </button>
@@ -225,12 +215,11 @@ export default function Navigation() {
             </div>
           )}
 
-          {/* Mobile Nav Toggle */}
           {user && !isAdmin && (
             <button
               type="button"
               onClick={() => setMobileOpen((o) => !o)}
-              className="md:hidden p-1.5 rounded-lg text-[#52525B] hover:text-[#18181B] hover:bg-black/[0.04]"
+              className="md:hidden p-1.5 rounded text-[#5b6472] hover:text-[#121719]"
               aria-label="Toggle navigation"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -241,18 +230,17 @@ export default function Navigation() {
         </div>
       </div>
 
-      {/* Mobile Dropdown */}
       {mobileOpen && user && !isAdmin && (
-        <div className="md:hidden max-w-7xl mx-auto mt-2 glass-vellum rounded-xl p-2 space-y-1">
+        <div className="md:hidden max-w-[90rem] mx-auto mt-2 glass-vellum rounded p-2 space-y-1">
           {navItems.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               onClick={() => setMobileOpen(false)}
-              className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+              className={`block px-3 py-2 rounded text-sm font-medium ${
                 isActive(item.href)
-                  ? "bg-[#134E4A]/10 text-[#134E4A] font-semibold"
-                  : "text-[#52525B] hover:text-[#18181B]"
+                  ? "bg-[#121719] text-white"
+                  : "text-[#5b6472] hover:text-[#121719]"
               }`}
             >
               {item.label}
