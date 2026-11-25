@@ -104,12 +104,15 @@ export default function Navigation() {
         <div className="flex items-center gap-8">
           <Link
             href={user && !isAdmin ? "/dashboard" : "/"}
-            className="flex items-center gap-2.5 group"
+            className="flex items-center gap-3 group"
           >
-            <span className="w-6 h-6 rounded-sm bg-[#121719] text-white flex items-center justify-center font-serif font-medium text-sm group-hover:bg-[#ff4716] editorial-transition">
-              J
-            </span>
-            <span className="text-lg font-serif font-normal tracking-tight text-[#121719]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo.jpg"
+              alt="Juris AI"
+              className="w-8 h-8 rounded-sm object-cover border border-[#D6A86E]/40 group-hover:border-[#D6A86E] editorial-transition"
+            />
+            <span className="text-lg font-serif font-normal tracking-tight text-[#F2EFE9]">
               Juris AI
             </span>
           </Link>
@@ -124,8 +127,8 @@ export default function Navigation() {
                     href={item.href}
                     className={`px-3 py-1.5 rounded text-[13px] font-medium editorial-transition ${
                       active
-                        ? "bg-[#121719] text-white"
-                        : "text-[#5b6472] hover:text-[#121719] hover:bg-black/[0.04]"
+                        ? "bg-[#D6A86E] text-[#12111D] font-semibold"
+                        : "text-[#B4B0C2] hover:text-[#F2EFE9] hover:bg-white/[0.05]"
                     }`}
                   >
                     {item.label}
@@ -140,7 +143,7 @@ export default function Navigation() {
           {!loading && !user && (
             <Link
               href="/login"
-              className="px-5 py-2 rounded bg-[#121719] hover:bg-[#222729] text-white text-[13px] font-medium tracking-tight editorial-transition"
+              className="px-5 py-2 rounded bg-[#D6A86E] hover:bg-[#C49356] text-[#12111D] text-[13px] font-semibold tracking-tight editorial-transition"
             >
               Get Started
             </Link>
@@ -151,7 +154,7 @@ export default function Navigation() {
               <button
                 type="button"
                 onClick={() => setMenuOpen((o) => !o)}
-                className="flex items-center gap-2.5 pl-1.5 pr-2.5 py-1 rounded border border-[#E0E2E4] bg-white hover:border-[#121719]/30 editorial-transition"
+                className="flex items-center gap-2.5 pl-1.5 pr-2.5 py-1 rounded border border-[#2E2B44] bg-[#1A1829] hover:border-[#D6A86E]/50 editorial-transition"
                 aria-label="Account menu"
               >
                 {user.avatarUrl ? (
@@ -162,50 +165,50 @@ export default function Navigation() {
                     className="w-6 h-6 rounded-sm object-cover"
                   />
                 ) : (
-                  <span className="w-6 h-6 rounded-sm bg-[#121719] text-white text-[11px] font-mono font-semibold flex items-center justify-center">
+                  <span className="w-6 h-6 rounded-sm bg-[#D6A86E] text-[#12111D] text-[11px] font-mono font-bold flex items-center justify-center">
                     {initials}
                   </span>
                 )}
-                <span className="hidden sm:inline text-xs font-medium text-[#121719] max-w-[120px] truncate">
+                <span className="hidden sm:inline text-xs font-medium text-[#F2EFE9] max-w-[120px] truncate">
                   {user.fullName}
                 </span>
               </button>
 
               {menuOpen && (
                 <div className="absolute right-0 mt-2 w-56 glass-vellum rounded py-1.5 z-50">
-                  <div className="px-3.5 py-2 border-b border-[#E0E2E4]">
-                    <p className="text-xs font-semibold text-[#121719] truncate">{user.fullName}</p>
-                    <p className="text-[11px] text-[#5b6472] truncate">{user.email}</p>
-                    <span className="inline-block mt-1 text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#121719]/5 text-[#121719]">
+                  <div className="px-3.5 py-2 border-b border-[#2E2B44]">
+                    <p className="text-xs font-semibold text-[#F2EFE9] truncate">{user.fullName}</p>
+                    <p className="text-[11px] text-[#B4B0C2] truncate">{user.email}</p>
+                    <span className="inline-block mt-1 text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#D6A86E]/15 text-[#D6A86E]">
                       {user.region || "BD"} · {user.subscriptionTier || "Standard"}
                     </span>
                   </div>
                   <Link
                     href="/settings/profile"
                     onClick={() => setMenuOpen(false)}
-                    className="block px-3.5 py-2 text-xs text-[#5b6472] hover:text-[#121719] hover:bg-black/[0.03]"
+                    className="block px-3.5 py-2 text-xs text-[#B4B0C2] hover:text-[#F2EFE9] hover:bg-white/[0.05]"
                   >
                     Profile &amp; Avatar
                   </Link>
                   <Link
                     href="/settings/subscription"
                     onClick={() => setMenuOpen(false)}
-                    className="block px-3.5 py-2 text-xs text-[#5b6472] hover:text-[#121719] hover:bg-black/[0.03]"
+                    className="block px-3.5 py-2 text-xs text-[#B4B0C2] hover:text-[#F2EFE9] hover:bg-white/[0.05]"
                   >
                     Subscription
                   </Link>
                   <Link
                     href="/settings"
                     onClick={() => setMenuOpen(false)}
-                    className="block px-3.5 py-2 text-xs text-[#5b6472] hover:text-[#121719] hover:bg-black/[0.03]"
+                    className="block px-3.5 py-2 text-xs text-[#B4B0C2] hover:text-[#F2EFE9] hover:bg-white/[0.05]"
                   >
                     All Settings
                   </Link>
-                  <div className="border-t border-[#E0E2E4] mt-1 pt-1">
+                  <div className="border-t border-[#2E2B44] mt-1 pt-1">
                     <button
                       type="button"
                       onClick={handleSignOut}
-                      className="w-full text-left px-3.5 py-2 text-xs text-[#ff4716] hover:bg-[#ff4716]/5 font-medium"
+                      className="w-full text-left px-3.5 py-2 text-xs text-[#F5A3A8] hover:bg-[#3B181C] font-medium"
                     >
                       Sign Out
                     </button>
@@ -219,7 +222,7 @@ export default function Navigation() {
             <button
               type="button"
               onClick={() => setMobileOpen((o) => !o)}
-              className="md:hidden p-1.5 rounded text-[#5b6472] hover:text-[#121719]"
+              className="md:hidden p-1.5 rounded text-[#B4B0C2] hover:text-[#F2EFE9]"
               aria-label="Toggle navigation"
             >
               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -239,8 +242,8 @@ export default function Navigation() {
               onClick={() => setMobileOpen(false)}
               className={`block px-3 py-2 rounded text-sm font-medium ${
                 isActive(item.href)
-                  ? "bg-[#121719] text-white"
-                  : "text-[#5b6472] hover:text-[#121719]"
+                  ? "bg-[#D6A86E] text-[#12111D] font-semibold"
+                  : "text-[#B4B0C2] hover:text-[#F2EFE9]"
               }`}
             >
               {item.label}

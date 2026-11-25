@@ -3,25 +3,25 @@
 @tailwind utilities;
 
 :root {
-  --sb-black: #121719;
-  --sb-charcoal: #222729;
-  --sb-slate: #414547;
-  --sb-light: #F3F3F3;
-  --sb-white: #FFFFFF;
-  --sb-muted: #5b6472;
-  --sb-silver: #acaeae;
-  --sb-hairline: #E0E2E4;
-  --sb-accent: #ff4716;
-  --sb-accent-hover: #e03a0e;
+  --sb-bg: #12111D;
+  --sb-surface: #1A1829;
+  --sb-surface-elevated: #222036;
+  --sb-border: #2E2B44;
+  --sb-text: #F2EFE9;
+  --sb-text-muted: #B4B0C2;
+  --sb-text-subtle: #8A859C;
+  --sb-gold: #D6A86E;
+  --sb-gold-hover: #C49356;
+  --sb-amethyst: #9F8EC4;
 }
 
 @layer base {
   body {
-    background-color: var(--sb-light);
-    color: var(--sb-black);
+    background-color: var(--sb-bg);
+    color: var(--sb-text);
     font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 1rem;
-    line-height: 1.45;
+    line-height: 1.5;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -50,54 +50,55 @@
     font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
   }
 
+  input, select, textarea {
+    color: var(--sb-text);
+    background-color: #131220;
+    border-color: var(--sb-border);
+  }
+
+  input::placeholder, textarea::placeholder {
+    color: #8A859C;
+  }
+
   *:focus-visible {
-    outline: 2px solid var(--sb-accent);
+    outline: 2px solid var(--sb-gold);
     outline-offset: 2px;
   }
 }
 
-/* Spellbook Alternating Section Modes */
-.u-mode-dark {
-  background-color: var(--sb-black);
-  color: var(--sb-white);
-}
-
-.u-mode-light {
-  background-color: var(--sb-light);
-  color: var(--sb-black);
-}
-
-/* Subtle architectural grid */
+/* Subtle architectural grid on dark midnight canvas */
 .editorial-grid-bg {
   background-image:
-    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    linear-gradient(to right, rgba(214, 168, 110, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(214, 168, 110, 0.035) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
-/* Frosted Glass Sticky Navigation */
+/* Frosted Midnight Glass (Navbars, Modals, Floating Bars) */
 .glass-vellum {
-  background: rgba(243, 243, 243, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(18, 23, 25, 0.09);
-  box-shadow: 0 8px 24px -10px rgba(18, 23, 25, 0.08);
+  background: rgba(22, 20, 36, 0.82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(214, 168, 110, 0.16);
+  box-shadow:
+    0 12px 32px -12px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
-/* Spellbook 0.25rem Crisp Card Geometry */
+/* Elevated Midnight Card */
 .vellum-card {
-  background-color: var(--sb-white);
-  border: 1px solid var(--sb-hairline);
+  background-color: var(--sb-surface);
+  border: 1px solid var(--sb-border);
   border-radius: 0.25rem;
+  box-shadow: 0 4px 20px -6px rgba(0, 0, 0, 0.35);
 }
 
 .sb-dark-card {
-  background-color: var(--sb-charcoal);
-  border: 1px solid var(--sb-slate);
+  background-color: var(--sb-surface-elevated);
+  border: 1px solid #3A3654;
   border-radius: 0.25rem;
 }
 
-/* Weighted transition */
 .editorial-transition {
   transition: all 260ms cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -111,7 +112,7 @@
   }
 }
 
-/* Institutional Letterhead Print Stylesheet */
+/* Institutional Letterhead Print Stylesheet — Crisp Paper & Ink on Print/PDF */
 @media print {
   header, nav, footer, .no-print, button, [role="button"] {
     display: none !important;
@@ -128,11 +129,18 @@
     margin: 0 !important;
   }
   .print-container {
+    background: #ffffff !important;
+    color: #121719 !important;
     box-shadow: none !important;
     border: none !important;
     padding: 0 !important;
     margin: 0 !important;
     max-width: 100% !important;
+  }
+  .print-container * {
+    color: #121719 !important;
+    border-color: #CBD5E1 !important;
+    background: transparent !important;
   }
   .page-break {
     page-break-before: always;

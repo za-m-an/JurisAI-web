@@ -61,7 +61,7 @@ export default function ConsoleUsersPage() {
 
   if (loading) {
     return (
-      <div className="py-16 text-center text-xs font-mono uppercase tracking-wider text-[#5b6472]">
+      <div className="py-16 text-center text-xs font-mono uppercase tracking-wider text-[#B4B0C2]">
         Loading Users...
       </div>
     );
@@ -69,20 +69,20 @@ export default function ConsoleUsersPage() {
 
   return (
     <div className="space-y-6 pb-10">
-      <div className="border-b border-[#E0E2E4] pb-5">
-        <span className="text-[11px] font-mono uppercase tracking-widest text-[#ff4716]">
+      <div className="border-b border-[#2E2B44] pb-5">
+        <span className="text-[11px] font-mono uppercase tracking-widest text-[#D6A86E]">
           Access Control
         </span>
-        <h1 className="text-3xl font-serif font-light text-[#121719]">
+        <h1 className="text-3xl font-serif font-light text-[#F2EFE9]">
           Users &amp; Role Management
         </h1>
-        <p className="text-sm text-[#5b6472]">
+        <p className="text-sm text-[#B4B0C2]">
           Manage account roles and access status across all registered users.
         </p>
       </div>
 
       {message && (
-        <div className="p-3 rounded-lg bg-[#F0FDF4] border border-[#BBF7D0] text-[#166534] text-xs font-medium">
+        <div className="p-3 rounded-lg bg-[#F0FDF4] border border-[#BBF7D0] text-[#7DD3B0] text-xs font-medium">
           {message}
         </div>
       )}
@@ -91,7 +91,7 @@ export default function ConsoleUsersPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-[#E0E2E4] bg-[#F3F3F3] text-[10px] font-mono uppercase tracking-wider text-[#5b6472]">
+              <tr className="border-b border-[#2E2B44] bg-[#131220] text-[10px] font-mono uppercase tracking-wider text-[#B4B0C2]">
                 <th className="py-3.5 px-5">Name &amp; Email</th>
                 <th className="py-3.5 px-4">Organisation</th>
                 <th className="py-3.5 px-4">Role</th>
@@ -99,21 +99,21 @@ export default function ConsoleUsersPage() {
                 <th className="py-3.5 px-5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#E0E2E4]">
+            <tbody className="divide-y divide-[#2E2B44]">
               {users.map((u) => (
-                <tr key={u.id} className="hover:bg-[#F3F3F3]/60">
+                <tr key={u.id} className="hover:bg-[#222036]/60">
                   <td className="py-3.5 px-5">
-                    <div className="font-medium text-[#121719]">{u.fullName}</div>
-                    <div className="text-[11px] text-[#5b6472]">{u.email}</div>
+                    <div className="font-medium text-[#F2EFE9]">{u.fullName}</div>
+                    <div className="text-[11px] text-[#B4B0C2]">{u.email}</div>
                   </td>
-                  <td className="py-3.5 px-4 text-[#5b6472]">
+                  <td className="py-3.5 px-4 text-[#B4B0C2]">
                     {u.organisation || "—"}
                   </td>
                   <td className="py-3.5 px-4">
                     <select
                       value={u.role}
                       onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                      className="px-2.5 py-1.5 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs font-medium text-[#121719]"
+                      className="px-2.5 py-1.5 rounded-lg border border-[#2E2B44] bg-[#131220] text-xs font-medium text-[#F2EFE9]"
                     >
                       <option value="common">Common</option>
                       <option value="business">Business</option>
@@ -125,8 +125,8 @@ export default function ConsoleUsersPage() {
                     <span
                       className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded border ${
                         u.isActive
-                          ? "bg-[#F0FDF4] text-[#166534] border-[#BBF7D0]"
-                          : "bg-[#FEF2F2] text-[#991B1B] border-[#FECACA]"
+                          ? "bg-[#122D25] text-[#7DD3B0] border-[#225444]"
+                          : "bg-[#3B181C] text-[#F5A3A8] border-[#6E2830]"
                       }`}
                     >
                       {u.isActive ? "Active" : "Suspended"}
@@ -136,7 +136,7 @@ export default function ConsoleUsersPage() {
                     <button
                       type="button"
                       onClick={() => handleToggleActive(u.id, !u.isActive)}
-                      className="text-xs font-medium text-[#121719] hover:underline"
+                      className="text-xs font-medium text-[#F2EFE9] hover:underline"
                     >
                       {u.isActive ? "Suspend" : "Activate"}
                     </button>

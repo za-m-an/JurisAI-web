@@ -35,7 +35,7 @@ export default function ConsoleSettingsPage() {
 
   if (loading) {
     return (
-      <div className="py-16 text-center text-xs font-mono uppercase text-[#5b6472]">
+      <div className="py-16 text-center text-xs font-mono uppercase text-[#B4B0C2]">
         Loading Allowances...
       </div>
     );
@@ -43,17 +43,17 @@ export default function ConsoleSettingsPage() {
 
   return (
     <div className="max-w-3xl space-y-6 pb-10">
-      <div className="border-b border-[#E0E2E4] pb-5">
-        <span className="text-[11px] font-mono uppercase tracking-widest text-[#ff4716]">
+      <div className="border-b border-[#2E2B44] pb-5">
+        <span className="text-[11px] font-mono uppercase tracking-widest text-[#D6A86E]">
           Quotas &amp; Tiers
         </span>
-        <h1 className="text-3xl font-serif font-light text-[#121719]">
+        <h1 className="text-3xl font-serif font-light text-[#F2EFE9]">
           Subscription Limits
         </h1>
       </div>
 
       {message && (
-        <div className="p-3 rounded-lg bg-[#F0FDF4] border border-[#BBF7D0] text-[#166534] text-xs font-medium">
+        <div className="p-3 rounded-lg bg-[#F0FDF4] border border-[#BBF7D0] text-[#7DD3B0] text-xs font-medium">
           {message}
         </div>
       )}
@@ -61,7 +61,7 @@ export default function ConsoleSettingsPage() {
       <form onSubmit={handleSave} className="vellum-card rounded p-6 space-y-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-[#121719]">
+            <label className="block text-xs font-medium text-[#F2EFE9]">
               Individual Monthly Analyses
             </label>
             <input
@@ -70,11 +70,11 @@ export default function ConsoleSettingsPage() {
               onChange={(e) =>
                 setSettings({ ...settings, "quota.common.analyses_per_month": e.target.value })
               }
-              className="w-full px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-sm"
+              className="w-full px-3.5 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] text-sm"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-[#121719]">
+            <label className="block text-xs font-medium text-[#F2EFE9]">
               Business Monthly Analyses
             </label>
             <input
@@ -83,11 +83,11 @@ export default function ConsoleSettingsPage() {
               onChange={(e) =>
                 setSettings({ ...settings, "quota.business.analyses_per_month": e.target.value })
               }
-              className="w-full px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-sm"
+              className="w-full px-3.5 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] text-sm"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-[#121719]">
+            <label className="block text-xs font-medium text-[#F2EFE9]">
               Individual Daily Copilot Chats
             </label>
             <input
@@ -96,11 +96,11 @@ export default function ConsoleSettingsPage() {
               onChange={(e) =>
                 setSettings({ ...settings, "quota.common.chat_per_day": e.target.value })
               }
-              className="w-full px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-sm"
+              className="w-full px-3.5 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] text-sm"
             />
           </div>
           <div className="space-y-1.5">
-            <label className="block text-xs font-medium text-[#121719]">
+            <label className="block text-xs font-medium text-[#F2EFE9]">
               Business Daily Copilot Chats
             </label>
             <input
@@ -109,7 +109,7 @@ export default function ConsoleSettingsPage() {
               onChange={(e) =>
                 setSettings({ ...settings, "quota.business.chat_per_day": e.target.value })
               }
-              className="w-full px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-sm"
+              className="w-full px-3.5 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] text-sm"
             />
           </div>
         </div>
@@ -117,7 +117,7 @@ export default function ConsoleSettingsPage() {
         <div className="flex justify-end">
           <button
             type="submit"
-            className="px-5 py-2.5 rounded-lg bg-[#121719] hover:bg-[#222729] text-[#F3F3F3] text-xs font-medium"
+            className="px-5 py-2.5 rounded-lg bg-[#D6A86E] hover:bg-[#C49356] text-[#12111D] font-semibold text-xs font-medium"
           >
             Save Allowances
           </button>

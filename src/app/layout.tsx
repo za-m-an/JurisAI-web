@@ -27,6 +27,11 @@ export const metadata = {
   title: "Juris AI — Cross-Border Legal Counsel & Contract Intelligence",
   description:
     "Authoritative legal counsel, statutory contract analysis, and institutional case advisory across Bangladesh, the United States, and the European Union.",
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/favicon.ico",
+    apple: "/icon.png",
+  },
 };
 
 export default function RootLayout({
@@ -39,24 +44,29 @@ export default function RootLayout({
       lang="en"
       className={`${fraunces.variable} ${inter.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="min-h-screen flex flex-col bg-[#F3F3F3] text-[#121719] font-sans antialiased selection:bg-[#ff4716]/15 selection:text-[#121719]">
+      <body className="min-h-screen flex flex-col bg-[#12111D] text-[#F2EFE9] font-sans antialiased selection:bg-[#D6A86E]/25 selection:text-[#F2EFE9]">
         <Navigation />
 
         <main className="flex-1 w-full max-w-[90rem] mx-auto px-[4vw] sm:px-[6vw] py-8">
           {children}
         </main>
 
-        <footer className="u-mode-dark border-t border-[#222729] text-[#acaeae] text-xs py-10 no-print">
+        <footer className="bg-[#0E0D17] border-t border-[#2E2B44] text-[#B4B0C2] text-xs py-10 no-print">
           <div className="max-w-[90rem] mx-auto px-[4vw] sm:px-[6vw] flex flex-col sm:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-3">
-              <span className="w-2 h-2 rounded-full bg-[#ff4716]" />
-              <span className="font-serif font-normal text-white text-base tracking-tight">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo.jpg"
+                alt="Juris AI"
+                className="w-6 h-6 rounded-sm object-cover border border-[#D6A86E]/30"
+              />
+              <span className="font-serif font-normal text-[#F2EFE9] text-base tracking-tight">
                 Juris AI
               </span>
-              <span className="text-[#414547]">|</span>
-              <span className="text-[#acaeae]">Statutory Counsel &amp; Legal Advisory</span>
+              <span className="text-[#2E2B44]">|</span>
+              <span className="text-[#B4B0C2]">Statutory Counsel &amp; Legal Advisory</span>
             </div>
-            <div className="font-mono text-[11px] uppercase tracking-wider text-[#acaeae]">
+            <div className="font-mono text-[11px] uppercase tracking-wider text-[#8A859C]">
               Bangladesh · United States · European Union
             </div>
           </div>

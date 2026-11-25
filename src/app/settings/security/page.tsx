@@ -69,7 +69,7 @@ export default function SecuritySettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center text-xs font-mono text-[#5b6472]">
+      <div className="min-h-[60vh] flex items-center justify-center text-xs font-mono text-[#B4B0C2]">
         Loading Security...
       </div>
     );
@@ -77,53 +77,53 @@ export default function SecuritySettingsPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 pb-10">
-      <div className="border-b border-[#E0E2E4] pb-4">
-        <Link href="/settings" className="text-xs text-[#121719] hover:underline">
+      <div className="border-b border-[#2E2B44] pb-4">
+        <Link href="/settings" className="text-xs text-[#F2EFE9] hover:underline">
           &larr; Back to Settings
         </Link>
-        <h1 className="text-3xl font-serif font-light text-[#121719] mt-1">
+        <h1 className="text-3xl font-serif font-light text-[#F2EFE9] mt-1">
           Account Security
         </h1>
       </div>
 
       {message && (
-        <div className="p-3 rounded-lg bg-[#F0FDF4] border border-[#BBF7D0] text-[#166534] text-xs font-medium">
+        <div className="p-3 rounded-lg bg-[#F0FDF4] border border-[#BBF7D0] text-[#7DD3B0] text-xs font-medium">
           {message}
         </div>
       )}
       {error && (
-        <div className="p-3 rounded-lg bg-[#FEF2F2] border border-[#FECACA] text-[#991B1B] text-xs font-medium">
+        <div className="p-3 rounded-lg bg-[#FEF2F2] border border-[#FECACA] text-[#F5A3A8] text-xs font-medium">
           {error}
         </div>
       )}
 
       {/* Password Update */}
       <form onSubmit={handlePasswordChange} className="vellum-card rounded p-6 space-y-4">
-        <h2 className="font-serif text-xl font-medium text-[#121719]">Update Password</h2>
+        <h2 className="font-serif text-xl font-medium text-[#F2EFE9]">Update Password</h2>
         <div className="space-y-1.5">
-          <label className="block text-xs font-medium text-[#121719]">Current Password</label>
+          <label className="block text-xs font-medium text-[#F2EFE9]">Current Password</label>
           <input
             type="password"
             required
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-sm"
+            className="w-full px-3.5 py-2.5 rounded-lg border border-[#2E2B44] bg-[#131220] text-sm"
           />
         </div>
         <div className="space-y-1.5">
-          <label className="block text-xs font-medium text-[#121719]">New Password</label>
+          <label className="block text-xs font-medium text-[#F2EFE9]">New Password</label>
           <input
             type="password"
             required
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             placeholder="Minimum 10 characters, with letter & digit"
-            className="w-full px-3.5 py-2.5 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-sm"
+            className="w-full px-3.5 py-2.5 rounded-lg border border-[#2E2B44] bg-[#131220] text-sm"
           />
         </div>
         <button
           type="submit"
-          className="px-5 py-2.5 rounded-lg bg-[#121719] text-[#F3F3F3] text-xs font-medium"
+          className="px-5 py-2.5 rounded-lg bg-[#D6A86E] text-[#12111D] font-semibold text-xs font-medium"
         >
           Update Password
         </button>
@@ -132,15 +132,15 @@ export default function SecuritySettingsPage() {
       {/* Session Revocation */}
       <div className="vellum-card rounded p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="font-serif text-lg font-medium text-[#121719]">Active Sessions</h2>
-          <p className="text-xs text-[#5b6472]">
+          <h2 className="font-serif text-lg font-medium text-[#F2EFE9]">Active Sessions</h2>
+          <p className="text-xs text-[#B4B0C2]">
             Sign out from all browsers and devices immediately.
           </p>
         </div>
         <button
           type="button"
           onClick={handleLogoutAll}
-          className="px-4 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] hover:bg-white text-xs font-medium text-[#121719]"
+          className="px-4 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] hover:bg-[#1A1829] text-xs font-medium text-[#F2EFE9]"
         >
           Sign Out All Devices
         </button>
@@ -149,8 +149,8 @@ export default function SecuritySettingsPage() {
       {/* Delete Account */}
       <form onSubmit={handleDeleteAccount} className="vellum-card rounded p-6 border-[#FECACA] space-y-4">
         <div>
-          <h2 className="font-serif text-lg font-medium text-[#991B1B]">Delete Account</h2>
-          <p className="text-xs text-[#5b6472]">
+          <h2 className="font-serif text-lg font-medium text-[#F5A3A8]">Delete Account</h2>
+          <p className="text-xs text-[#B4B0C2]">
             Permanently erase your profile, analyses, and consultation records.
           </p>
         </div>
@@ -161,7 +161,7 @@ export default function SecuritySettingsPage() {
             value={deletePassword}
             onChange={(e) => setDeletePassword(e.target.value)}
             placeholder="Confirm password to delete"
-            className="flex-1 px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs"
+            className="flex-1 px-3.5 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] text-xs"
           />
           <button
             type="submit"

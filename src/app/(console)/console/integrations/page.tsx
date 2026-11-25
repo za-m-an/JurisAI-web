@@ -190,7 +190,7 @@ export default function ConsoleIntegrationsPage() {
 
   if (loading) {
     return (
-      <div className="py-16 text-center text-xs font-mono uppercase tracking-wider text-[#5b6472]">
+      <div className="py-16 text-center text-xs font-mono uppercase tracking-wider text-[#B4B0C2]">
         Loading Providers...
       </div>
     );
@@ -213,29 +213,29 @@ export default function ConsoleIntegrationsPage() {
 
   return (
     <div className="space-y-8 pb-10">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#E0E2E4] pb-5">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#2E2B44] pb-5">
         <div className="space-y-1">
-          <span className="text-[11px] font-mono uppercase tracking-widest text-[#ff4716]">
+          <span className="text-[11px] font-mono uppercase tracking-widest text-[#D6A86E]">
             AI Routing &amp; Cost Control
           </span>
-          <h1 className="text-3xl font-serif font-light text-[#121719]">
+          <h1 className="text-3xl font-serif font-light text-[#F2EFE9]">
             Providers &amp; Model Selection
           </h1>
-          <p className="text-sm text-[#5b6472]">
+          <p className="text-sm text-[#B4B0C2]">
             Hot-swap provider keys, verify live status, load models dynamically, and control token cost.
           </p>
         </div>
 
-        <div className="px-4 py-2.5 rounded bg-white border border-[#E0E2E4] text-xs space-y-0.5">
-          <div className="text-[10px] font-mono uppercase text-[#5b6472]">Currently Active</div>
-          <div className="font-semibold text-[#121719] capitalize">
+        <div className="px-4 py-2.5 rounded bg-[#1A1829] border border-[#2E2B44] text-xs space-y-0.5">
+          <div className="text-[10px] font-mono uppercase text-[#B4B0C2]">Currently Active</div>
+          <div className="font-semibold text-[#F2EFE9] capitalize">
             {activeProvider} · <span className="font-mono">{activeModel}</span>
           </div>
         </div>
       </div>
 
       {banner && (
-        <div className="p-3.5 rounded bg-[#F0FDF4] border border-[#BBF7D0] text-[#166534] text-xs font-medium">
+        <div className="p-3.5 rounded bg-[#F0FDF4] border border-[#BBF7D0] text-[#7DD3B0] text-xs font-medium">
           {banner}
         </div>
       )}
@@ -244,18 +244,18 @@ export default function ConsoleIntegrationsPage() {
       <section className="vellum-card rounded p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <h2 className="font-serif text-xl font-medium text-[#121719]">Token Optimizer</h2>
+            <h2 className="font-serif text-xl font-medium text-[#F2EFE9]">Token Optimizer</h2>
             <span
               className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded border ${
                 tokenOpt
-                  ? "bg-[#F0FDF4] text-[#166534] border-[#BBF7D0]"
-                  : "bg-[#F3F3F3] text-[#5b6472] border-[#E0E2E4]"
+                  ? "bg-[#122D25] text-[#7DD3B0] border-[#225444]"
+                  : "bg-[#131220] text-[#B4B0C2] border-[#2E2B44]"
               }`}
             >
               {tokenOpt ? "Active" : "Off"}
             </span>
           </div>
-          <p className="text-xs text-[#5b6472]">
+          <p className="text-xs text-[#B4B0C2]">
             Automatically condenses conversation history and document whitespace in Copilot and Document Analyzer to reduce AI cost.
           </p>
         </div>
@@ -264,8 +264,8 @@ export default function ConsoleIntegrationsPage() {
           onClick={handleToggleTokenOpt}
           className={`px-5 py-2.5 rounded-lg text-xs font-medium editorial-transition shrink-0 ${
             tokenOpt
-              ? "bg-[#121719] text-[#F3F3F3]"
-              : "border border-[#E0E2E4] bg-[#F3F3F3] text-[#121719] hover:bg-white"
+              ? "bg-[#D6A86E] text-[#12111D] font-semibold"
+              : "border border-[#2E2B44] bg-[#131220] text-[#F2EFE9] hover:bg-[#1A1829]"
           }`}
         >
           {tokenOpt ? "Disable Optimizer" : "Enable Optimizer"}
@@ -274,7 +274,7 @@ export default function ConsoleIntegrationsPage() {
 
       {/* Main Inference Providers */}
       <section className="space-y-4">
-        <h2 className="font-serif text-2xl font-medium text-[#121719]">
+        <h2 className="font-serif text-2xl font-medium text-[#F2EFE9]">
           Inference Providers
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
@@ -290,22 +290,22 @@ export default function ConsoleIntegrationsPage() {
               <div
                 key={item.slug}
                 className={`vellum-card rounded p-6 space-y-4 ${
-                  isActive ? "border-[#121719] ring-1 ring-[#121719]" : ""
+                  isActive ? "border-[#D6A86E] ring-1 ring-[#D6A86E]" : ""
                 }`}
               >
-                <div className="flex items-start justify-between gap-3 border-b border-[#E0E2E4] pb-4">
+                <div className="flex items-start justify-between gap-3 border-b border-[#2E2B44] pb-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-serif text-xl font-medium text-[#121719]">
+                      <h3 className="font-serif text-xl font-medium text-[#F2EFE9]">
                         {item.name}
                       </h3>
                       {isActive && (
-                        <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#121719] text-[#F3F3F3]">
+                        <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#D6A86E] text-[#12111D] font-semibold">
                           Active
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] font-mono text-[#5b6472]">
+                    <p className="text-[11px] font-mono text-[#B4B0C2]">
                       {item.hasApiKey ? `Saved Key: ${item.maskedKey}` : "No key saved"}
                     </p>
                   </div>
@@ -314,10 +314,10 @@ export default function ConsoleIntegrationsPage() {
                   <span
                     className={`text-[10px] font-mono uppercase px-2.5 py-1 rounded border flex items-center gap-1.5 ${
                       live?.ok
-                        ? "bg-[#F0FDF4] text-[#166534] border-[#BBF7D0]"
+                        ? "bg-[#122D25] text-[#7DD3B0] border-[#225444]"
                         : live
-                        ? "bg-[#FEF2F2] text-[#991B1B] border-[#FECACA]"
-                        : "bg-[#F3F3F3] text-[#5b6472] border-[#E0E2E4]"
+                        ? "bg-[#3B181C] text-[#F5A3A8] border-[#6E2830]"
+                        : "bg-[#131220] text-[#B4B0C2] border-[#2E2B44]"
                     }`}
                   >
                     <span
@@ -331,7 +331,7 @@ export default function ConsoleIntegrationsPage() {
 
                 {/* Hot-Swap Key Input */}
                 <div className="space-y-2">
-                  <label className="block text-[11px] font-medium text-[#5b6472]">
+                  <label className="block text-[11px] font-medium text-[#B4B0C2]">
                     Hot-Swap API Key
                   </label>
                   <div className="flex gap-2">
@@ -342,13 +342,13 @@ export default function ConsoleIntegrationsPage() {
                         setKeyInputs((prev) => ({ ...prev, [item.slug]: e.target.value }))
                       }
                       placeholder={item.hasApiKey ? "Enter new key to replace saved..." : "Paste provider API key..."}
-                      className="flex-1 px-3 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs font-mono"
+                      className="flex-1 px-3 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] text-xs font-mono"
                     />
                     <button
                       type="button"
                       disabled={busySlug === item.slug}
                       onClick={() => handleSaveKey(item)}
-                      className="px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-white hover:bg-[#F3F3F3] text-xs font-medium text-[#121719]"
+                      className="px-3.5 py-2 rounded-lg border border-[#2E2B44] bg-[#1A1829] hover:bg-[#222036] text-xs font-medium text-[#F2EFE9]"
                     >
                       Save
                     </button>
@@ -361,7 +361,7 @@ export default function ConsoleIntegrationsPage() {
                     type="button"
                     disabled={busySlug === item.slug}
                     onClick={() => handleTestKey(item.slug)}
-                    className="px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] hover:bg-white text-xs font-medium text-[#121719]"
+                    className="px-3.5 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] hover:bg-[#1A1829] text-xs font-medium text-[#F2EFE9]"
                   >
                     Test Key
                   </button>
@@ -369,20 +369,20 @@ export default function ConsoleIntegrationsPage() {
                     type="button"
                     disabled={busySlug === item.slug}
                     onClick={() => handleLoadModels(item.slug)}
-                    className="px-3.5 py-2 rounded-lg border border-[#121719]/30 bg-[#121719]/5 hover:bg-[#121719]/10 text-xs font-medium text-[#121719]"
+                    className="px-3.5 py-2 rounded-lg border border-[#D6A86E]/30 bg-[#D6A86E]/10 hover:bg-[#D6A86E]/15 text-xs font-medium text-[#F2EFE9]"
                   >
                     {busySlug === item.slug ? "Loading..." : "Load Models"}
                   </button>
                 </div>
 
                 {/* Loaded Models Dropdown + Set Active */}
-                <div className="pt-2 border-t border-[#E0E2E4] flex flex-col sm:flex-row gap-2.5">
+                <div className="pt-2 border-t border-[#2E2B44] flex flex-col sm:flex-row gap-2.5">
                   <select
                     value={chosenModel}
                     onChange={(e) =>
                       setSelectedModels((prev) => ({ ...prev, [item.slug]: e.target.value }))
                     }
-                    className="flex-1 px-3 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs font-mono text-[#121719]"
+                    className="flex-1 px-3 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] text-xs font-mono text-[#F2EFE9]"
                   >
                     {models.length === 0 ? (
                       <option value={chosenModel}>
@@ -403,8 +403,8 @@ export default function ConsoleIntegrationsPage() {
                     onClick={() => handleSetActive(item.slug)}
                     className={`px-4 py-2 rounded-lg text-xs font-medium editorial-transition shrink-0 ${
                       isActive
-                        ? "bg-[#121719] text-[#F3F3F3]"
-                        : "bg-[#121719] hover:bg-[#121719] text-white"
+                        ? "bg-[#D6A86E] text-[#12111D] font-semibold"
+                        : "bg-[#121719] hover:bg-[#D6A86E] text-[#12111D] font-semibold"
                     }`}
                   >
                     {isActive ? "Update Active Model" : "Set Active"}
@@ -419,20 +419,20 @@ export default function ConsoleIntegrationsPage() {
       {/* Advisory Service Connection (RAG Hot-Swap) */}
       {ragService && (
         <section className="vellum-card rounded p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-[#E0E2E4] pb-4">
+          <div className="flex items-center justify-between border-b border-[#2E2B44] pb-4">
             <div>
-              <h2 className="font-serif text-xl font-medium text-[#121719]">
+              <h2 className="font-serif text-xl font-medium text-[#F2EFE9]">
                 Legal Advisory Service Connection
               </h2>
-              <p className="text-xs text-[#5b6472]">
+              <p className="text-xs text-[#B4B0C2]">
                 Hot-swap endpoint URL and access key for the statutory analysis service.
               </p>
             </div>
             <span
               className={`text-[10px] font-mono uppercase px-2.5 py-1 rounded border ${
                 liveStatus["rag"]?.ok
-                  ? "bg-[#F0FDF4] text-[#166534] border-[#BBF7D0]"
-                  : "bg-[#F3F3F3] text-[#5b6472] border-[#E0E2E4]"
+                  ? "bg-[#122D25] text-[#7DD3B0] border-[#225444]"
+                  : "bg-[#131220] text-[#B4B0C2] border-[#2E2B44]"
               }`}
             >
               {liveStatus["rag"]?.ok ? "Live" : "Check Status"}
@@ -441,22 +441,22 @@ export default function ConsoleIntegrationsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-[#121719]">Service URL</label>
+              <label className="block text-xs font-medium text-[#F2EFE9]">Service URL</label>
               <input
                 type="url"
                 value={urlInputs["rag"] || ""}
                 onChange={(e) => setUrlInputs((prev) => ({ ...prev, rag: e.target.value }))}
-                className="w-full px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs font-mono"
+                className="w-full px-3.5 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] text-xs font-mono"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-[#121719]">Service Access Key</label>
+              <label className="block text-xs font-medium text-[#F2EFE9]">Service Access Key</label>
               <input
                 type="password"
                 value={keyInputs["rag"] || ""}
                 onChange={(e) => setKeyInputs((prev) => ({ ...prev, rag: e.target.value }))}
                 placeholder={ragService.hasApiKey ? `Saved (${ragService.maskedKey})` : "Enter key..."}
-                className="w-full px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs font-mono"
+                className="w-full px-3.5 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] text-xs font-mono"
               />
             </div>
           </div>
@@ -465,14 +465,14 @@ export default function ConsoleIntegrationsPage() {
             <button
               type="button"
               onClick={() => handleSaveKey(ragService)}
-              className="px-4 py-2 rounded-lg bg-[#121719] text-[#F3F3F3] text-xs font-medium"
+              className="px-4 py-2 rounded-lg bg-[#D6A86E] text-[#12111D] font-semibold text-xs font-medium"
             >
               Save Connection
             </button>
             <button
               type="button"
               onClick={() => handleTestKey("rag")}
-              className="px-4 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs font-medium text-[#121719]"
+              className="px-4 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] text-xs font-medium text-[#F2EFE9]"
             >
               Test Connection
             </button>

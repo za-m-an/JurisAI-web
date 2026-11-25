@@ -91,7 +91,7 @@ export default function ConsoleLawFirmsPage() {
 
   if (loading) {
     return (
-      <div className="py-16 text-center text-xs font-mono uppercase tracking-wider text-[#5b6472]">
+      <div className="py-16 text-center text-xs font-mono uppercase tracking-wider text-[#B4B0C2]">
         Loading Law Firms...
       </div>
     );
@@ -99,27 +99,27 @@ export default function ConsoleLawFirmsPage() {
 
   return (
     <div className="space-y-8 pb-10">
-      <div className="border-b border-[#E0E2E4] pb-5">
-        <span className="text-[11px] font-mono uppercase tracking-widest text-[#ff4716]">
+      <div className="border-b border-[#2E2B44] pb-5">
+        <span className="text-[11px] font-mono uppercase tracking-widest text-[#D6A86E]">
           Regional Representation
         </span>
-        <h1 className="text-3xl font-serif font-light text-[#121719]">
+        <h1 className="text-3xl font-serif font-light text-[#F2EFE9]">
           Law Firms &amp; Counsel Directory
         </h1>
-        <p className="text-sm text-[#5b6472]">
+        <p className="text-sm text-[#B4B0C2]">
           Directly add law firms, contact details, and practice fields for automated client matching.
         </p>
       </div>
 
       {message && (
-        <div className="p-3 rounded-lg bg-[#F0FDF4] border border-[#BBF7D0] text-[#166534] text-xs font-medium">
+        <div className="p-3 rounded-lg bg-[#F0FDF4] border border-[#BBF7D0] text-[#7DD3B0] text-xs font-medium">
           {message}
         </div>
       )}
 
       {/* Add Law Firm Form */}
       <form onSubmit={handleCreate} className="vellum-card rounded p-6 space-y-4">
-        <h2 className="font-serif text-xl font-medium text-[#121719]">Add New Law Firm</h2>
+        <h2 className="font-serif text-xl font-medium text-[#F2EFE9]">Add New Law Firm</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <input
             type="text"
@@ -127,7 +127,7 @@ export default function ConsoleLawFirmsPage() {
             placeholder="Firm Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs"
+            className="px-3.5 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] text-xs"
           />
           <input
             type="text"
@@ -135,12 +135,12 @@ export default function ConsoleLawFirmsPage() {
             placeholder="Lead Barrister / Counsel"
             value={leadCounsel}
             onChange={(e) => setLeadCounsel(e.target.value)}
-            className="px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs"
+            className="px-3.5 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] text-xs"
           />
           <select
             value={region}
             onChange={(e) => setRegion(e.target.value as "BD" | "US" | "EU")}
-            className="px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs"
+            className="px-3.5 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] text-xs"
           >
             <option value="BD">Bangladesh (BD)</option>
             <option value="US">United States (US)</option>
@@ -152,7 +152,7 @@ export default function ConsoleLawFirmsPage() {
             placeholder="City (e.g., Motijheel, Dhaka)"
             value={city}
             onChange={(e) => setCity(e.target.value)}
-            className="px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs"
+            className="px-3.5 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] text-xs"
           />
           <input
             type="text"
@@ -160,7 +160,7 @@ export default function ConsoleLawFirmsPage() {
             placeholder="Specialties (comma-separated)"
             value={specialties}
             onChange={(e) => setSpecialties(e.target.value)}
-            className="px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs"
+            className="px-3.5 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] text-xs"
           />
           <input
             type="number"
@@ -170,7 +170,7 @@ export default function ConsoleLawFirmsPage() {
             placeholder="Years of Experience"
             value={experienceYears}
             onChange={(e) => setExperienceYears(Number(e.target.value))}
-            className="px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs"
+            className="px-3.5 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] text-xs"
           />
           <input
             type="text"
@@ -178,7 +178,7 @@ export default function ConsoleLawFirmsPage() {
             placeholder="Phone Number"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs"
+            className="px-3.5 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] text-xs"
           />
           <input
             type="email"
@@ -186,7 +186,7 @@ export default function ConsoleLawFirmsPage() {
             placeholder="Chambers Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs"
+            className="px-3.5 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] text-xs"
           />
           <input
             type="text"
@@ -194,7 +194,7 @@ export default function ConsoleLawFirmsPage() {
             placeholder="Office Address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className="px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs"
+            className="px-3.5 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] text-xs"
           />
         </div>
         <input
@@ -202,12 +202,12 @@ export default function ConsoleLawFirmsPage() {
           placeholder="Recent Firm News / Recognition (optional)"
           value={recentNews}
           onChange={(e) => setRecentNews(e.target.value)}
-          className="w-full px-3.5 py-2 rounded-lg border border-[#E0E2E4] bg-[#F3F3F3] text-xs"
+          className="w-full px-3.5 py-2 rounded-lg border border-[#2E2B44] bg-[#131220] text-xs"
         />
         <div className="flex justify-end">
           <button
             type="submit"
-            className="px-5 py-2 rounded-lg bg-[#121719] hover:bg-[#222729] text-[#F3F3F3] text-xs font-medium"
+            className="px-5 py-2 rounded-lg bg-[#D6A86E] hover:bg-[#C49356] text-[#12111D] font-semibold text-xs font-medium"
           >
             Add Law Firm
           </button>
@@ -220,20 +220,20 @@ export default function ConsoleLawFirmsPage() {
           <div key={f.id} className="vellum-card rounded p-5 space-y-2">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <h3 className="font-serif text-lg font-medium text-[#121719]">{f.name}</h3>
-                <p className="text-xs text-[#121719]">{f.leadCounsel}</p>
+                <h3 className="font-serif text-lg font-medium text-[#F2EFE9]">{f.name}</h3>
+                <p className="text-xs text-[#F2EFE9]">{f.leadCounsel}</p>
               </div>
-              <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#F3F3F3] border border-[#E0E2E4]">
+              <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-[#131220] border border-[#2E2B44]">
                 {f.region} · {f.experienceYears} yrs
               </span>
             </div>
-            <p className="text-xs text-[#5b6472]">{f.specialties.join(" · ")}</p>
-            <p className="text-[11px] text-[#5b6472]">{f.phone} · {f.email}</p>
+            <p className="text-xs text-[#B4B0C2]">{f.specialties.join(" · ")}</p>
+            <p className="text-[11px] text-[#B4B0C2]">{f.phone} · {f.email}</p>
             <div className="pt-2 flex justify-end">
               <button
                 type="button"
                 onClick={() => handleDelete(f.id)}
-                className="text-xs text-[#991B1B] hover:underline"
+                className="text-xs text-[#F5A3A8] hover:underline"
               >
                 Remove
               </button>

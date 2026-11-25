@@ -18,7 +18,7 @@ export default function ErrorPage({
   }, [error]);
 
   return (
-    <div className="max-w-lg mx-auto my-16 bg-white border border-rose-200 rounded-lg p-8 shadow-subtle text-center space-y-4">
+    <div className="max-w-lg mx-auto my-16 bg-[#1A1829] border border-rose-200 rounded-lg p-8 shadow-subtle text-center space-y-4">
       <div className="font-serif text-5xl font-bold text-rose-800">500</div>
       <h1 className="font-serif text-xl font-bold text-ink">System Error Encountered</h1>
       <p className="text-xs text-ink-muted leading-relaxed">

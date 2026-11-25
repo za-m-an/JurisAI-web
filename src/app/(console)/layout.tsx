@@ -35,18 +35,21 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
 
   if (isLoginPage) {
     return (
-      <div className="min-h-screen bg-[#F3F3F3] text-[#121719] flex flex-col font-sans editorial-grid-bg">
+      <div className="min-h-screen bg-[#131220] text-[#F2EFE9] flex flex-col font-sans editorial-grid-bg">
         <header className="pt-3 px-4 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto glass-vellum rounded px-5 h-14 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <span className="w-7 h-7 rounded-md bg-[#121719] text-[#F3F3F3] flex items-center justify-center font-serif font-bold text-sm">
-                J
-              </span>
-              <span className="font-serif font-normal text-base text-[#121719]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo.jpg"
+                alt="Juris AI"
+                className="w-7 h-7 rounded-sm object-cover border border-[#D6A86E]/40"
+              />
+              <span className="font-serif font-normal text-base text-[#F2EFE9]">
                 Juris AI · Executive Console
               </span>
             </div>
-            <span className="text-[11px] font-mono uppercase tracking-wider text-[#ff4716]">
+            <span className="text-[11px] font-mono uppercase tracking-wider text-[#D6A86E]">
               Authorized Personnel Only
             </span>
           </div>
@@ -58,7 +61,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#F3F3F3] text-[#5b6472] font-mono text-xs flex items-center justify-center">
+      <div className="min-h-screen bg-[#131220] text-[#B4B0C2] font-mono text-xs flex items-center justify-center">
         Verifying administrative session...
       </div>
     );
@@ -75,15 +78,18 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
   ];
 
   return (
-    <div className="min-h-screen bg-[#F3F3F3] text-[#121719] font-sans flex flex-col">
+    <div className="min-h-screen bg-[#131220] text-[#F2EFE9] font-sans flex flex-col">
       <header className="sticky top-0 z-40 pt-3 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto glass-vellum rounded px-5 h-14 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-6">
             <Link href="/console" className="flex items-center gap-2.5">
-              <span className="w-7 h-7 rounded-md bg-[#121719] text-[#F3F3F3] flex items-center justify-center font-serif font-bold text-sm">
-                J
-              </span>
-              <span className="font-serif font-normal text-base text-[#121719]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo.jpg"
+                alt="Juris AI"
+                className="w-7 h-7 rounded-sm object-cover border border-[#D6A86E]/40"
+              />
+              <span className="font-serif font-normal text-base text-[#F2EFE9]">
                 Juris AI Console
               </span>
             </Link>
@@ -97,8 +103,8 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
                     href={item.href}
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium editorial-transition ${
                       active
-                        ? "bg-[#121719]/10 text-[#121719] font-semibold"
-                        : "text-[#5b6472] hover:text-[#121719] hover:bg-black/[0.03]"
+                        ? "bg-[#D6A86E]/15 text-[#F2EFE9] font-semibold"
+                        : "text-[#B4B0C2] hover:text-[#F2EFE9] hover:bg-black/[0.03]"
                     }`}
                   >
                     {item.label}
@@ -111,7 +117,7 @@ export default function ConsoleLayout({ children }: { children: React.ReactNode 
           <button
             type="button"
             onClick={handleSignOut}
-            className="px-3.5 py-1.5 rounded-lg border border-[#FECACA] bg-[#FEF2F2] hover:bg-[#FEE2E2] text-[#991B1B] text-xs font-medium editorial-transition"
+            className="px-3.5 py-1.5 rounded-lg border border-[#6E2830] bg-[#3B181C] hover:bg-[#4F2025] text-[#F5A3A8] text-xs font-medium editorial-transition"
           >
             Sign Out
           </button>
