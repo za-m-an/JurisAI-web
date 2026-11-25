@@ -2,6 +2,8 @@
 
 import React, { Suspense, useEffect, useRef, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface ChatMessage {
   id: string;
@@ -152,8 +154,9 @@ function CopilotContent() {
 
   function stripDisclaimer(text: string): string {
     return text
-      .replace(/\*?This (analysis|response|information) is for informational purposes only.*?legal advice\.?\*?/gi, "")
+      .replace(/\*?This (memorandum|analysis|response|information) is (system-generated )?(informational )?(analysis|purposes)[\s\S]*?(legal advice|made)\.?\*?/gi, "")
       .replace(/\*?Not formal legal advice\.?\*?/gi, "")
+      .replace(/\n---\s*$/g, "")
       .trim();
   }
 
@@ -359,13 +362,87 @@ function CopilotContent() {
               className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[82%] rounded px-5 py-3.5 text-sm leading-relaxed whitespace-pre-wrap ${
+                className={`max-w-[85%] rounded px-5 py-4 text-sm leading-relaxed ${
                   m.role === "user"
-                    ? "bg-[#D6A86E] text-[#12111D] font-semibold"
+                    ? "bg-[#D6A86E] text-[#12111D] font-semibold whitespace-pre-wrap"
                     : "bg-[#131220] border border-[#2E2B44] text-[#F2EFE9]"
                 }`}
               >
-                {m.content}
+                {m.role === "user" ? (
+                  m.content
+                ) : (
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      h1: ({ children }) => (
+                        <h1 className="font-serif text-xl sm:text-2xl font-light text-[#F2EFE9] border-b border-[#2E2B44] pb-2 mt-4 mb-3 first:mt-0">
+                          {children}
+                        </h1>
+                      ),
+                      h2: ({ children }) => (
+                        <h2 className="font-serif text-lg sm:text-xl font-light text-[#D6A86E] mt-5 mb-2.5 pt-2 border-t border-[#2E2B44]/60 first:mt-0 first:border-t-0 first:pt-0">
+                          {children}
+                        </h2>
+                      ),
+                      h3: ({ children }) => (
+                        <h3 className="font-serif text-base font-normal text-[#F2EFE9] mt-4 mb-1.5">
+                          {children}
+                        </h3>
+                      ),
+                      p: ({ children }) => (
+                        <p className="text-sm text-[#F2EFE9]/90 leading-relaxed mb-3 last:mb-0">
+                          {children}
+                        </p>
+                      ),
+                      strong: ({ children }) => (
+                        <strong className="font-semibold text-[#F2EFE9]">{children}</strong>
+                      ),
+                      ul: ({ children }) => (
+                        <ul className="list-disc pl-5 space-y-1.5 mb-3 text-sm text-[#B4B0C2]">
+                          {children}
+                        </ul>
+                      ),
+                      ol: ({ children }) => (
+                        <ol className="list-decimal pl-5 space-y-1.5 mb-3 text-sm text-[#B4B0C2]">
+                          {children}
+                        </ol>
+                      ),
+                      li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                      blockquote: ({ children }) => (
+                        <blockquote className="border-l-2 border-[#D6A86E] bg-[#1A1829] pl-3.5 pr-3 py-2 my-3 rounded-r text-xs sm:text-sm text-[#B4B0C2] italic">
+                          {children}
+                        </blockquote>
+                      ),
+                      hr: () => <hr className="border-[#2E2B44] my-4" />,
+                      code: ({ children }) => (
+                        <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-[#1A1829] border border-[#2E2B44] text-[#D6A86E]">
+                          {children}
+                        </code>
+                      ),
+                      table: ({ children }) => (
+                        <div className="overflow-x-auto my-4 rounded border border-[#2E2B44]">
+                          <table className="w-full text-left border-collapse text-xs">
+                            {children}
+                          </table>
+                        </div>
+                      ),
+                      thead: ({ children }) => (
+                        <thead className="bg-[#1A1829] border-b border-[#2E2B44] text-[10px] font-mono uppercase tracking-wider text-[#D6A86E]">
+                          {children}
+                        </thead>
+                      ),
+                      tbody: ({ children }) => (
+                        <tbody className="divide-y divide-[#2E2B44] bg-[#131220]">
+                          {children}
+                        </tbody>
+                      ),
+                      th: ({ children }) => <th className="py-2 px-3 font-semibold">{children}</th>,
+                      td: ({ children }) => <td className="py-2 px-3 text-[#F2EFE9]/90 align-top">{children}</td>,
+                    }}
+                  >
+                    {m.content}
+                  </ReactMarkdown>
+                )}
               </div>
             </div>
           ))}
