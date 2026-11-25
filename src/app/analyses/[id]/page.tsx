@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 interface Citation {
   source?: string;
@@ -177,6 +179,8 @@ export default function AnalysisReportPage() {
   const cleanMemo = (analysis.memoMarkdown || "")
     .replace(/\*?This (analysis|response|information) is for informational purposes only.*?legal advice\.?\*?/gi, "")
     .replace(/\*?Not formal legal advice\.?\*?/gi, "")
+    .replace(/\n---\s*\n\*\*Disclaimer:[\s\S]*$/i, "")
+    .replace(/\nDisclaimer:[\s\S]*$/i, "")
     .trim();
 
   return (
@@ -296,99 +300,180 @@ export default function AnalysisReportPage() {
         </section>
 
         {/* Statutory Risk Findings */}
-        <section className="space-y-4">
-          <div className="border-b border-[#2E2B44] pb-2 flex items-center justify-between">
-            <h2 className="font-serif text-xl font-medium text-[#F2EFE9]">
-              Statutory Risk &amp; Enforceability Findings
-            </h2>
-            <span className="text-xs font-mono text-[#B4B0C2]">
-              {risks.length} Issues Identified
-            </span>
-          </div>
-
-          <div className="space-y-4">
-            {risks.map((risk, idx) => {
-              const sev = (risk.severity || "medium").toLowerCase();
-              const badgeStyle =
-                sev === "high"
-                  ? "bg-[#3B181C] text-[#F5A3A8] border-[#6E2830]"
-                  : sev === "medium"
-                  ? "bg-[#362814] text-[#F2C97D] border-[#664A1E]"
-                  : "bg-[#122D25] text-[#7DD3B0] border-[#225444]";
-              const mitigationText = risk.mitigation_clause || risk.mitigation;
-
-              return (
-                <div
-                  key={idx}
-                  className="p-5 rounded border border-[#2E2B44] bg-[#131220] space-y-3 break-inside-avoid"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="space-y-0.5">
-                      <span className="text-[11px] font-mono uppercase tracking-wider text-[#D6A86E]">
-                        Finding 0{idx + 1} {risk.clause_reference ? `· ${risk.clause_reference}` : ""}
-                      </span>
-                      <h3 className="font-serif text-lg font-medium text-[#F2EFE9]">
-                        {risk.issue || risk.title || `Contractual Risk Vector ${idx + 1}`}
-                      </h3>
-                    </div>
-                    <span className={`text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded border font-semibold ${badgeStyle}`}>
-                      {sev} risk
-                    </span>
-                  </div>
-
-                  {risk.why_non_obvious && (
-                    <p className="text-sm text-[#B4B0C2] leading-relaxed">
-                      {risk.why_non_obvious}
-                    </p>
-                  )}
-
-                  {risk.citations && risk.citations.length > 0 && (
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      {risk.citations.map((cit, cIdx) => (
-                        <span
-                          key={cIdx}
-                          className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#1A1829] border border-[#2E2B44] text-[#F2EFE9]"
-                        >
-                          {cit.source || cit.citation || "Statutory Authority"}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {mitigationText && (
-                    <div className="mt-2 p-3.5 rounded-lg bg-[#1A1829] border border-[#2E2B44] space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-[#7DD3B0] font-semibold">
-                          Recommended Replacement Clause
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => copyClause(mitigationText, idx)}
-                          className="no-print text-[11px] font-medium text-[#F2EFE9] hover:underline"
-                        >
-                          {copiedIdx === idx ? "Copied" : "Copy Clause"}
-                        </button>
-                      </div>
-                      <p className="text-xs text-[#F2EFE9] font-mono leading-relaxed">
-                        {mitigationText}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Full Memorandum */}
-        {cleanMemo && (
-          <section className="space-y-3 pt-2 border-t border-[#2E2B44]">
-            <h2 className="font-serif text-xl font-medium text-[#F2EFE9]">
-              Detailed Legal Memorandum
-            </h2>
-            <div className="text-sm text-[#F2EFE9] leading-relaxed whitespace-pre-wrap">
-              {cleanMemo}
+        {risks.length > 0 && (
+          <section className="space-y-4">
+            <div className="border-b border-[#2E2B44] pb-2 flex items-center justify-between">
+              <h2 className="font-serif text-xl font-light text-[#F2EFE9]">
+                Statutory Risk &amp; Enforceability Findings
+              </h2>
+              <span className="text-xs font-mono text-[#B4B0C2]">
+                {risks.length} Issues Identified
+              </span>
             </div>
+
+            <div className="space-y-4">
+              {risks.map((risk, idx) => {
+                const sev = (risk.severity || "medium").toLowerCase();
+                const badgeStyle =
+                  sev === "high"
+                    ? "bg-[#3B181C] text-[#F5A3A8] border-[#6E2830]"
+                    : sev === "medium"
+                    ? "bg-[#362814] text-[#F2C97D] border-[#664A1E]"
+                    : "bg-[#122D25] text-[#7DD3B0] border-[#225444]";
+                const mitigationText = risk.mitigation_clause || risk.mitigation;
+
+                return (
+                  <div
+                    key={idx}
+                    className="p-5 rounded border border-[#2E2B44] bg-[#131220] space-y-3 break-inside-avoid"
+                  >
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="space-y-0.5">
+                        <span className="text-[11px] font-mono uppercase tracking-wider text-[#D6A86E]">
+                          Finding 0{idx + 1} {risk.clause_reference ? `· ${risk.clause_reference}` : ""}
+                        </span>
+                        <h3 className="font-serif text-lg font-light text-[#F2EFE9]">
+                          {risk.issue || risk.title || `Contractual Risk Vector ${idx + 1}`}
+                        </h3>
+                      </div>
+                      <span className={`text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded border font-semibold ${badgeStyle}`}>
+                        {sev} risk
+                      </span>
+                    </div>
+
+                    {risk.why_non_obvious && (
+                      <p className="text-sm text-[#B4B0C2] leading-relaxed">
+                        {risk.why_non_obvious}
+                      </p>
+                    )}
+
+                    {risk.citations && risk.citations.length > 0 && (
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        {risk.citations.map((cit, cIdx) => (
+                          <span
+                            key={cIdx}
+                            className="text-[11px] font-mono px-2.5 py-1 rounded bg-[#1A1829] border border-[#2E2B44] text-[#F2EFE9]"
+                          >
+                            {cit.source || cit.citation || "Statutory Authority"}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {mitigationText && (
+                      <div className="mt-2 p-3.5 rounded bg-[#1A1829] border border-[#2E2B44] space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-mono uppercase tracking-wider text-[#7DD3B0] font-semibold">
+                            Recommended Replacement Clause
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => copyClause(mitigationText, idx)}
+                            className="no-print text-[11px] font-medium text-[#F2EFE9] hover:underline"
+                          >
+                            {copiedIdx === idx ? "Copied" : "Copy Clause"}
+                          </button>
+                        </div>
+                        <p className="text-xs text-[#F2EFE9] font-mono leading-relaxed">
+                          {mitigationText}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* Full Rendered Markdown Memorandum */}
+        {cleanMemo && (
+          <section className="space-y-4 pt-4 border-t border-[#2E2B44]">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                h1: ({ children }) => (
+                  <h1 className="font-serif text-2xl sm:text-3xl font-light text-[#F2EFE9] border-b border-[#2E2B44] pb-2.5 mt-6 mb-4">
+                    {children}
+                  </h1>
+                ),
+                h2: ({ children }) => (
+                  <h2 className="font-serif text-xl sm:text-2xl font-light text-[#D6A86E] mt-7 mb-3 pt-2 border-t border-[#2E2B44]/60">
+                    {children}
+                  </h2>
+                ),
+                h3: ({ children }) => (
+                  <h3 className="font-serif text-lg font-normal text-[#F2EFE9] mt-5 mb-2">
+                    {children}
+                  </h3>
+                ),
+                h4: ({ children }) => (
+                  <h4 className="text-sm font-semibold text-[#D6A86E] uppercase tracking-wider mt-4 mb-1.5 font-mono">
+                    {children}
+                  </h4>
+                ),
+                p: ({ children }) => (
+                  <p className="text-sm text-[#F2EFE9]/90 leading-relaxed mb-3.5">
+                    {children}
+                  </p>
+                ),
+                strong: ({ children }) => (
+                  <strong className="font-semibold text-[#F2EFE9]">{children}</strong>
+                ),
+                ul: ({ children }) => (
+                  <ul className="list-disc pl-5 space-y-2 mb-4 text-sm text-[#B4B0C2]">
+                    {children}
+                  </ul>
+                ),
+                ol: ({ children }) => (
+                  <ol className="list-decimal pl-5 space-y-2 mb-4 text-sm text-[#B4B0C2]">
+                    {children}
+                  </ol>
+                ),
+                li: ({ children }) => (
+                  <li className="leading-relaxed">{children}</li>
+                ),
+                blockquote: ({ children }) => (
+                  <blockquote className="border-l-2 border-[#D6A86E] bg-[#131220] pl-4 pr-3 py-2.5 my-4 rounded-r text-xs sm:text-sm text-[#B4B0C2] italic">
+                    {children}
+                  </blockquote>
+                ),
+                hr: () => <hr className="border-[#2E2B44] my-6" />,
+                code: ({ children }) => (
+                  <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-[#131220] border border-[#2E2B44] text-[#D6A86E]">
+                    {children}
+                  </code>
+                ),
+                table: ({ children }) => (
+                  <div className="overflow-x-auto my-5 rounded border border-[#2E2B44]">
+                    <table className="w-full text-left border-collapse text-xs sm:text-sm">
+                      {children}
+                    </table>
+                  </div>
+                ),
+                thead: ({ children }) => (
+                  <thead className="bg-[#131220] border-b border-[#2E2B44] text-[11px] font-mono uppercase tracking-wider text-[#D6A86E]">
+                    {children}
+                  </thead>
+                ),
+                tbody: ({ children }) => (
+                  <tbody className="divide-y divide-[#2E2B44] bg-[#1A1829]">
+                    {children}
+                  </tbody>
+                ),
+                tr: ({ children }) => (
+                  <tr className="hover:bg-[#222036]/50 editorial-transition">{children}</tr>
+                ),
+                th: ({ children }) => (
+                  <th className="py-2.5 px-4 font-semibold">{children}</th>
+                ),
+                td: ({ children }) => (
+                  <td className="py-2.5 px-4 text-[#F2EFE9]/90 align-top">{children}</td>
+                ),
+              }}
+            >
+              {cleanMemo}
+            </ReactMarkdown>
           </section>
         )}
 
