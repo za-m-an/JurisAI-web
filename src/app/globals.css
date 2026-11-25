@@ -112,9 +112,13 @@
   }
 }
 
-/* Institutional Letterhead Print Stylesheet — Crisp Paper & Ink on Print/PDF */
+/* Institutional Letterhead Print Stylesheet — White Paper + Preserved Theme Colors */
 @media print {
-  header, nav, footer, .no-print, button, [role="button"] {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  header.sticky, nav, footer.bg-\[\#0E0D17\], .no-print, button, [role="button"] {
     display: none !important;
   }
   body {
@@ -133,14 +137,61 @@
     color: #121719 !important;
     box-shadow: none !important;
     border: none !important;
-    padding: 0 !important;
+    padding: 0.25in !important;
     margin: 0 !important;
     max-width: 100% !important;
   }
-  .print-container * {
-    color: #121719 !important;
-    border-color: #CBD5E1 !important;
-    background: transparent !important;
+  .print-letterhead-banner {
+    background-color: #12111D !important;
+    color: #F2EFE9 !important;
+    border-bottom: 3px solid #D6A86E !important;
+    padding: 18px 22px !important;
+    border-radius: 4px !important;
+  }
+  .print-letterhead-banner h2 {
+    color: #F2EFE9 !important;
+  }
+  .print-letterhead-banner .print-gold {
+    color: #D6A86E !important;
+  }
+  .print-letterhead-banner .print-muted {
+    color: #B4B0C2 !important;
+  }
+  .print-meta-box {
+    background-color: #FAF7F2 !important;
+    border: 1px solid #D6A86E !important;
+    color: #12111D !important;
+  }
+  .print-container h1,
+  .print-container h3 {
+    color: #12111D !important;
+  }
+  .print-container h2:not(.print-letterhead-banner h2) {
+    color: #8C5E2A !important;
+    border-color: #E5DDD0 !important;
+  }
+  .print-container p,
+  .print-container li,
+  .print-container td {
+    color: #27272A !important;
+  }
+  .print-container strong {
+    color: #12111D !important;
+  }
+  .print-container table thead {
+    background-color: #12111D !important;
+    color: #D6A86E !important;
+  }
+  .print-container table tbody {
+    background-color: #FFFFFF !important;
+  }
+  .print-container table th {
+    color: #D6A86E !important;
+  }
+  .print-container blockquote {
+    background-color: #FAF7F2 !important;
+    border-left: 3px solid #D6A86E !important;
+    color: #3F3F46 !important;
   }
   .page-break {
     page-break-before: always;

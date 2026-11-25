@@ -170,15 +170,26 @@ export async function POST(req: NextRequest) {
       );
       const totalTokens = inputTokens + outputTokens;
 
-      const execSum = (ragResult as any).executive_summary || ragResult.summary;
+      const execSum = ((ragResult as any).executive_summary || ragResult.summary || "")
+        .replace(/via Legal Knowledge Graph RAG/gi, "under governing statutory law")
+        .replace(/Knowledge Graph RAG/gi, "statutory counsel")
+        .trim();
       const briefSummary =
         (execSum ||
           (ragResult.memo_markdown || "").replace(/[#*`]/g, "").slice(0, 320).trim()) +
         (execSum ? "" : "...");
 
+      const aiTitle =
+        ragResult.document_type &&
+        ragResult.document_type.trim().length > 4 &&
+        !/\.(pdf|docx|txt)$/i.test(ragResult.document_type.trim())
+          ? ragResult.document_type.trim().slice(0, 180)
+          : docName.replace(/\.(pdf|docx|txt)$/i, "").replace(/[_-]+/g, " ");
+
       await query(
         `UPDATE analyses
          SET status = 'done',
+             doc_name = $9,
              result = $2::jsonb,
              memo_markdown = $3,
              brief_summary = $4,
@@ -197,6 +208,7 @@ export async function POST(req: NextRequest) {
           inputTokens,
           outputTokens,
           totalTokens,
+          aiTitle,
         ]
       );
 

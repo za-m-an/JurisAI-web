@@ -170,18 +170,35 @@ export default function AnalysisReportPage() {
   const primaryLaw = analysis.jurisdictions?.[0] || user?.region || "BD";
   const letterhead = getLetterheadConfig(primaryLaw, user?.region || "BD");
   const risks = analysis.result?.risks || [];
-  const execSummary =
-    analysis.briefSummary ||
-    analysis.result?.executive_summary ||
-    analysis.result?.summary ||
-    "Comprehensive statutory and contractual evaluation completed.";
 
   const cleanMemo = (analysis.memoMarkdown || "")
     .replace(/\*?This (analysis|response|information) is for informational purposes only.*?legal advice\.?\*?/gi, "")
     .replace(/\*?Not formal legal advice\.?\*?/gi, "")
+    .replace(/AI Legal Analysis System/gi, "Juris AI Statutory Advisory Chambers")
+    .replace(/via Legal Knowledge Graph RAG/gi, "under governing statutory law")
     .replace(/\n---\s*\n\*\*Disclaimer:[\s\S]*$/i, "")
     .replace(/\nDisclaimer:[\s\S]*$/i, "")
     .trim();
+
+  const rawExec =
+    analysis.briefSummary ||
+    analysis.result?.executive_summary ||
+    analysis.result?.summary ||
+    "Comprehensive statutory and contractual evaluation completed.";
+  const execSummary = rawExec
+    .replace(/via Legal Knowledge Graph RAG/gi, "under governing statutory law")
+    .replace(/Legal Knowledge Graph RAG/gi, "statutory counsel");
+
+  const displayTitle =
+    (analysis.result as any)?.document_type &&
+    !/\.(pdf|docx|txt)$/i.test((analysis.result as any).document_type) &&
+    (analysis.result as any).document_type !== "Commercial Agreement"
+      ? (analysis.result as any).document_type
+      : analysis.docName.replace(/\.(pdf|docx|txt)$/i, "").replace(/[_-]+/g, " ");
+
+  // Compute accurate risk count from structured risks or markdown headings/table
+  const memoRiskMatches = cleanMemo.match(/(?:^|\n)###\s+(?:\d+\.\s+)?Risk\b/gi) || [];
+  const effectiveRiskCount = risks.length > 0 ? risks.length : memoRiskMatches.length;
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-12">
@@ -223,25 +240,25 @@ export default function AnalysisReportPage() {
 
       {/* Formal Institutional Letterhead Document Container */}
       <article className="print-container vellum-card rounded bg-[#1A1829] p-8 sm:p-12 space-y-8">
-        {/* Institutional Letterhead Header (Visible on Screen & Print) */}
+        {/* Institutional Letterhead Header (Visible on Screen & Print with Color) */}
         <header
-          className="border-b-2 pb-6 space-y-3"
-          style={{ borderColor: letterhead.accentColor }}
+          className="print-letterhead-banner border-b-2 pb-6 space-y-3"
+          style={{ borderColor: "#D6A86E" }}
         >
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div className="space-y-1">
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/logo.jpg"
                   alt="Juris AI"
-                  className="w-9 h-9 rounded-sm object-cover border border-[#D6A86E]/40"
+                  className="w-11 h-11 rounded-sm object-cover border border-[#D6A86E]/60"
                 />
                 <div>
                   <h2 className="font-serif text-lg sm:text-xl font-bold tracking-tight text-[#F2EFE9]">
                     {letterhead.chamberTitle}
                   </h2>
-                  <p className="text-[11px] font-mono uppercase tracking-widest text-[#D6A86E]">
+                  <p className="print-gold text-[11px] font-mono uppercase tracking-widest text-[#D6A86E]">
                     {letterhead.subtitle}
                   </p>
                 </div>
@@ -250,27 +267,27 @@ export default function AnalysisReportPage() {
 
             <div className="sm:text-right space-y-1">
               <span
-                className="inline-block text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded border text-[#F2EFE9]"
-                style={{ borderColor: letterhead.accentColor }}
+                className="print-gold inline-block text-[10px] font-mono uppercase tracking-widest px-2.5 py-1 rounded border text-[#D6A86E]"
+                style={{ borderColor: "#D6A86E" }}
               >
                 {letterhead.sealText}
               </span>
-              <p className="text-[11px] font-mono text-[#B4B0C2]">
+              <p className="print-muted text-[11px] font-mono text-[#B4B0C2]">
                 REF: {analysis.referenceCode}
               </p>
-              <p className="text-[11px] font-mono text-[#B4B0C2]">
+              <p className="print-muted text-[11px] font-mono text-[#B4B0C2]">
                 DATE: {new Date(analysis.createdAt).toLocaleDateString("en-GB", { day: "2-digit", month: "long", year: "numeric" })}
               </p>
             </div>
           </div>
 
-          <p className="text-[11px] text-[#B4B0C2] pt-1">
+          <p className="print-muted text-[11px] text-[#B4B0C2] pt-1">
             {letterhead.authorityNote}
           </p>
         </header>
 
         {/* Client & Matter Metadata Block */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded bg-[#131220] border border-[#2E2B44] text-xs">
+        <section className="print-meta-box grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded bg-[#131220] border border-[#2E2B44] text-xs">
           <div className="space-y-1">
             <span className="text-[10px] font-mono uppercase tracking-wider text-[#B4B0C2]">
               Prepared For
@@ -280,11 +297,11 @@ export default function AnalysisReportPage() {
           </div>
           <div className="space-y-1">
             <span className="text-[10px] font-mono uppercase tracking-wider text-[#B4B0C2]">
-              Subject Instrument
+              Subject Matter
             </span>
-            <p className="font-semibold text-[#F2EFE9] break-words">{analysis.docName}</p>
+            <p className="font-semibold text-[#F2EFE9] break-words">{displayTitle}</p>
             <p className="text-[#B4B0C2]">
-              Governing Jurisdiction: {analysis.jurisdictions.join(", ")} · User Region: {user?.region || "BD"}
+              Governing Jurisdiction: {analysis.jurisdictions.join(", ")} · Risk Findings: {effectiveRiskCount}
             </p>
           </div>
         </section>
