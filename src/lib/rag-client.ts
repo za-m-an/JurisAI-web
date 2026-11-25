@@ -391,6 +391,7 @@ export async function ragAnalyze(params: {
   document_text: string;
   jurisdictions?: Array<"BD" | "US" | "EU">;
   doc_name?: string;
+  client_name?: string;
 }): Promise<RagAnalyzeResponse> {
   const optimize = await isTokenOptimizationEnabled();
   const payload = { ...params };

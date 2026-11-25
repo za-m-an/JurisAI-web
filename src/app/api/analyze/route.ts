@@ -158,6 +158,7 @@ export async function POST(req: NextRequest) {
         document_text: extractedText,
         jurisdictions,
         doc_name: docName,
+        client_name: user.full_name || user.email || "Instructing Party",
       });
       // Immediately clear extracted text reference after RAG call
       extractedText = undefined;
